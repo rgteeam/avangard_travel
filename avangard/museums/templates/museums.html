@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block title %}Список музеев{% endblock %}
+
+{% block content %}
+
+    {% load django_tables2 %}
+    {% load i18n %}
+    {% block table-wrapper %}
+        <div class="table-container" style="width: 90%; margin: 0px auto;" >
+            {% block table %}
+                <table {% if table.attrs %} {{ table.attrs.as_html }}{% else %}class="table"{% endif %}>
+                    {% block table.thead %}
+                        {% if table.show_header %}
+                            <thead>
+                            <tr>
+                                {% for column in table.columns %}
+                                    {% if column.orderable %}
+                                        <th {{ column.attrs.th.as_html }}><a
+                                                href="{% querystring table.prefixed_order_by_field=column.order_by_alias.next %}">{{ column.header }}</a>
+                                        </th>
+                                    {% else %}
+                                        <th {{ column.attrs.th.as_html }}>{{ column.header }}</th>
+                                    {% endif %}
+                                {% endfor %}
+                            </tr>
+                            </thead>
+                        {% endif %}
+                    {% endblock table.thead %}
+                    {% block table.tbody %}
+                        <tbody>
+                        {% for row in table.page.object_list|default:table.rows %} {# support pagination #}
+                            {% block table.tbody.row %}
+                                <tr {{ row.attrs.as_html }}>
+                                    {% for column, cell in row.items %}
+                                        <td {{ column.attrs.td.as_html }}>
+                                            {% if column.localize == None %}{{ cell }}{% else %}{% if column.localize %}
+                                                {{ cell|localize }}{% else %}{{ cell|unlocalize }}
+                                            {% endif %}{% endif %}</td>
+                                    {% endfor %}
+                                </tr>
+                            {% endblock table.tbody.row %}
+                        {% empty %}
+                            {% if table.empty_text %}
+                                {% block table.tbody.empty_text %}
+                                    <tr>
+                                        <td colspan="{{ table.columns|length }}">{{ table.empty_text }}</td>
+                                    </tr>
+                                {% endblock table.tbody.empty_text %}
+                            {% endif %}
+                        {% endfor %}
+                        </tbody>
+                    {% endblock table.tbody %}
+                    {% block table.tfoot %}
+                        {% if table.has_footer %}
+                            <tfoot>
+                            <tr>
+                                {% for column in table.columns %}
+                                    <td>{{ column.footer }}</td>
+                                {% endfor %}
+                            </tr>
+                            </tfoot>
+                        {% endif %}
+                    {% endblock table.tfoot %}
+                </table>
+            {% endblock table %}
+            <div class="row">
+            <div class="col-md-6">
+            {% if table.page and table.paginator.num_pages > 1 %}
+                {% block pagination %}
+                    <ul class="pagination">
+
+                        {% if table.page.has_previous %}
+                            {% block pagination.previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{% querystring table.prefixed_page_field=table.page.previous_page_number %}" aria-label="Previous">
+                                            <span aria-hidden="true">&laquo;</span>
+                                            <span class="sr-only">Previous</span>
+                                        </a>
+                                    </li>
+                            {% endblock pagination.previous %}
+                        {% endif %}
+
+                        {% for p in table.paginator.page_range %}
+                            {% if p >= table.page.number|add:"-2" and p <= table.page.number|add:"2" %}
+                                {% if p == table.page.number %}
+                                    <li class="page-item active"><a class="page-link" href="{% querystring table.prefixed_page_field=p %}">{{ p }}<span class="sr-only">(current)</span></a></li>
+                                {% else %}
+                                    <li class="page-item"><a class="page-link" href="{% querystring table.prefixed_page_field=p %}">{{ p }}</a></li>
+                                {% endif %}
+                                {% endif %}
+                            {% endfor %}
+
+                        {% if table.page.has_next %}
+                            {% block pagination.next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{% querystring table.prefixed_page_field=table.page.next_page_number %}" aria-label="Next">
+                                            <span aria-hidden="true">&raquo;</span>
+                                            <span class="sr-only">Next</span>
+                                        </a>
+                                    </li>
+                            {% endblock pagination.next %}
+                        {% endif %}
+                    </ul>
+                {% endblock pagination %}
+            {% endif %}
+            </div>
+                <div class="col-md-6">
+                    <form action="/museums/create">
+                        <button type="submit" class="btn btn-primary" style="float: right;">Создать</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    {% endblock table-wrapper %}
+
+    <script src='{% static 'js/jquery.min.js' %}' , integrity='' , crossorigin='anonymous'></script>
+    <script src='{% static 'js/bootstrap.min.js.css' %}' , integrity='' , crossorigin='anonymous'></script>
+{% endblock %}
+{% block footer %}
+{% endblock %}

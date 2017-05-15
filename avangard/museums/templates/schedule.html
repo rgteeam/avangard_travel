@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block title %}Расписание{% endblock %}
+
+{% block content %}
+
+<div class="container" style="width: 50%">
+
+    <div class="panel-heading">
+        <div class="panel-title text-center">
+            <h1 class="title">Расписание - {{ museum.name }} </h1>
+            <hr />
+        </div>
+    </div>
+    </div>
+
+<script src='{% static 'js/jquery.min.js' %}' , integrity='' , crossorigin='anonymous'></script>
+<script src='{% static 'js/bootstrap.min.js.css' %}' , integrity='' , crossorigin='anonymous'></script>
+{% endblock %}
+{% block footer %}
+{% endblock %}
