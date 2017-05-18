@@ -2,20 +2,85 @@
 {% load staticfiles %}
 {% block title %}Расписание{% endblock %}
 
+{% block style %}
+    <script src='{% static 'js/jquery.min.js' %}' , integrity='' , crossorigin='anonymous'></script>
+    <script src='{% static 'js/../../static/css/../../static/js/bootstrap.min.js.css' %}' , integrity='' ,
+            crossorigin='anonymous'></script>
+    <script type="text/javascript" src="{% static 'js/moment-with-locales.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/bootstrap-datepicker.min.js' %}"></script>
+
+    <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jsgrid/1.5.3/jsgrid.min.css" />
+    <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jsgrid/1.5.3/jsgrid-theme.min.css" />
+
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jsgrid/1.5.3/jsgrid.min.js"></script>
+
+    <link rel="stylesheet" href="{% static 'css/bootstrap-datepicker3.min.css' %}">
+{% endblock %}
+
 {% block content %}
 
-<div class="container" style="width: 50%">
-
-    <div class="panel-heading">
-        <div class="panel-title text-center">
-            <h1 class="title">Расписание - {{ museum.name }} </h1>
-            <hr />
+    <div class="container" style="width: 80%">
+        <div class="panel-heading">
+            <div class="panel-title text-center">
+                <h1 class="title">Расписание - {{ museum.name }} </h1>
+                <hr/>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4">
+                <div style="overflow:hidden;">
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div id="datepicker12">{{ form.date }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <h3 style="margin-top: 0;" class="date">
+                        <script>
+                            var curDate = new Date().toLocaleDateString()
+                            document.write(curDate);
+                        </script>
+                </h3>
+                <div class="table-div">
+                    {% include 'schedule_table.html' %}
+                </div>
+            </div>
         </div>
     </div>
-    </div>
 
-<script src='{% static 'js/jquery.min.js' %}' , integrity='' , crossorigin='anonymous'></script>
-<script src='{% static 'js/bootstrap.min.js.css' %}' , integrity='' , crossorigin='anonymous'></script>
+    <script type="text/javascript">
+        $(function () {
+            $('#datepicker12').datepicker({
+                inline: true,
+                sideBySide: true,
+            });
+
+            $('#datepicker12').on('changeDate', function () {
+                date = $('#datepicker12').datepicker('getFormattedDate');
+                $.ajax
+                ({
+                    type: "Post",
+                    url: "",
+                    data: "date=" + date,
+                    success: function (data) {
+                        curDate = new Date(date).toLocaleDateString();
+                        $('.date').html(new Date(date).toLocaleDateString());
+                        $('.table-div').html(data)
+                    }
+                });
+            });
+        });
+
+    </script>
+
+    <script src='{% static 'js/bootstrap.min.js.css' %}' , integrity='' ,
+            crossorigin='anonymous'></script>
 {% endblock %}
+
 {% block footer %}
+
 {% endblock %}

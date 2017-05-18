@@ -1,0 +1,127 @@
+<div id="jsGrid"></div>
+
+<script type="text/javascript">
+    $(function () {
+        var objects = [ {% for s in schedule %}
+            {
+                "date": curDate,
+                "museum_id": "{{ museum.pk }}",
+                "id": "{{ s.pk }}",
+                "start_time": "{{ s.start_time|time:"H:i" }}",
+                "end_time": "{{ s.end_time|time:"H:i" }}",
+                "max_count": {{ s.max_count }}
+            },
+        {% endfor %}
+        ];
+
+        jsGrid.validators.start_time = {
+            message: "Введите верное время в промежутке между 00:00 и 23:59",
+            validator: function (value, item) {
+                return /^([01]\d|2[0-3]|[0-9])(:[0-5]\d){1,2}$/.test(value);
+            }
+        };
+
+        jsGrid.validators.end_time = {
+            message: "Введите верное время в промежутке между 00:00 и 23:59",
+            validator: function (value, item) {
+                if ((typeof value == 'undefined') || value == '-' || value == '') {
+                    value = '-';
+                    return true
+                }
+                console.log(/^([01]\d|2[0-3]|[0-9])(:[0-5]\d){1,2}$/.test(value));
+                return /^([01]\d|2[0-3]|[0-9])(:[0-5]\d){1,2}$/.test(value);
+            }
+        };
+
+        $("#jsGrid").jsGrid({
+            width: "100%",
+
+            data: objects,
+
+            inserting: true,
+            filtering: false,
+            editing: true,
+            sorting: true,
+            paging: false,
+            autoload: true,
+
+
+            onItemUpdating: function(args) {
+                previousItem = args.previousItem;
+            },
+
+            controller: {
+                insertItem: function (item) {
+                    if (typeof item.max_count == 'undefined') {
+                        item.max_count = 0
+                    }
+
+                    item.museum_id = {{ museum.pk }};
+                    item.date = curDate;
+
+                    var d = $.Deferred();
+
+                    $.ajax({
+                        type: "POST",
+                        url: "/schedule/create",
+                        data: item
+                    }).done(function (response) {
+                        item.id = response;
+                        d.resolve(item);
+                    }).fail(function () {
+                        return false
+                    });
+
+                    return d.promise();
+                },
+
+                updateItem: function (updatingItem) {
+                    var d = $.Deferred();
+                    $.ajax({
+                        type: "POST",
+                        url: "/schedule/update/" + updatingItem.id,
+                        data: updatingItem
+                    }).done(function (response) {
+                        d.resolve(response);
+                    }).fail(function () {
+                        d.resolve(previousItem);
+                    });
+                    return d.promise();
+                },
+
+                deleteItem: function (item) {
+                    return $.ajax({
+                        type: "DELETE",
+                        url: "/schedule/delete/" + item.id
+                    });
+                }
+            },
+
+            fields: [
+                {
+                    name: "start_time",
+                    validate: {validator: "start_time"},
+                    align: "center",
+                    title: "Начало",
+                    type: "text",
+                    width: 100
+                },
+                {
+                    name: "end_time",
+                    validate: {validator: "end_time"},
+                    align: "center",
+                    title: "Конец",
+                    type: "text",
+                    width: 100
+                },
+                {name: "max_count", title: "Квота", type: "number", align: "center", width: 200},
+                {type: "control", modeSwitchButton: false, editButton: false}
+            ]
+        });
+
+    });
+</script>
+
+
+
+
