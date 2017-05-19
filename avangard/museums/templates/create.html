@@ -7,7 +7,11 @@
 
     <div class="panel-heading">
         <div class="panel-title text-center">
-            <h1 class="title">Добавить музей</h1>
+            {% if type == 'edit' %}
+                <h1 class="title">Редактировать музей</h1>
+            {% else %}
+                <h1 class="title">Добавить музей</h1>
+            {% endif %}
             <hr />
         </div>
     </div>
@@ -15,20 +19,20 @@
     <form action='' method="post"> {% csrf_token %}
         <div class="form-group">
             <label for="name">Название:</label>
-            <input type="text" class="form-control" id="name" name="name">
+            {{ form.name }}
         </div>
 
         <div class="form-group">
             <label for="max_count">Квота:</label>
-            <input type="number" class="form-control" id="max_count" name="max_count">
+            {{ form.max_count }}
         </div>
 
         <div class="checkbox">
-            <label><input type="checkbox" name="audioguide" style="margin-right: 10px"> Аудиогид</label>
+            <label>{{ form.audioguide }} Аудиогид</label>
         </div>
 
         <div class="checkbox">
-            <label><input type="checkbox" name="accompanying_guide" style="margin-right: 10px"> Сопровождающий гид</label>
+            <label>{{ form.accompanying_guide }} Сопровождающий гид</label>
         </div>
 
         <!--
@@ -39,7 +43,9 @@
         -->
 
         <div class="form-group">
-            <button type="submit" class="btn btn-primary btn-lg btn-block" style="margin-top: 20px">Создать</button>
+            <button type="submit" class="btn btn-primary btn-lg btn-block" style="margin-top: 20px">
+                {% if type == 'edit' %}Изменить{% else %}Создать{% endif %}
+            </button>
         </div>
     </form>
 

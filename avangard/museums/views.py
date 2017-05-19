@@ -1,7 +1,7 @@
 
 # Create your views here.
 
-from django.shortcuts import render, HttpResponse, redirect
+from django.shortcuts import render, HttpResponse, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from avangard.museums.models import Museum, Schedule
 
@@ -74,21 +74,48 @@ def museum_schedule(request, museum_id):
 @login_required
 def index(request):
     table = MuseumTable(Museum.objects.all())
-    RequestConfig(request, paginate={"per_page": 25}).configure(table)
-    return render(request, 'museums.html', {'table': table, 'dynamic_fields': False})
+    RequestConfig(request).configure(table)
+    return render(request, 'museums.html', {'table': table})
 
 
 # Форма создания музея
 
 @login_required
-def create_museum_view(request):
+def create_museum(request):
+    museum_formset = MuseumForm(request.POST or None)
     if request.method == 'GET':
-        return render(request, 'create.html')
+        return render(request, 'create.html', {'type':'create', "form": museum_formset })
     elif request.method == 'POST':
-        museum_formset = MuseumForm(request.POST)
-        museum_formset.save()
-        return redirect('index')
+        if museum_formset.is_valid():
+            museum_formset.save()
+            return redirect('index')
+        else:
+            return render(request, 'create.html', {'type': 'create', "form": museum_formset})
 
+
+# Удаление музея
+
+@login_required
+def delete_museum(request, museum_id):
+    museum = Museum.objects.get(pk=museum_id)
+    museum.delete()
+    return redirect('index')
+
+
+# Форма редактирвоания музея
+
+@login_required
+def edit_museum(request, museum_id):
+    instance = get_object_or_404(Museum, id=museum_id)
+    museum_formset = MuseumForm(request.POST or None, instance=instance)
+    if request.method == 'GET':
+        return render(request, 'create.html', {'type':'edit', "form": museum_formset})
+    elif request.method == 'POST':
+        if museum_formset.is_valid():
+            museum_formset.save()
+            return redirect('index')
+        else:
+            return render(request, 'create.html', {'type': 'edit', "form": museum_formset})
 
 def parse_schedule_from_post(dict):
     start_time = datetime.datetime.strptime(dict['start_time'], '%H:%M').time()
@@ -101,7 +128,6 @@ def parse_schedule_from_post(dict):
     date = datetime.datetime.strptime(dict['date'], "%d.%m.%Y").date()
     max_count = dict['max_count']
     museum_id = dict['museum_id']
-    print(museum_id)
     s = Schedule(start_time=start_time, end_time=end_time, date=date, max_count=max_count)
     s.museum_id = museum_id
     return s

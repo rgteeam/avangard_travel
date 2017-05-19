@@ -31,6 +31,8 @@ urlpatterns = [
     url(r'^schedule/delete/(\d+)', views.schedule_delete, name='schedule_delete'),
     url(r'^schedule/update/(\d+)', views.schedule_update, name='schedule_update'),
     url(r'^schedule/create', views.schedule_create, name='schedule_create'),
-    url(r'^museums/create/', views.create_museum_view, name='create_museum'),
+    url(r'^museums/create/', views.create_museum, name='create_museum'),
+    url(r'^museums/edit/(\d+)', views.edit_museum, name='edit_museum'),
+    url(r'^museums/delete/(\d+)', views.delete_museum, name='delete_museum'),
 ]
 

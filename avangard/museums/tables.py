@@ -5,6 +5,10 @@ from django_tables2.utils import A
 
 class MuseumTable(tables.Table):
     name = tables.LinkColumn('museum_schedule', args=[A('pk')])
+    operations = tables.TemplateColumn(template_name='operations_column.html', verbose_name=(' '), attrs={
+            "td": {"align": "right"}
+        })
 
     class Meta:
         model = Museum
+        fields = ('name', 'max_count', 'audioguide', 'accompanying_guide', 'operations')

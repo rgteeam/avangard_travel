@@ -56,7 +56,8 @@
                                     <td class="editable">
                                         <form id="form">
                                             {% with column.name|add:"[]" as column_id %}
-                                            <input type="text" id={{ column_id }} name='name0' placeholder='Name' class="form-control"/>
+                                                <input type="text" id={{ column_id }} name='name0' placeholder='Name'
+                                                       class="form-control"/>
                                             {% endwith %}
                                         </form>
                                     </td>
@@ -79,6 +80,9 @@
                 {% endblock table.tfoot %}
             </table>
         {% endblock table %}
+        <form action="/museums/create">
+            <button type="submit" class="btn btn-primary btn-block pull-right">Создать</button>
+        </form>
         <div class="row">
             <div class="col-md-6">
                 {% if table.page and table.paginator.num_pages > 1 %}
@@ -128,63 +132,6 @@
                     {% endblock pagination %}
                 {% endif %}
             </div>
-            <div class="col-md-6">
-                {% if dynamic_fields %}
-                    <a href="#" id="add_row" class="btn btn-primary pull-right col-md-5 col-md-offset-2" role="button">Создать</a>
-                    <form action="/schedule/create" class="col-md-5">
-                        <button type="submit" form="form" class="btn btn-primary pull-right">Сохранить</button>
-                    </form>
-                {% else %}
-                    <form action="/museums/create">
-                        <button type="submit" class="btn btn-primary pull-right">Создать</button>
-                    </form>
-                {% endif %}
-            </div>
         </div>
     </div>
 {% endblock table-wrapper %}
-
-<script type="text/javascript">
-    $(document).ready(function () {
-        $("#add_row").on("click", function () {
-            // Dynamic Rows Code
-            // Get max row id and set new id
-            var newid = 0;
-            $.each($("#django_table tr"), function () {
-                if (parseInt($(this).data("id")) > newid) {
-                    newid = parseInt($(this).data("id"));
-                }
-            });
-            newid++;
-
-            var tr = $("<tr></tr>", {
-                id: "addr" + newid,
-                "data-id": newid
-            });
-
-            // loop through each td and create new elements with name of newid
-            $.each($("#django_table tbody tr td"), function () {
-                var cur_td = $(this);
-                if (cur_td.attr('class') == "editable") {
-                    var children = cur_td.children();
-
-                    // add new td and element if it has a name
-                    var td = $("<td></td>");
-
-                    var c = $(cur_td).find($(children[0]).prop('tagName')).clone().val("");
-                    c.attr("name", $(cur_td).data("name") + newid);
-                    c.appendTo($(td));
-                    td.appendTo($(tr));
-                }
-            });
-
-            // add the new row
-            $(tr).appendTo($('#django_table'));
-
-            $(tr).find("td button.row-remove").on("click", function () {
-                console.log($(this).closest("tr"))
-                $(this).closest("tr").remove();
-            });
-        });
-    })
-</script>

@@ -5,7 +5,7 @@ from rest_framework import serializers, viewsets
 class MuseumSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Museum
-        fields = ('name', 'max_count', 'audioguide', 'accompanying_guide')
+        fields = ('pk', 'name', 'max_count', 'audioguide', 'accompanying_guide')
 
 
 class ScheduleSerializer(serializers.HyperlinkedModelSerializer):
