@@ -25,7 +25,7 @@ SECRET_KEY = 'i$m!vwfs#-f+d64uokar!#aj03)2_3zpp=$qy4f%af%oi80)o7'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['78.155.206.141']
 
 
 # Application definition
@@ -131,6 +131,7 @@ USE_L10N = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'avangard/static/')
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
