@@ -79,7 +79,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'avangard.wsgi.application'
 LOGIN_URL = 'account/login'
-LOGIN_REDIRECT_URL = 'account/login'
+LOGIN_REDIRECT_URL = '/'
 
 
 # Database
