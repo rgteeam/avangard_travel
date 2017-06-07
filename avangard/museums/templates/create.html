@@ -23,18 +23,35 @@
         </div>
 
         <div class="form-group">
-            <label for="max_count">Квота:</label>
-            {{ form.max_count }}
+            <label for="fullticket_price">Взрослый билет, цена:</label>
+            {{ form.fullticket_price }}
         </div>
 
-        <div class="checkbox">
-            <label>{{ form.audioguide }} Аудиогид</label>
+        <div class="form-group">
+            <label for="full_coefficient">Коэффициент стоимости для взрослого билета:</label>
+            {{ form.full_coefficient }}
         </div>
 
-        <div class="checkbox">
-            <label>{{ form.accompanying_guide }} Сопровождающий гид</label>
+        <div class="form-group">
+            <label for="reduceticket_price">Льготный билет, цена:</label>
+            {{ form.reduceticket_price }}
         </div>
 
+        <div class="form-group">
+            <label for="reduce_coefficient">Коэффициент стоимости для льготного билета:</label>
+            {{ form.reduce_coefficient }}
+        </div>
+
+        <div class="form-group">
+            <label for="audioguide_price">Стоимость аудиогида:</label>
+            {{ form.audioguide_price }}
+        </div>
+
+        <div class="form-group">
+            <label for="accompanying_guide_price">Стоимость сопровождающего гида:</label>
+            {{ form.accompanying_guide_price }}
+        </div>
+        
         <!--
         <div class="form-group">
             <label for="image">Изображение:</label>

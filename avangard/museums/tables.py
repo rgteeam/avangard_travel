@@ -11,4 +11,4 @@ class MuseumTable(tables.Table):
 
     class Meta:
         model = Museum
-        fields = ('name', 'max_count', 'audioguide', 'accompanying_guide', 'operations')
+        fields = ('name', 'fullticket_price', 'full_coefficient', 'reduceticket_price', 'reduce_coefficient', 'audioguide_price', 'accompanying_guide_price', 'operations')

@@ -9,7 +9,8 @@
                 "id": "{{ s.pk }}",
                 "start_time": "{{ s.start_time|time:"H:i" }}",
                 "end_time": "{{ s.end_time|time:"H:i" }}",
-                "max_count": {{ s.max_count }}
+                "max_count_full": {{ s.max_count_full }},
+                "max_count_reduce": {{ s.max_count_reduce }}
             },
         {% endfor %}
         ];
@@ -52,8 +53,11 @@
 
             controller: {
                 insertItem: function (item) {
-                    if (typeof item.max_count == 'undefined') {
-                        item.max_count = 0
+                    if (typeof item.max_count_full == 'undefined') {
+                        item.max_count_full = 0
+                    }
+                    if (typeof item.max_count_reduce == 'undefined') {
+                        item.max_count_reduce = 0
                     }
 
                     item.museum_id = {{ museum.pk }};
@@ -114,7 +118,8 @@
                     type: "text",
                     width: 100
                 },
-                {name: "max_count", title: "Квота", type: "number", align: "center", width: 200},
+                {name: "max_count_full", title: "Квота билетов взрослых", type: "number", align: "center", width: 200},
+                {name: "max_count_reduce", title: "Квота билетов льготных", type: "number", align: "center", width: 200},
                 {type: "control", modeSwitchButton: false, editButton: false}
             ]
         });

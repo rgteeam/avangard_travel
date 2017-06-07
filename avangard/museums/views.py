@@ -32,7 +32,8 @@ def schedule_update(request, schedule_id):
         s = parse_schedule_from_post(request.POST)
         schedule.start_time = s.start_time
         schedule.end_time = s.end_time
-        schedule.max_count = s.max_count
+        schedule.max_count_full = s.max_count_full
+        schedule.max_count_reduce = s.max_count_reduce
         schedule.save()
         return HttpResponse(status=200)
 
@@ -126,8 +127,9 @@ def parse_schedule_from_post(dict):
         end_time = None
 
     date = datetime.datetime.strptime(dict['date'], "%d.%m.%Y").date()
-    max_count = dict['max_count']
+    max_count_full = dict['max_count_full']
+    max_count_reduce = dict['max_count_reduce']
     museum_id = dict['museum_id']
-    s = Schedule(start_time=start_time, end_time=end_time, date=date, max_count=max_count)
+    s = Schedule(start_time=start_time, end_time=end_time, date=date, max_count_full=max_count_full, max_count_reduce=max_count_reduce)
     s.museum_id = museum_id
     return s
