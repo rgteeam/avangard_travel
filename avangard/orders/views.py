@@ -8,10 +8,16 @@ from django.views.decorators.csrf import csrf_exempt
 import datetime
 
 
+@login_required
 def orders_index(request):
-    return HttpResponse("orders page")
+    orders = Order.objects.all()
+
+    if request.method == 'GET':
+        context = {'orders': orders}
+        return render(request, 'orders.html', context)
 
 
+@login_required
 def create_order(request):
     museum_id = request.GET.get('museum_id', 1)
     museum = Museum.objects.get(pk=museum_id)
@@ -24,12 +30,13 @@ def create_order(request):
         order_formset.fields['seance'].choices = [(seance, seance)]
         if order_formset.is_valid():
             order_formset.save()
-            return HttpResponse("Order created")
+            return redirect('orders_index')
         else:
-            print(order_formset.errors.as_data())
-            return HttpResponse(order_formset.errors.as_data())
+            return render(request, 'create_order.html', {'type': 'create', "form": order_formset, "museum": museum})
 
 
+
+@login_required
 @csrf_exempt
 def get_seances_for_date(request):
     date = datetime.datetime.strptime(request.GET["date"], "%d-%m-%Y").date()
@@ -39,9 +46,14 @@ def get_seances_for_date(request):
     return JsonResponse({'seances': data})
 
 
+@login_required
 def edit_order(request):
     return HttpResponse("orders page")
 
 
-def delete_order(request):
-    return HttpResponse("orders page")
+@csrf_exempt
+@login_required
+def delete_order(request, order_id):
+    order = Order.objects.get(pk=order_id)
+    order.delete()
+    return HttpResponse(status=200)

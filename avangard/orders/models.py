@@ -19,7 +19,7 @@ class Order(models.Model):
     reduceticket_count = models.IntegerField(default=0, verbose_name="Количество льготных билетов")
     audioguide = models.BooleanField(default=False, verbose_name="Аудиогид")
     accompanying_guide = models.BooleanField(default=False, verbose_name="Сопровождающий гид")
-    chat_id = models.IntegerField(null=True)
+    chat_id = models.IntegerField(null=True,blank=True)
     status = models.IntegerField(choices=STATUS_CHOICES, default=NEW_STATUS, verbose_name="Статус")
     name = models.CharField(max_length=100, verbose_name="ФИО")
     email = models.CharField(max_length=100, verbose_name="Электроная почта")

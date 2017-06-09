@@ -1,0 +1,120 @@
+<div id="jsGrid"></div>
+
+<script type="text/javascript">
+
+    function format_date(date_string) {
+        var d = new Date(date_string)
+        var output = d.getDate() + '.' + d.getMonth() + '.' + d.getFullYear();
+        return output
+    }
+
+    $(function () {
+
+
+        var objects = [ {% for o in orders %}
+            {
+                "id": "{{ o.pk }}",
+                "museum": "{{ o.museum.name }}",
+                "date": "{{ o.seance.date|date:"d.m.Y" }}",
+                "fullticket_count": "{{ o.fullticket_count }}",
+                "reduceticket_count": "{{ o.reduceticket_count }}",
+                "price": "{{ o.full_price }}",
+                "seance": "{{ o.seance }}",
+                "audioguide": "{{ o.audioguide }}",
+                "accompanying_guide": "{{ o.accompanying_guide }}",
+                "status": "{{ o.status }}",
+                "name": "{{ o.name }}",
+                "phone": "{{ o.phone }}",
+                "email": "{{ o.email }}"
+            },
+        {% endfor %}
+        ];
+
+        $("#jsGrid").jsGrid({
+            width: "100%",
+
+            data: objects,
+
+            filtering: false,
+            editing: false,
+            sorting: true,
+            paging: false,
+            autoload: true,
+
+            controller: {
+                deleteItem: function (item) {
+                    return $.ajax({
+                        type: "DELETE",
+                        url: "/orders/delete/" + item.id
+                    });
+                }
+            },
+
+            fields: [
+                {name: "id", title: "ID", type: "text", align: "center", width: 30, editing: false},
+                {name: "name", title: "Имя", type: "text", align: "center", width: 100, editing: false},
+                {name: "phone", title: "Телефон", type: "text", align: "center", width: 100, editing: false},
+                {name: "email", title: "Email", type: "text", align: "center", width: 100, editing: false},
+                {name: "date", title: "Дата экскурсии", type: "text", align: "center", width: 100, editing: false},
+                {name: "museum", title: "Музей", type: "text", align: "center", width: 100, editing: false},
+                {name: "seance", title: "Время", type: "text", align: "center", width: 75, editing: false},
+                {
+                    name: "fullticket_count",
+                    title: "Кол-во взрослых",
+                    type: "number",
+                    align: "center",
+                    width: 75,
+                    editing: false
+                },
+                {
+                    name: "reduceticket_count",
+                    title: "Кол-во льготных",
+                    type: "number",
+                    align: "center",
+                    width: 75,
+                    editing: false
+                },
+                {name: "audioguide", title: "Аудиогид", type: "checkbox", align: "center", width: 50, editing: false},
+                {
+                    name: "accompanying_guide",
+                    title: "Сопровождающий гид",
+                    type: "checkbox",
+                    align: "center",
+                    width: 80,
+                    editing: false
+                },
+                {
+                    name: "status", align: "center", title: "Статус", itemTemplate: function (value, item) {
+                    var arr = [
+                        {val: 1, text: 'Новый'},
+                        {val: 2, text: 'Одобрен'},
+                        {val: 3, text: 'Выкуплен'}
+                    ];
+                    var sel = $('<select>');
+                    $(arr).each(function () {
+                        sel_option = $("<option>").attr('value', this.val).text(this.text);
+                        if (value == this.val) {
+                            sel_option.attr('selected', 'true')
+                        }
+                        sel.append(sel_option);
+                    });
+                    return  sel
+                            .on("change", function () {
+
+                                //  Ajax-request for update here
+
+                                console.log("changed")
+                            });
+                }
+                },
+                {name: "price", title: "Цена", type: "number", align: "center", width: 50, editing: false},
+                {type: "control", modeSwitchButton: false, editButton: false, editing: false}
+            ]
+        });
+
+    });
+</script>
+
+
+
+
