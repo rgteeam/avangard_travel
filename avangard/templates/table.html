@@ -43,28 +43,6 @@
                             {% endblock table.tbody.empty_text %}
                         {% endif %}
                     {% endfor %}
-                    {% if dynamic_fields %}
-                        <tr {{ row.attrs.as_html }} id='addr0' data-id="0" class="hidden">
-                            {% for column in table.columns %}
-                                {% if column.name == 'delete' %}
-                                    <td class="editable">
-                                        <button name=del0" id="row-remove" class='btn btn-danger row-remove pull-right'>
-                                            Удалить
-                                        </button>
-                                    </td>
-                                {% else %}
-                                    <td class="editable">
-                                        <form id="form">
-                                            {% with column.name|add:"[]" as column_id %}
-                                                <input type="text" id={{ column_id }} name='name0' placeholder='Name'
-                                                       class="form-control"/>
-                                            {% endwith %}
-                                        </form>
-                                    </td>
-                                {% endif %}
-                            {% endfor %}
-                        </tr>
-                    {% endif %}
                     </tbody>
                 {% endblock table.tbody %}
                 {% block table.tfoot %}

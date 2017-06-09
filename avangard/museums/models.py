@@ -13,15 +13,17 @@ class Museum(models.Model):
     reduce_coefficient = models.FloatField(default=0.0, verbose_name="Коэфф. стоимости льготного")
     audioguide_price = models.IntegerField(default=0, verbose_name="Цена аудиогоида")
     accompanying_guide_price = models.IntegerField(default=0, verbose_name="Цена сопровождающего гида")
-    
+
     def __str__(self):
-    	return self.name
+        return self.name
+
 
 class Company(models.Model):
-	name = models.CharField(max_length=50, verbose_name="Название компании")
-	
-	def __str__(self):
-		return self.name
+    name = models.CharField(max_length=50, verbose_name="Название компании")
+
+    def __str__(self):
+        return self.name
+
 
 class Schedule(models.Model):
     museum = models.ForeignKey(Museum, on_delete=models.CASCADE, null=True)
@@ -33,4 +35,9 @@ class Schedule(models.Model):
     max_count_reduce = models.IntegerField(default=0, verbose_name="Квота билетов льготных")
 
     def __str__(self):
-    	return self.museum.name + " " + str(self.date) + " " + str(self.start_time) + " " + str(self.end_time)
+        try:
+            end_time = self.end_time.strftime("%H:%M")
+        except Exception:
+            end_time = ''
+        return self.start_time.strftime("%H:%M") + " - " + end_time
+        # return self.museum.name + " " + str(self.date) + " " + str(self.start_time) + " " + str(self.end_time)

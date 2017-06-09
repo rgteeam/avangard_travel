@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block title %}Создать заказ{% endblock %}
+
+{% block style %}
+    <script src='{% static 'js/jquery.min.js' %}' , integrity='' , crossorigin='anonymous'></script>
+    <script src='{% static 'js/../../../static/css/bootstrap.min.js.css' %}' , integrity='' ,
+            crossorigin='anonymous'></script>
+    <script src='{% static 'js/jquery.min.js' %}' , integrity='' , crossorigin='anonymous'></script>
+    <script src='{% static 'js/../../static/css/../../static/js/bootstrap.min.js.css' %}' , integrity='' ,
+            crossorigin='anonymous'></script>
+    <script type="text/javascript" src="{% static 'js/moment-with-locales.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/bootstrap-datepicker.min.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/bootstrap-datepicker3.min.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="container" style="width: 85%">
+
+        <div class="panel-heading">
+            <div class="panel-title text-center">
+                {% if type == 'edit' %}
+                    <h1 class="title">{{ museum.name }} - редактировать заказ</h1>
+                {% else %}
+                    <h1 class="title">{{ museum.name }} – создать заказ</h1>
+                {% endif %}
+                <hr/>
+            </div>
+        </div>
+
+        <form action='' method="post"> {% csrf_token %}
+            <div class="row">
+                <div class="col-sm-8">
+                    <div class="card">
+                        <div class="card-header">Данные о заказе</div>
+                        <div class="card-block">
+
+                            {{ form.museum.as_hidden }}
+
+                            <div class="form-group">
+                                <div id="datepicker">{{ form.date }}</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="seance">Доступное время:</label>
+                                {{ form.seance }}
+                            </div>
+
+
+                            <div class="form-group">
+                                <label for="fullticket_count">Количество взрослых билетов (1 шт.
+                                    - {{ museum.fullticket_price }}
+                                    р.):</label>
+                                {{ form.fullticket_count }}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="reduceticket_count">Количество льготных билетов (1 шт.
+                                    - {{ museum.reduceticket_price }}
+                                    р.):</label>
+                                {{ form.reduceticket_count }}
+                            </div>
+
+                            <div class="checkbox">
+                                <label>{{ form.audioguide }} Аудиогид (1 шт. - {{ museum.audioguide_price }} р.)</label>
+                            </div>
+
+                            <div class="checkbox">
+                                <label>{{ form.accompanying_guide }} Сопровождающий гид (стоимость
+                                    - {{ museum.accompanying_guide_price }} р.)</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="card">
+
+                        <div class="card-block">
+                            <h3 class="card-title">Стоимость</h3>
+                            <p>Взрослые билеты: <span id="fullticket_price">0</span> руб.</p>
+                            <p>Льготные билеты: <span id="reduceticket_price">0</span> руб.</p>
+                            <p>Аудиогиды: <span id="audioguide_price">0</span> руб.</p>
+                            <p>Сопровождающий гид: <span id="accompanying_guide_price">0</span> руб.</p>
+                            <h4 class="card-title">Итого: <span id="total_price">0</span> руб.</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-8">
+                    <div class="card">
+                        <div class="card-header">Контактные данные</div>
+                        <div class="card-block">
+                            <div class="form-group">
+                                <label for="name">ФИО:</label>
+                                {{ form.name }}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="email">Email:</label>
+                                {{ form.email }}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="phone">Телефон:</label>
+                                {{ form.phone }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!--
+            <div class="form-group">
+                <label for="image">Изображение:</label>
+                <input type="file" class="form-control" id="image">
+            </div>
+            -->
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary btn-lg btn-block" style="margin-top: 20px">
+                    {% if type == 'edit' %}Изменить{% else %}Создать{% endif %}
+                </button>
+            </div>
+        </form>
+
+
+    </div>
+
+    <script type="text/javascript">
+
+        $('#id_fullticket_count').keyup(function () {
+            val = $(this).val() * {{ museum.fullticket_price }}
+            $('#fullticket_price').text(val);
+            update_audio_guide_price();
+            get_total_price()
+        });
+
+        $('#id_reduceticket_count').keyup(function () {
+            val = $(this).val() * {{ museum.reduceticket_price }}
+            $('#reduceticket_price').text(val);
+            update_audio_guide_price();
+            get_total_price()
+        });
+
+        $(document).on('change', '#id_accompanying_guide', function() {
+            if (this.checked) {
+                $('#accompanying_guide_price').text({{ museum.accompanying_guide_price }})
+            } else {
+                $('#accompanying_guide_price').text("0")
+            }
+            get_total_price()
+        });
+
+        $(document).on('change', '#id_audioguide', update_audio_guide_price);
+
+        function update_audio_guide_price() {
+            if (document.getElementById('id_audioguide').checked) {
+                var total_count = parseInt($('#id_reduceticket_count').val()) + parseInt($('#id_fullticket_count').val());
+                $('#audioguide_price').text(total_count * {{ museum.audioguide_price }});
+            } else {
+                $('#audioguide_price').text("0")
+            }
+            get_total_price()
+        }
+
+        function get_total_price() {
+            totalSum = 0;
+            totalSum = $('#id_fullticket_count').val() * {{ museum.fullticket_price }} + $('#id_reduceticket_count').val() * {{ museum.reduceticket_price }};
+            if (document.getElementById('id_audioguide').checked) {
+                var total_count = parseInt($('#id_reduceticket_count').val()) + parseInt($('#id_fullticket_count').val());
+                totalSum += total_count * {{ museum.audioguide_price }};
+            }
+            if (document.getElementById('id_accompanying_guide').checked) {
+                totalSum += {{ museum.accompanying_guide_price }};
+            }
+            $('#total_price').text(totalSum)
+        }
+
+    </script>
+
+    <script type="text/javascript">
+        $(function () {
+            $('#datepicker').datepicker({format: 'dd-mm-yyyy'});
+            $('#datepicker').datepicker('setDate', new Date());
+
+            $('#datepicker').on('changeDate', function () {
+                date = $('#datepicker').datepicker('getFormattedDate');
+                console.log(date);
+                $.ajax
+                ({
+                    type: "Get",
+                    url: "/orders/get_seances/",
+                    data: "date=" + date + "&museum_id={{ museum.pk }}",
+                    success: function (data) {
+                        console.log(data);
+                        var output = [];
+
+                        $.each(data['seances'], function (key, value) {
+                            console.log(value);
+                            output.push('<option value="' + value.value + '">' + value.text + '</option>');
+                        });
+
+                        $('#id_seance').html(output.join(''));
+                    }
+                });
+            });
+        });
+
+    </script>
+
+{% endblock %}
+{% block footer %}
+{% endblock %}
