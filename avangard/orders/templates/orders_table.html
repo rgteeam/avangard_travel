@@ -74,14 +74,38 @@
                     width: 75,
                     editing: false
                 },
-                {name: "audioguide", title: "Аудиогид", type: "checkbox", align: "center", width: 50, editing: false},
+                {
+                    name: "audioguide",
+                    title: "Аудиогид",
+                    type: "text",
+                    align: "center",
+                    width: 50,
+                    editing: false,
+                    itemTemplate: function (value, item) {
+                        var iconClass = "";
+                        if (value == "True") {
+                            iconClass = "fa fa-check"; //this is my class with an icon
+                        } else if (value == "False") {
+                            iconClass = "fa fa-times"; //this is my class with an icon
+                        }
+                        return $("<i>").attr("class", iconClass);
+                    }
+                },
                 {
                     name: "accompanying_guide",
                     title: "Сопровождающий гид",
-                    type: "checkbox",
+                    type: "text",
                     align: "center",
                     width: 80,
-                    editing: false
+                    editing: false, itemTemplate: function (value, item) {
+                    var iconClass = "";
+                    if (value == "True") {
+                        iconClass = "fa fa-check"; //this is my class with an icon
+                    } else if (value == "False") {
+                        iconClass = "fa fa-times"; //this is my class with an icon
+                    }
+                    return $("<i>").attr("class", iconClass);
+                }
                 },
                 {
                     name: "status", align: "center", title: "Статус", itemTemplate: function (value, item) {
@@ -98,7 +122,7 @@
                         }
                         sel.append(sel_option);
                     });
-                    return  sel
+                    return sel
                             .on("change", function () {
 
                                 //  Ajax-request for update here
@@ -108,7 +132,20 @@
                 }
                 },
                 {name: "price", title: "Цена", type: "number", align: "center", width: 50, editing: false},
-                {type: "control", modeSwitchButton: false, editButton: false, editing: false}
+                {
+                    type: "control", modeSwitchButton: false, editButton: false, editing: false,
+                    itemTemplate: function (value, item) {
+                        var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+                        var $a = $("<a>").attr("href", "/orders/edit/" + item.id).addClass("jsgrid-button").addClass("jsgrid-edit-button")
+                        var $customButton = $("<input>").addClass("jsgrid-button")
+                                .addClass("jsgrid-edit-button")
+                                .attr({
+                                    type: "button",
+                                });
+                        $a.append($customButton);
+                        return $result.add($a);
+                    }
+                },
             ]
         });
 
