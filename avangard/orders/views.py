@@ -48,7 +48,7 @@ def edit_order(request, order_id):
     instance = get_object_or_404(Order, id=order_id)
     order_formset = OrderForm(request.POST or None, instance=instance)
     if request.method == 'GET':
-        return render(request, 'create_order.html', {'type':'edit', 'museum':instance.museum, "form": order_formset})
+        return render(request, 'create_order.html', {'type':'edit', 'museum':instance.museum, "form": order_formset, "date": instance.seance.date})
     elif request.method == 'POST':
         if order_formset.is_valid():
             order_formset.save()
