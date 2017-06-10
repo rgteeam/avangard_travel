@@ -22,12 +22,9 @@ def create_order(request):
     museum_id = request.GET.get('museum_id', 1)
     museum = Museum.objects.get(pk=museum_id)
     order_formset = OrderForm(initial={'museum': museum}, data=request.POST or None)
-    order_formset.fields["seance"].queryset = Schedule.objects.filter(museum=museum, date=datetime.date.today())
     if request.method == 'GET':
         return render(request, 'create_order.html', {'type': 'create', "form": order_formset, "museum": museum})
     elif request.method == 'POST':
-        seance = request.POST.get('seance')
-        order_formset.fields['seance'].choices = [(seance, seance)]
         if order_formset.is_valid():
             order_formset.save()
             return redirect('orders_index')
@@ -47,8 +44,17 @@ def get_seances_for_date(request):
 
 
 @login_required
-def edit_order(request):
-    return HttpResponse("orders page")
+def edit_order(request, order_id):
+    instance = get_object_or_404(Order, id=order_id)
+    order_formset = OrderForm(request.POST or None, instance=instance)
+    if request.method == 'GET':
+        return render(request, 'create_order.html', {'type':'edit', 'museum':instance.museum, "form": order_formset})
+    elif request.method == 'POST':
+        if order_formset.is_valid():
+            order_formset.save()
+            return redirect('orders_index')
+        else:
+            return render(request, 'create_order.html', {'type':'edit', 'museum':instance.museum, "form": order_formset})
 
 
 @csrf_exempt

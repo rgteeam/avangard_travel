@@ -85,13 +85,13 @@ def index(request):
 def create_museum(request):
     museum_formset = MuseumForm(request.POST or None)
     if request.method == 'GET':
-        return render(request, 'create.html', {'type':'create', "form": museum_formset })
+        return render(request, 'create_museum.html', {'type': 'create', "form": museum_formset})
     elif request.method == 'POST':
         if museum_formset.is_valid():
             museum_formset.save()
             return redirect('index')
         else:
-            return render(request, 'create.html', {'type': 'create', "form": museum_formset})
+            return render(request, 'create_museum.html', {'type': 'create', "form": museum_formset})
 
 
 # Удаление музея
@@ -110,13 +110,13 @@ def edit_museum(request, museum_id):
     instance = get_object_or_404(Museum, id=museum_id)
     museum_formset = MuseumForm(request.POST or None, instance=instance)
     if request.method == 'GET':
-        return render(request, 'create.html', {'type':'edit', "form": museum_formset})
+        return render(request, 'create_museum.html', {'type': 'edit', "form": museum_formset})
     elif request.method == 'POST':
         if museum_formset.is_valid():
             museum_formset.save()
             return redirect('index')
         else:
-            return render(request, 'create.html', {'type': 'edit', "form": museum_formset})
+            return render(request, 'create_museum.html', {'type': 'edit', "form": museum_formset})
 
 def parse_schedule_from_post(dict):
     start_time = datetime.datetime.strptime(dict['start_time'], '%H:%M').time()
