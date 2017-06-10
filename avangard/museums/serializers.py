@@ -9,6 +9,10 @@ class MuseumSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class ScheduleSerializer(serializers.HyperlinkedModelSerializer):
+
+    start_time = serializers.TimeField(format="%H:%M")
+    end_time = serializers.TimeField(format="%H:%M")
+
     class Meta:
         model = Schedule
         fields = ('pk', 'museum_id', 'max_count_full', 'max_count_reduce', 'start_time', 'end_time', 'date')
