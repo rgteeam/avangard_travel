@@ -15,17 +15,12 @@ Including another URLconf
 """
 
 from django.conf.urls import url, include
-from rest_framework import routers
-from avangard.museums.api import MuseumViewSet,ScheduleViewSet
 
 from . import views
 
-router = routers.DefaultRouter()
-router.register(r'museums', MuseumViewSet, 'Museum')
-router.register(r'schedule', ScheduleViewSet, 'Schedule')
+
 
 urlpatterns = [
-    url(r'^api/', include(router.urls)),
     url(r'^$', views.index, name='index'),
     url(r'^museums/(\d+)/schedule/', views.museum_schedule, name='museum_schedule'),
     url(r'^schedule/delete/(\d+)', views.schedule_delete, name='schedule_delete'),

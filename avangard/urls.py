@@ -15,8 +15,17 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
+from rest_framework import routers
+from avangard.museums.api import MuseumViewSet,ScheduleViewSet
+from avangard.orders.api import OrderViewSet
+
+router = routers.DefaultRouter()
+router.register(r'museums', MuseumViewSet, 'museum')
+router.register(r'schedule', ScheduleViewSet, 'schedule')
+router.register(r'orders', OrderViewSet, 'order')
 
 urlpatterns = [
+    url(r'^api/', include(router.urls)),
     url(r'^admin/', admin.site.urls),
     url(r'^account/', include('avangard.account.urls')),
     url(r'^orders/', include('avangard.orders.urls')),

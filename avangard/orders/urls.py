@@ -20,7 +20,6 @@ from rest_framework import routers
 from . import views
 
 urlpatterns = [
-
     url(r'^$', views.orders_index, name='orders_index'),
     url(r'^get_seances/', views.get_seances_for_date, name='get_seances'),
     url(r'^create/', views.create_order, name='create_order'),
