@@ -84,9 +84,9 @@
                     itemTemplate: function (value, item) {
                         var iconClass = "";
                         if (value == "True") {
-                            iconClass = "fa fa-check"; //this is my class with an icon
+                            iconClass = "fa fa-check";
                         } else if (value == "False") {
-                            iconClass = "fa fa-times"; //this is my class with an icon
+                            iconClass = "fa fa-times";
                         }
                         return $("<i>").attr("class", iconClass);
                     }
@@ -100,9 +100,9 @@
                     editing: false, itemTemplate: function (value, item) {
                     var iconClass = "";
                     if (value == "True") {
-                        iconClass = "fa fa-check"; //this is my class with an icon
+                        iconClass = "fa fa-check";
                     } else if (value == "False") {
-                        iconClass = "fa fa-times"; //this is my class with an icon
+                        iconClass = "fa fa-times";
                     }
                     return $("<i>").attr("class", iconClass);
                 }
@@ -124,11 +124,12 @@
                     });
                     return sel
                             .on("change", function () {
-
-                                //  Ajax-request for update here
-
-                                console.log("changed")
-                            });
+                                return $.ajax({
+                                    type: "POST",
+                                    data: {"new_status":this.value},
+                                    url: "/orders/update_status/" + item.id
+                                });
+                            })
                 }
                 },
                 {name: "price", title: "Цена", type: "number", align: "center", width: 50, editing: false},

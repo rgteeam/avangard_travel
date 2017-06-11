@@ -44,6 +44,17 @@ def get_seances_for_date(request):
 
 
 @login_required
+@csrf_exempt
+def update_order_status(request, order_id):
+    new_status = request.POST["new_status"]
+    order = get_object_or_404(Order, pk=order_id)
+    order.status = new_status
+    order.save(update_fields=["status"])
+    return HttpResponse(status=200)
+
+
+
+@login_required
 def edit_order(request, order_id):
     instance = get_object_or_404(Order, id=order_id)
     order_formset = OrderForm(request.POST or None, instance=instance)
