@@ -1,5 +1,6 @@
 from django.shortcuts import render, HttpResponse, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.core import serializers
 from .models import Order
 from .forms import OrderForm
 from avangard.museums.models import Schedule, Museum
@@ -10,11 +11,47 @@ import datetime
 
 @login_required
 def orders_index(request):
-    orders = Order.objects.all()
-
     if request.method == 'GET':
-        context = {'orders': orders}
-        return render(request, 'orders.html', context)
+        return render(request, 'orders.html')
+
+
+@login_required
+@csrf_exempt
+def get_new_orders(request):
+    if request.method == 'GET':
+        latest_id = Order.objects.latest('pk').pk
+        old_latest_id = int(request.GET["latest_id"])
+        new_objects = Order.objects.filter(pk__gt=old_latest_id, pk__lte=latest_id)
+
+        order_dict = {}
+        order_records = []
+
+        for order_object in new_objects:
+            pk = order_object.pk
+            museum = order_object.museum.name
+            seance = order_object.seance.__str__()
+            date = order_object.seance.date.strftime("%Y-%m-%d")
+            full_price = order_object.full_price
+            fullticket_count = order_object.fullticket_count
+            reduceticket_count = order_object.reduceticket_count
+            audioguide = order_object.audioguide
+            accompanying_guide = order_object.accompanying_guide
+            status = order_object.status
+            name = order_object.name
+            email = order_object.email
+            phone = order_object.phone
+
+            record = {"pk": pk, "museum": museum, "seance": seance, "date": date, "full_price": full_price,
+                      "fullticket_count": fullticket_count, "reduceticket_count": reduceticket_count,
+                      "audioguide": audioguide, "accompanying_guide": accompanying_guide, "status": status,
+                      "name": name,
+                      "email": email, "phone": phone}
+
+            order_records.append(record)
+
+        order_dict["new_orders"] = order_records
+
+        return JsonResponse(order_dict)
 
 
 @login_required
@@ -30,7 +67,6 @@ def create_order(request):
             return redirect('orders_index')
         else:
             return render(request, 'create_order.html', {'type': 'create', "form": order_formset, "museum": museum})
-
 
 
 @login_required
@@ -53,19 +89,31 @@ def update_order_status(request, order_id):
     return HttpResponse(status=200)
 
 
+@login_required
+@csrf_exempt
+def check_new_orders(request):
+    latest_id = Order.objects.latest('pk').pk
+    old_latest_id = request.POST["latest_id"]
+    if (latest_id != int(old_latest_id)):
+        return HttpResponse("true")
+    else:
+        return HttpResponse("false")
+
 
 @login_required
 def edit_order(request, order_id):
     instance = get_object_or_404(Order, id=order_id)
     order_formset = OrderForm(request.POST or None, instance=instance)
     if request.method == 'GET':
-        return render(request, 'create_order.html', {'type':'edit', 'museum':instance.museum, "form": order_formset, "date": instance.seance.date})
+        return render(request, 'create_order.html',
+                      {'type': 'edit', 'museum': instance.museum, "form": order_formset, "date": instance.seance.date})
     elif request.method == 'POST':
         if order_formset.is_valid():
             order_formset.save()
             return redirect('orders_index')
         else:
-            return render(request, 'create_order.html', {'type':'edit', 'museum':instance.museum, "form": order_formset})
+            return render(request, 'create_order.html',
+                          {'type': 'edit', 'museum': instance.museum, "form": order_formset})
 
 
 @csrf_exempt
@@ -73,4 +121,4 @@ def edit_order(request, order_id):
 def delete_order(request, order_id):
     order = Order.objects.get(pk=order_id)
     order.delete()
-    return HttpResponse(status=200)
+    return JsonResponse({'latest_id': Order.objects.latest('pk').pk})

@@ -2,56 +2,146 @@
 
 <script type="text/javascript">
 
+    //Идентификатор последней добавленной записи
+
+    var latest_id = 0;
+
+    //Long Poll для проверки новых заказов
+
+    function subscribe() {
+        var xhr = new XMLHttpRequest();
+        var url = "/orders/check_new_orders";
+
+        xhr.open("POST", url, true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+
+                //Проверка на новые заказы
+
+                if (xhr.responseText == "true") {
+
+                    //Получение новых заказов
+
+                    $.ajax({
+                        type: "GET",
+                        url: "/orders/get_new_orders",
+                        data: {'latest_id': latest_id}
+                    }).done(function (result) {
+                        $.each(result.new_orders, function (i, val) {
+
+                            //Добавление в таблицу
+
+                            $("#jsGrid").jsGrid("insertItem", val).done(function () {
+                                console.log("insertion completed");
+                            });
+                            latest_id = val.pk
+                        });
+                    })
+                }
+            }
+        };
+
+        xhr.send("latest_id=" + latest_id);
+    }
+
     function format_date(date_string) {
-        var d = new Date(date_string)
+        var d = new Date(date_string);
         var output = d.getDate() + '.' + d.getMonth() + '.' + d.getFullYear();
         return output
     }
 
+    //Стратегия добавления новых записей
+
+    var MyCustomDirectLoadStrategy = function (grid) {
+        jsGrid.loadStrategies.DirectLoadingStrategy.call(this, grid);
+    };
+
+    MyCustomDirectLoadStrategy.prototype = new jsGrid.loadStrategies.DirectLoadingStrategy();
+
+    MyCustomDirectLoadStrategy.prototype.finishInsert = function (insertedItem) {
+        console.log(insertedItem)
+        var grid = this._grid;
+        grid.option("data").unshift(insertedItem);
+        grid.refresh();
+        var $row = $("#jsGrid").jsGrid("rowByItem", insertedItem);
+        $row.addClass("jsgrid-new-item")
+        $row.children('.jsgrid-cell').css('background-color', '#D9F5BE');
+        $('.jsgrid-insert-row').hide();
+    }
+
+    var origFinishDelete = jsGrid.loadStrategies.DirectLoadingStrategy.prototype.finishDelete;
+
+    MyCustomDirectLoadStrategy.prototype.finishDelete = function (deletedItem, deletedItemIndex) {
+        if(this._grid.deletionFailed) { // define deletionFailed on done of delete ajax request in deleteItem of controller
+            $('.jsgrid-insert-row').hide();
+            alert("Такого элемента уже не существует");
+            return;
+        }
+        origFinishDelete.apply(this, arguments);
+        $('.jsgrid-insert-row').hide();
+    }
+
+    //Параметры таблицы
+
     $(function () {
-
-
-        var objects = [ {% for o in orders %}
-            {
-                "id": "{{ o.pk }}",
-                "museum": "{{ o.museum.name }}",
-                "date": "{{ o.seance.date|date:"d.m.Y" }}",
-                "fullticket_count": "{{ o.fullticket_count }}",
-                "reduceticket_count": "{{ o.reduceticket_count }}",
-                "price": "{{ o.full_price }}",
-                "seance": "{{ o.seance }}",
-                "audioguide": "{{ o.audioguide }}",
-                "accompanying_guide": "{{ o.accompanying_guide }}",
-                "status": "{{ o.status }}",
-                "name": "{{ o.name }}",
-                "phone": "{{ o.phone }}",
-                "email": "{{ o.email }}"
-            },
-        {% endfor %}
-        ];
 
         $("#jsGrid").jsGrid({
             width: "100%",
-
-            data: objects,
 
             filtering: false,
             editing: false,
             sorting: true,
             paging: false,
+            inserting: true,
             autoload: true,
 
+            loadStrategy: function () {
+                return new MyCustomDirectLoadStrategy(this);
+            },
+
+            onDataLoaded: function (args) {
+                $('.jsgrid-insert-row').hide();
+                subscribe();
+                setInterval("subscribe()", 10000);
+            },
+
             controller: {
+                loadData: function (filter) {
+                    var d = $.Deferred();
+                    $.ajax({
+                        type: "GET",
+                        url: "/api/orders/?format=json"
+                    }).done(function (result) {
+                        latest_id = result[0].pk;
+                        d.resolve($.map(result, function (item) {
+                            var seance = item.seance.start_time;
+                            if (item.seance.end_time != null) {
+                                seance += " - ";
+                                seance += item.seance.end_time
+                            }
+                            return $.extend(item, {museum: item.museum.name, date: item.seance.date, seance: seance});
+                        }));
+                    });
+                    return d.promise();
+                },
+
                 deleteItem: function (item) {
                     return $.ajax({
                         type: "DELETE",
-                        url: "/orders/delete/" + item.id
+                        url: "/orders/delete/" + item.pk,
+                        success: function (result) {
+                            if (item.pk == latest_id) {
+                                latest_id = result.latest_id
+                            }
+                        }
                     });
                 }
             },
 
             fields: [
-                {name: "id", title: "ID", type: "text", align: "center", width: 30, editing: false},
+                {name: "pk", title: "ID", type: "text", align: "center", width: 30, editing: false},
                 {name: "name", title: "Имя", type: "text", align: "center", width: 100, editing: false},
                 {name: "phone", title: "Телефон", type: "text", align: "center", width: 100, editing: false},
                 {name: "email", title: "Email", type: "text", align: "center", width: 100, editing: false},
@@ -83,9 +173,9 @@
                     editing: false,
                     itemTemplate: function (value, item) {
                         var iconClass = "";
-                        if (value == "True") {
+                        if (value == true) {
                             iconClass = "fa fa-check";
-                        } else if (value == "False") {
+                        } else if (value == false) {
                             iconClass = "fa fa-times";
                         }
                         return $("<i>").attr("class", iconClass);
@@ -99,9 +189,9 @@
                     width: 80,
                     editing: false, itemTemplate: function (value, item) {
                     var iconClass = "";
-                    if (value == "True") {
+                    if (value == true) {
                         iconClass = "fa fa-check";
-                    } else if (value == "False") {
+                    } else if (value == false) {
                         iconClass = "fa fa-times";
                     }
                     return $("<i>").attr("class", iconClass);
@@ -109,6 +199,9 @@
                 },
                 {
                     name: "status", align: "center", title: "Статус", itemTemplate: function (value, item) {
+
+                    //Создание select элемента содержащего статус заказа
+
                     var arr = [
                         {val: 1, text: 'Новый'},
                         {val: 2, text: 'Одобрен'},
@@ -126,18 +219,18 @@
                             .on("change", function () {
                                 return $.ajax({
                                     type: "POST",
-                                    data: {"new_status":this.value},
-                                    url: "/orders/update_status/" + item.id
+                                    data: {"new_status": this.value},
+                                    url: "/orders/update_status/" + item.pk
                                 });
                             })
                 }
                 },
-                {name: "price", title: "Цена", type: "number", align: "center", width: 50, editing: false},
+                {name: "full_price", title: "Цена", type: "number", align: "center", width: 50, editing: false},
                 {
                     type: "control", modeSwitchButton: false, editButton: false, editing: false,
                     itemTemplate: function (value, item) {
                         var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
-                        var $a = $("<a>").attr("href", "/orders/edit/" + item.id).addClass("jsgrid-button").addClass("jsgrid-edit-button")
+                        var $a = $("<a>").attr("href", "/orders/edit/" + item.pk).addClass("jsgrid-button").addClass("jsgrid-edit-button")
                         var $customButton = $("<input>").addClass("jsgrid-button")
                                 .addClass("jsgrid-edit-button")
                                 .attr({

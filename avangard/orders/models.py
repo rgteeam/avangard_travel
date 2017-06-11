@@ -37,3 +37,6 @@ class Order(models.Model):
 
     def __str__(self):
         return self.museum.name + " " + self.seance.start_time.strftime("%H:%M") + " " + str(self.full_price) + " руб."
+
+    class Meta:
+        ordering = ('-pk',)
