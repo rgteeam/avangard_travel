@@ -1,5 +1,6 @@
 from django.apps import AppConfig
 
 
-class AuthConfig(AppConfig):
-    name = 'account'
+class AccountConfig(AppConfig):
+    name = 'avangard.account'
+    label = 'avangard.account'

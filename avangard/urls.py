@@ -16,6 +16,7 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.contrib import admin
 from rest_framework import routers
+from avangard.account.views import check_email
 from avangard.museums.api import MuseumViewSet,ScheduleViewSet
 from avangard.orders.api import OrderViewSet
 
@@ -24,12 +25,17 @@ router.register(r'museums', MuseumViewSet, 'museum')
 router.register(r'schedule', ScheduleViewSet, 'schedule')
 router.register(r'orders', OrderViewSet, 'order')
 
+
+
 urlpatterns = [
+    url(r'^api/rest-auth/', include('rest_auth.urls')),
+    url(r'^api/rest-auth/registration/', include('rest_auth.registration.urls')),
+    url(r'^api/rest-auth/check-email/', check_email),
+
     url(r'^api/', include(router.urls)),
     url(r'^admin/', admin.site.urls),
     url(r'^account/', include('avangard.account.urls')),
     url(r'^orders/', include('avangard.orders.urls')),
     url(r'^', include('avangard.museums.urls')),
-    url(r'^api/', include('rest_framework.urls', namespace='rest_framework'))
 ]
 

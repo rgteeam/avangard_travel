@@ -25,7 +25,7 @@ SECRET_KEY = 'i$m!vwfs#-f+d64uokar!#aj03)2_3zpp=$qy4f%af%oi80)o7'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -37,7 +37,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     'rest_framework',
+    'rest_framework.authtoken',
+    'rest_auth',
+    'allauth',
+    'allauth.account',
+    'rest_auth.registration',
     'django_filters',
     'avangard.account',
     'avangard.museums',
@@ -45,8 +51,41 @@ INSTALLED_APPS = [
     'django_tables2',
 ]
 
+#This is required otherwise it asks for email server
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+SITE_ID = 1
+
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = False
+
+ACCOUNT_SIGNUP_FORM_CLASS = 'avangard.account.forms.SignupForm'
+
+
+#Following is added to enable registration with email instead of username
+AUTHENTICATION_BACKENDS = (
+ # Needed to login by username in Django admin, regardless of `allauth`
+ "django.contrib.auth.backends.ModelBackend",
+
+ # `allauth` specific authentication methods, such as login by e-mail
+ "allauth.account.auth_backends.AuthenticationBackend",
+)
+
+REST_AUTH_REGISTER_SERIALIZERS = {
+    'REGISTER_SERIALIZER': 'avangard.account.serializers.RegisterSerializer',
+}
+
+REST_AUTH_SERIALIZERS = {
+    'USER_DETAILS_SERIALIZER': 'avangard.account.serializers.UserSerializer'
+}
+
 REST_FRAMEWORK = {
-    'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',)
+    'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'avangard.account.api.BearerAuthentication',
+        'rest_framework.authentication.BasicAuthentication'
+    )
 }
 
 MIDDLEWARE = [
@@ -103,13 +142,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    }
 ]
 
 

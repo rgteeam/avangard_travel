@@ -14,4 +14,4 @@ class OrderSerializer(serializers.ModelSerializer):
         model = Order
         fields = (
         'pk','museum','seance', 'museum_id','seance_id','fullticket_count', 'reduceticket_count', 'audioguide', 'accompanying_guide',
-        'full_price', 'chat_id', 'status', 'name', 'email', 'phone')
+        'full_price', 'chat_id', 'user_id', 'status', 'name', 'email', 'phone')
