@@ -13,6 +13,5 @@ class SignupForm(forms.Form):
     phone = forms.CharField(max_length=30, label='phone')
 
     def signup(self, request, user):
-        print(user)
         user.phone = self.cleaned_data['phone']
         user.save()
