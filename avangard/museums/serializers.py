@@ -1,12 +1,16 @@
-from avangard.museums.models import Museum, Schedule
+from avangard.museums.models import Museum, Schedule, Company
 from rest_framework import serializers, viewsets
 
 
 class MuseumSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Museum
-        fields = ('pk', 'name', 'fullticket_price', 'full_coefficient', 'reduceticket_price', 'reduce_coefficient', 'audioguide_price', 'accompanying_guide_price')
+        fields = ('pk', 'name', 'fullticket_price', 'full_coefficient', 'reduceticket_price', 'reduce_coefficient', 'audioguide_price', 'accompanying_guide_price', 'max_count')
 
+class CompanySerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Company
+        fields = ('pk', 'name')
 
 class ScheduleSerializer(serializers.HyperlinkedModelSerializer):
 
@@ -15,4 +19,4 @@ class ScheduleSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Schedule
-        fields = ('pk', 'museum_id', 'max_count_full', 'max_count_reduce', 'start_time', 'end_time', 'date')
+        fields = ('pk', 'museum_id', 'max_count_full', 'max_count_reduce', 'start_time', 'end_time', 'date', 'company_id')

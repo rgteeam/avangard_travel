@@ -6,7 +6,7 @@ from avangard.museums.models import Museum
 class MuseumForm(ModelForm):
     class Meta:
         model = Museum
-        fields = ['name', 'fullticket_price', 'full_coefficient', 'reduceticket_price', 'reduce_coefficient', 'audioguide_price', 'accompanying_guide_price']
+        fields = ['name', 'fullticket_price', 'full_coefficient', 'reduceticket_price', 'reduce_coefficient', 'audioguide_price', 'accompanying_guide_price', 'max_count']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'fullticket_price': forms.NumberInput(attrs={'class': 'form-control'}),
@@ -15,4 +15,5 @@ class MuseumForm(ModelForm):
             'reduce_coefficient': forms.NumberInput(attrs={'class': 'form-control'}),
             'audioguide_price': forms.NumberInput(attrs={'class': 'form-control'}),
             'accompanying_guide_price': forms.NumberInput(attrs={'class': 'form-control'}),
+            'max_count': forms.NumberInput(attrs={'class': 'form-control'}),
         }

@@ -13,6 +13,7 @@ class Museum(models.Model):
     reduce_coefficient = models.FloatField(default=0.0, verbose_name="Коэфф. стоимости льготного")
     audioguide_price = models.IntegerField(default=0, verbose_name="Цена аудиогоида")
     accompanying_guide_price = models.IntegerField(default=0, verbose_name="Цена сопровождающего гида")
+    max_count = models.IntegerField(default=0, verbose_name="Макс. кол-во человек в группе")
 
     def __str__(self):
         return self.name

@@ -1,6 +1,15 @@
 <div id="jsGrid"></div>
 
 <script type="text/javascript">
+    get_companies = function () {
+        $.ajax({
+            type: "GET",
+            url: "/api/companys/?format=json",
+            success: function (data) {
+                console.log(data);
+            }
+        });
+    };
     $(function () {
         var objects = [ {% for s in schedule %}
             {
@@ -10,11 +19,11 @@
                 "start_time": "{{ s.start_time|time:"H:i" }}",
                 "end_time": "{{ s.end_time|time:"H:i" }}",
                 "max_count_full": {{ s.max_count_full }},
-                "max_count_reduce": {{ s.max_count_reduce }}
+                "max_count_reduce": {{ s.max_count_reduce }},
+                "company_id": {{ s.company.pk }}
             },
         {% endfor %}
         ];
-
         jsGrid.validators.start_time = {
             message: "Введите верное время в промежутке между 00:00 и 23:59",
             validator: function (value, item) {
@@ -61,7 +70,10 @@
                     }
 
                     item.museum_id = {{ museum.pk }};
+
                     item.date = curDate;
+
+                    item.company_id = item.company_id;
 
                     var d = $.Deferred();
 
@@ -120,13 +132,10 @@
                 },
                 {name: "max_count_full", title: "Квота билетов взрослых", type: "number", align: "center", width: 200},
                 {name: "max_count_reduce", title: "Квота билетов льготных", type: "number", align: "center", width: 200},
+                {name: "company_id", title: "Компания", type: "select", align: "center", width: 200, items: [{pk: 1, name: "Avangard One"}, {pk: 2, name: "Avangard Two"}, {pk: 3, name: "Avangard Three"}], valueField: "pk", textField: "name"},
                 {type: "control", modeSwitchButton: false, editButton: false}
             ]
         });
 
     });
 </script>
-
-
-
-

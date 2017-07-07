@@ -1,5 +1,5 @@
 from django.db import models
-from avangard.museums.models import Museum, Schedule
+from avangard.museums.models import Museum, Schedule, Company
 
 
 class Order(models.Model):
@@ -14,6 +14,7 @@ class Order(models.Model):
     )
 
     museum = models.ForeignKey(Museum, on_delete=models.CASCADE, null=True)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, null=True)
     seance = models.ForeignKey(Schedule, on_delete=models.CASCADE, null=True)
     fullticket_count = models.IntegerField(default=0, verbose_name="Количество взрослых билетов")
     reduceticket_count = models.IntegerField(default=0, verbose_name="Количество льготных билетов")

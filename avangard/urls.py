@@ -17,11 +17,12 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from rest_framework import routers
 from avangard.account.views import check_email
-from avangard.museums.api import MuseumViewSet,ScheduleViewSet
+from avangard.museums.api import MuseumViewSet,ScheduleViewSet,CompanyViewSet
 from avangard.orders.api import OrderViewSet
 
 router = routers.DefaultRouter()
 router.register(r'museums', MuseumViewSet, 'museum')
+router.register(r'companys', CompanyViewSet, 'company')
 router.register(r'schedule', ScheduleViewSet, 'schedule')
 router.register(r'orders', OrderViewSet, 'order')
 

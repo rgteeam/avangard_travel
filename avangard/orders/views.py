@@ -54,7 +54,7 @@ def get_new_orders(request):
         return JsonResponse(order_dict)
 
 
-@login_required
+# @login_required
 def create_order(request):
     museum_id = request.GET.get('museum_id', 1)
     museum = Museum.objects.get(pk=museum_id)

@@ -8,9 +8,9 @@ class MuseumTable(tables.Table):
             "td": {"style": "width:15%"}
         })
     operations = tables.TemplateColumn(template_name='operations_column.html', verbose_name=(' '), attrs={
-            "td": {"align": "right", "style": "width:20%"}
+            "td": {"align": "right", "style": "width:25%"}
         })
 
     class Meta:
         model = Museum
-        fields = ('name', 'fullticket_price', 'full_coefficient', 'reduceticket_price', 'reduce_coefficient', 'audioguide_price', 'accompanying_guide_price', 'operations')
+        fields = ('name', 'fullticket_price', 'reduceticket_price', 'audioguide_price', 'accompanying_guide_price', 'operations')

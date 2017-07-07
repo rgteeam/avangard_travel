@@ -2,10 +2,10 @@ from rest_framework import viewsets, filters, generics
 from rest_framework.decorators import api_view
 from rest_framework.reverse import reverse
 from rest_framework.response import Response
-from avangard.museums.serializers import MuseumSerializer, ScheduleSerializer
+from avangard.museums.serializers import MuseumSerializer, ScheduleSerializer, CompanySerializer
 import django_filters.rest_framework
 from django.db import models as django_models
-from avangard.museums.models import Museum, Schedule
+from avangard.museums.models import Museum, Schedule, Company
 from datetime import date, datetime, time, timedelta
 
 
@@ -21,13 +21,19 @@ class ScheduleFilter(filters.FilterSet):
 
     class Meta:
         model = Schedule
-        fields = ['museum_id', 'date', 'start_time']
+        fields = ['museum_id', 'date', 'start_time', 'company_id']
 
     filter_overrides = {
         django_models.DateTimeField: {
             'filter_class': django_filters.IsoDateTimeFilter
         },
     }
+
+
+class MuseumFilter(filters.FilterSet):
+    class Meta:
+        model = Museum
+        fields = ['name']
 
 
 @api_view(['GET'])
@@ -40,7 +46,11 @@ def api_root(request, format=None):
 class MuseumViewSet(viewsets.ModelViewSet):
     queryset = Museum.objects.all()
     serializer_class = MuseumSerializer
+    filter_class = MuseumFilter
 
+class CompanyViewSet(viewsets.ModelViewSet):
+    queryset = Company.objects.all()
+    serializer_class = CompanySerializer
 
 class ScheduleViewSet(viewsets.ModelViewSet):
     queryset = Schedule.objects.all()
