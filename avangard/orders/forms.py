@@ -7,7 +7,7 @@ from avangard.museums.models import Museum, Schedule
 class OrderForm(ModelForm):
     class Meta:
         model = Order
-        fields = ['museum', 'seance', 'fullticket_count', 'reduceticket_count', 'audioguide', 'accompanying_guide', 'name', 'email', 'phone']
+        fields = ['museum', 'seance', 'company', 'fullticket_count', 'reduceticket_count', 'audioguide', 'accompanying_guide', 'name', 'email', 'phone']
         seance = forms.ModelChoiceField(queryset=None, empty_label=None, to_field_name="seance")
         audioguide = forms.BooleanField(initial=False, required=False)
         accompanying_guide = forms.BooleanField(initial=False, required=False)
