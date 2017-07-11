@@ -6,6 +6,17 @@
 
     var latest_id = 0;
 
+    //Создание вебсокета
+
+    var webSocket = new WebSocket('ws://' + window.location.host + '/orders/');
+    webSocket.onmessage = function(message) {
+        console.log(message.data);
+        if (message.data == "StatusChanged") {
+            $("#jsGrid").jsGrid("render").done(function() {});
+        }
+    };
+
+
     //Long Poll для проверки новых заказов
 
     function subscribe() {
@@ -61,26 +72,24 @@
     MyCustomDirectLoadStrategy.prototype = new jsGrid.loadStrategies.DirectLoadingStrategy();
 
     MyCustomDirectLoadStrategy.prototype.finishInsert = function (insertedItem) {
-        console.log(insertedItem)
+        console.log(insertedItem);
         var grid = this._grid;
         grid.option("data").unshift(insertedItem);
         grid.refresh();
         var $row = $("#jsGrid").jsGrid("rowByItem", insertedItem);
+        console.log($row);
         $row.addClass("jsgrid-new-item")
-        $row.children('.jsgrid-cell').css('background-color', '#D9F5BE');
-        $('.jsgrid-insert-row').hide();
+        $row.children('.jsgrid-cell').css('background-color', '#fce38a');
     }
 
     var origFinishDelete = jsGrid.loadStrategies.DirectLoadingStrategy.prototype.finishDelete;
 
     MyCustomDirectLoadStrategy.prototype.finishDelete = function (deletedItem, deletedItemIndex) {
         if(this._grid.deletionFailed) { // define deletionFailed on done of delete ajax request in deleteItem of controller
-            $('.jsgrid-insert-row').hide();
             alert("Такого элемента уже не существует");
             return;
         }
         origFinishDelete.apply(this, arguments);
-        $('.jsgrid-insert-row').hide();
     }
 
     //Параметры таблицы
@@ -94,15 +103,15 @@
             editing: false,
             sorting: true,
             paging: false,
-            inserting: true,
+            inserting: false,
             autoload: true,
+
 
             loadStrategy: function () {
                 return new MyCustomDirectLoadStrategy(this);
             },
 
             onDataLoaded: function (args) {
-                $('.jsgrid-insert-row').hide();
                 subscribe();
                 setInterval("subscribe()", 10000);
             },
@@ -187,7 +196,8 @@
                     type: "text",
                     align: "center",
                     width: 80,
-                    editing: false, itemTemplate: function (value, item) {
+                    editing: false,
+                    itemTemplate: function (value, item) {
                     var iconClass = "";
                     if (value == true) {
                         iconClass = "fa fa-check";
@@ -205,7 +215,8 @@
                     var arr = [
                         {val: 1, text: 'Новый'},
                         {val: 2, text: 'Одобрен'},
-                        {val: 3, text: 'Выкуплен'}
+                        {val: 3, text: 'Выкуплен'},
+                        {val: 4, text: 'Отказан'}
                     ];
                     var sel = $('<select>');
                     $(arr).each(function () {
@@ -215,15 +226,16 @@
                         }
                         sel.append(sel_option);
                     });
+
                     return sel
                             .on("change", function () {
                                 return $.ajax({
                                     type: "POST",
                                     data: {"new_status": this.value},
                                     url: "/orders/update_status/" + item.pk
-                                });
+                                }).then($("#jsGrid").jsGrid("render").done(function() {})).then(webSocket.send("StatusChanged"));
                             })
-                }
+                    }
                 },
                 {name: "full_price", title: "Цена", type: "number", align: "center", width: 50, editing: false},
                 {
@@ -240,7 +252,22 @@
                         return $result.add($a);
                     }
                 },
-            ]
+            ],
+
+            rowClass: function(item, itemIndex) {
+                switch (item.status) {
+                    case 1:
+                        return "jsgrid-new-item";
+                    case 2:
+                        return "jsgrid-approved-item";
+                    case 3:
+                        return "jsgrid-purchased-item";
+                    case 4:
+                        return "jsgrid-denied-item";
+                    default:
+                        return "jsgrid-default-item";
+                }
+            },
         });
 
     });

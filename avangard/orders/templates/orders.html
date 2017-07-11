@@ -3,6 +3,8 @@
 {% block title %}Список заказов{% endblock %}
 {% block style %}
     <script src='{% static 'js/jquery.min.js' %}' , integrity='' , crossorigin='anonymous'></script>
+    <script src="https://npmcdn.com/tether@1.2.4/dist/js/tether.min.js"></script>
+    <script src="https://npmcdn.com/bootstrap@4.0.0-alpha.5/dist/js/bootstrap.min.js"></script>
     <script src='{% static 'js/../../static/css/../../static/js/bootstrap.min.js.css' %}' , integrity='' ,
             crossorigin='anonymous'></script>
     <script type="text/javascript" src="{% static 'js/moment-with-locales.min.js' %}"></script>
@@ -20,13 +22,41 @@
             font-size: 14px;
             font-weight: 300;
         }
-
         .jsgrid-insert-row {
             visibility: collapse;
         }
 
+        .jsgrid-row > .jsgrid-cell {
+            background: inherit !important;
+        }
+
+        .jsgrid-alt-row > .jsgrid-cell {
+            background: inherit !important;
+        }
+
+        .jsgrid-selected-row > .jsgrid-cell {
+            border-color: ghostwhite !important;
+            background: inherit;
+        }
+
         .jsgrid-new-item {
-            background-color:#F7B64B;
+            background: rgba(252, 227, 138, 0.6);
+        }
+
+        .jsgrid-denied-item {
+            background: rgba(243, 129, 129, 0.6);
+        }
+
+        .jsgrid-approved-item {
+            background-color: rgba(234, 255, 208, 0.6);
+        }
+
+        .jsgrid-purchased-item {
+            background-color: rgba(207, 216, 220, 0.6);
+        }
+
+        .jsgrid-default-item {
+            background-color: rgba(255, 255, 255, 0.6);
         }
 
         .jsgrid-cell, .jsgrid-header-cell {

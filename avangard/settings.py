@@ -49,7 +49,19 @@ INSTALLED_APPS = [
     'avangard.museums',
     'avangard.orders',
     'django_tables2',
+    'channels',
 ]
+
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'asgi_redis.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [('localhost', 6379)],
+        },
+        'ROUTING': 'avangard.routing.channel_routing',
+    },
+}
 
 #This is required otherwise it asks for email server
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
