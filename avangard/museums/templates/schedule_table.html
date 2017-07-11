@@ -10,20 +10,8 @@
             }
         });
     };
+
     $(function () {
-        var objects = [ {% for s in schedule %}
-            {
-                "date": curDate,
-                "museum_id": "{{ museum.pk }}",
-                "id": "{{ s.pk }}",
-                "start_time": "{{ s.start_time|time:"H:i" }}",
-                "end_time": "{{ s.end_time|time:"H:i" }}",
-                "max_count_full": {{ s.max_count_full }},
-                "max_count_reduce": {{ s.max_count_reduce }},
-                "company_id": {{ s.company.pk }}
-            },
-        {% endfor %}
-        ];
         jsGrid.validators.start_time = {
             message: "Введите верное время в промежутке между 00:00 и 23:59",
             validator: function (value, item) {
@@ -46,8 +34,6 @@
         $("#jsGrid").jsGrid({
             width: "100%",
 
-            data: objects,
-
             inserting: true,
             filtering: false,
             editing: true,
@@ -61,17 +47,30 @@
             },
 
             controller: {
-                insertItem: function (item) {
-                    if (typeof item.max_count_full == 'undefined') {
-                        item.max_count_full = 0
+                loadData: function (filter) {
+                    if (isDateSet == true) {
+                        var d = $.Deferred();
+                        $.ajax({
+                            type: "GET",
+                            url: "/api/schedule/?format=json&date=" + dateStr + "&museum_id={{ museum.pk }}"
+                        }).done(function (result) {
+                            d.resolve(result)
+                        });
+                        return d.promise();
                     }
-                    if (typeof item.max_count_reduce == 'undefined') {
-                        item.max_count_reduce = 0
+                },
+
+                insertItem: function (item) {
+                    if (typeof item.full_count == 'undefined') {
+                        item.full_count = 0
+                    }
+                    if (typeof item.reduce_count == 'undefined') {
+                        item.reduce_count = 0
                     }
 
                     item.museum_id = {{ museum.pk }};
 
-                    item.date = curDate;
+                    item.date = dateStr;
 
                     item.company_id = item.company_id;
 
@@ -82,7 +81,9 @@
                         url: "/schedule/create",
                         data: item
                     }).done(function (response) {
-                        item.id = response;
+                        item.pk = response.id;
+                        item.reduce_price = response.reduce_price;
+                        item.full_price = response.full_price;
                         d.resolve(item);
                     }).fail(function () {
                         return false
@@ -95,10 +96,12 @@
                     var d = $.Deferred();
                     $.ajax({
                         type: "POST",
-                        url: "/schedule/update/" + updatingItem.id,
+                        url: "/schedule/update/" + updatingItem.pk,
                         data: updatingItem
                     }).done(function (response) {
-                        d.resolve(response);
+                        updatingItem.full_price = response.full_price;
+                        updatingItem.reduce_price = response.reduce_price;
+                        d.resolve(updatingItem);
                     }).fail(function () {
                         d.resolve(previousItem);
                     });
@@ -108,12 +111,13 @@
                 deleteItem: function (item) {
                     return $.ajax({
                         type: "DELETE",
-                        url: "/schedule/delete/" + item.id
+                        url: "/schedule/delete/" + item.pk
                     });
                 }
             },
 
             fields: [
+                {name: "pk", title: "ID", type: "text", align: "center", editing: false, visible: false},
                 {
                     name: "start_time",
                     validate: {validator: "start_time"},
@@ -130,9 +134,13 @@
                     type: "text",
                     width: 100
                 },
-                {name: "max_count_full", title: "Квота билетов взрослых", type: "number", align: "center", width: 200},
-                {name: "max_count_reduce", title: "Квота билетов льготных", type: "number", align: "center", width: 200},
+                {name: "full_coefficient_string", title: "Коэффициент взрослого", type: "text", align: "center", width: 225},
+                {name: "reduce_coefficient_string", title: "Коэффициент льготного", type: "text", align: "center", width: 225},
+                {name: "full_count", title: "Квота билетов взрослых", type: "number", align: "center", width: 125},
+                {name: "reduce_count", title: "Квота билетов льготных", type: "number", align: "center", width: 125},
                 {name: "company_id", title: "Компания", type: "select", align: "center", width: 200, items: [{pk: 1, name: "Avangard One"}, {pk: 2, name: "Avangard Two"}, {pk: 3, name: "Avangard Three"}], valueField: "pk", textField: "name"},
+                {name: "full_price", title: "Цена взрослого", type: "number", align: "center", width: 100, editing: false, inserting: false},
+                {name: "reduce_price", title: "Цена льготного", type: "number", align: "center", width: 100, editing: false, inserting: false},
                 {type: "control", modeSwitchButton: false, editButton: false}
             ]
         });

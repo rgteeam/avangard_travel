@@ -9,6 +9,12 @@
     <script type="text/javascript" src="{% static 'js/moment-with-locales.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/bootstrap-datepicker.min.js' %}"></script>
 
+    <script type="text/javascript">
+        var d = new Date();
+        var dateStr = moment(d).format('YYYY-MM-DD');
+        var isDateSet = false
+    </script>
+
     <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jsgrid/1.5.3/jsgrid.min.css" />
     <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jsgrid/1.5.3/jsgrid-theme.min.css" />
 
@@ -57,26 +63,25 @@
 
     <script type="text/javascript">
         $(function () {
+
             $('#datepicker12').datepicker({
                 inline: true,
                 sideBySide: true,
-                todayHighlight: true
+                todayHighlight: true,
+                format: 'yyyy-mm-dd'
             });
 
             $('#datepicker12').on('changeDate', function () {
+                isDateSet = true
                 date = $('#datepicker12').datepicker('getFormattedDate');
-                $.ajax
-                ({
-                    type: "Post",
-                    url: "",
-                    data: "date=" + date,
-                    success: function (data) {
-                        curDate = new Date(date).toLocaleDateString();
-                        $('.date').html(new Date(date).toLocaleDateString());
-                        $('.table-div').html(data)
-                    }
+                dateStr = date
+                $('.date').html(new Date(date).toLocaleDateString());
+                $("#jsGrid").jsGrid("render").done(function() {
+                    console.log("rendering completed and data loaded");
                 });
             });
+
+            $('#datepicker12').datepicker('setDate', dateStr);
         });
 
     </script>
