@@ -2,6 +2,7 @@
 
 <script type="text/javascript">
 
+    // Если изменили заказ
     $(document).ready(function() {
             setTimeout(function(){ webSocket.send("StatusChanged"); }, 1000)
     });
@@ -13,7 +14,6 @@
     //Создание вебсокета
     var webSocket = new WebSocket('ws://' + window.location.host + '/orders/');
     webSocket.onmessage = function(message) {
-        console.log(message.data);
         if (message.data == "StatusChanged") {
             $("#jsGrid").jsGrid("render").done(function() {});
         }
