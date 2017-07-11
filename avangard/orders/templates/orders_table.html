@@ -2,12 +2,15 @@
 
 <script type="text/javascript">
 
+    $(document).ready(function() {
+            setTimeout(function(){ webSocket.send("StatusChanged"); }, 1000)
+    });
+
     //Идентификатор последней добавленной записи
 
     var latest_id = 0;
 
     //Создание вебсокета
-
     var webSocket = new WebSocket('ws://' + window.location.host + '/orders/');
     webSocket.onmessage = function(message) {
         console.log(message.data);
@@ -90,6 +93,7 @@
             return;
         }
         origFinishDelete.apply(this, arguments);
+        webSocket.send("StatusChanged");
     }
 
     //Параметры таблицы
