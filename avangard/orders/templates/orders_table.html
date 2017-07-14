@@ -127,14 +127,18 @@
                         type: "GET",
                         url: "/api/orders/?format=json"
                     }).done(function (result) {
-                        latest_id = result[0].pk;
+                        if (result[0] !== undefined) {
+                            latest_id = result[0].pk;
+                        } else {
+                            latest_id = 0;
+                        }
                         d.resolve($.map(result, function (item) {
                             var seance = item.seance.start_time;
                             if (item.seance.end_time != null) {
                                 seance += " - ";
                                 seance += item.seance.end_time
                             }
-                            return $.extend(item, {museum: item.museum.name, date: item.seance.date, seance: seance});
+                            return $.extend(item, {museum: item.museum.name, date: item.seance.date, seance: seance, company: item.seance.company_id});
                         }));
                     });
                     return d.promise();
@@ -159,6 +163,10 @@
                 {name: "phone", title: "Телефон", type: "text", align: "center", width: 100, editing: false},
                 {name: "email", title: "Email", type: "text", align: "center", width: 100, editing: false},
                 {name: "date", title: "Дата экскурсии", type: "text", align: "center", width: 100, editing: false},
+                {name: "company", title: "Компания", type: "text", align: "center", width: 100, editing: false,
+                itemTemplate: function (value, item) {
+                    return value;
+                }},
                 {name: "museum", title: "Музей", type: "text", align: "center", width: 100, editing: false},
                 {name: "seance", title: "Время", type: "text", align: "center", width: 75, editing: false},
                 {
