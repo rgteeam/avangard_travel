@@ -75,7 +75,7 @@ def get_seances_for_date(request):
     date = datetime.datetime.strptime(request.GET["date"], "%d-%m-%Y").date()
     museum = Museum.objects.get(pk=request.GET["museum_id"])
     seances = Schedule.objects.filter(museum=museum, date=date)
-    data = [{'company': str(seance.company), 'value': seance.id, 'text': str(seance)} for seance in seances]
+    data = [{'value': seance.id, 'text': str(seance)} for seance in seances]
     return JsonResponse({'seances': data})
 
 
@@ -94,7 +94,7 @@ def update_order_status(request, order_id):
 def check_new_orders(request):
     latest_id = Order.objects.latest('pk').pk
     old_latest_id = request.POST["latest_id"]
-    if (latest_id != int(old_latest_id)):
+    if latest_id != int(old_latest_id):
         return HttpResponse("true")
     else:
         return HttpResponse("false")

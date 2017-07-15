@@ -223,7 +223,7 @@
                         {% endif %}
 
                         $.each(data['seances'], function (key, value) {
-                            output.push('<option value="' + value.value + '">' + value.text + ' – ' + value.company + '</option>');
+                            output.push('<option value="' + value.value + '">' + value.text + '</option>');
                         });
 
                         $('#id_seance').html(output.join(''));
