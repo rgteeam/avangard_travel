@@ -4,7 +4,7 @@
 
     // Если изменили заказ
     $(document).ready(function() {
-            setTimeout(function(){ webSocket.send("StatusChanged"); }, 1000)
+            setTimeout(function(){ webSocket.send('StatusChanged'); }, 1000)
     });
 
     //Идентификатор последней добавленной записи
@@ -14,7 +14,7 @@
     //Создание вебсокета
     var webSocket = new WebSocket('ws://' + window.location.host + '/orders/');
     webSocket.onmessage = function(message) {
-        if (message.data == "StatusChanged") {
+        if (message.data === "StatusChanged") {
             $("#jsGrid").jsGrid("render").done(function() {});
         }
     };
@@ -34,7 +34,7 @@
 
                 //Проверка на новые заказы
 
-                if (xhr.responseText == "true") {
+                if (xhr.responseText === "true") {
 
                     //Получение новых заказов
 
@@ -62,8 +62,7 @@
 
     function format_date(date_string) {
         var d = new Date(date_string);
-        var output = d.getDate() + '.' + d.getMonth() + '.' + d.getFullYear();
-        return output
+        return d.getDate() + '.' + d.getMonth() + '.' + d.getFullYear();
     }
 
     //Стратегия добавления новых записей
@@ -81,9 +80,9 @@
         grid.refresh();
         var $row = $("#jsGrid").jsGrid("rowByItem", insertedItem);
         console.log($row);
-        $row.addClass("jsgrid-new-item")
+        $row.addClass("jsgrid-new-item");
         $row.children('.jsgrid-cell').css('background-color', '#fce38a');
-    }
+    };
 
     var origFinishDelete = jsGrid.loadStrategies.DirectLoadingStrategy.prototype.finishDelete;
 
@@ -94,7 +93,7 @@
         }
         origFinishDelete.apply(this, arguments);
         webSocket.send("StatusChanged");
-    }
+    };
 
     //Параметры таблицы
 
@@ -143,12 +142,10 @@
                     }).done(function (result) {
                         if (result[0] !== undefined) {
                             latest_id = result[0].pk;
-                        } else {
-                            latest_id = 0;
                         }
                         d.resolve($.map(result, function (item) {
                             var seance = item.seance.start_time;
-                            if (item.seance.end_time != null) {
+                            if (item.seance.end_time !== null) {
                                 seance += " - ";
                                 seance += item.seance.end_time
                             }
@@ -163,7 +160,7 @@
                         type: "DELETE",
                         url: "/orders/delete/" + item.pk,
                         success: function (result) {
-                            if (item.pk == latest_id) {
+                            if (item.pk === latest_id) {
                                 latest_id = result.latest_id
                             }
                         }
@@ -208,9 +205,9 @@
                     editing: false,
                     itemTemplate: function (value, item) {
                         var iconClass = "";
-                        if (value == true) {
+                        if (value === true) {
                             iconClass = "fa fa-check";
-                        } else if (value == false) {
+                        } else if (value === false) {
                             iconClass = "fa fa-times";
                         }
                         return $("<i>").attr("class", iconClass);
@@ -225,9 +222,9 @@
                     editing: false,
                     itemTemplate: function (value, item) {
                     var iconClass = "";
-                    if (value == true) {
+                    if (value === true) {
                         iconClass = "fa fa-check";
-                    } else if (value == false) {
+                    } else if (value === false) {
                         iconClass = "fa fa-times";
                     }
                     return $("<i>").attr("class", iconClass);
@@ -246,8 +243,8 @@
                     ];
                     var sel = $('<select>');
                     $(arr).each(function () {
-                        sel_option = $("<option>").attr('value', this.val).text(this.text);
-                        if (value == this.val) {
+                        var sel_option = $("<option>").attr('value', this.val).text(this.text);
+                        if (value === this.val) {
                             sel_option.attr('selected', 'true')
                         }
                         sel.append(sel_option);
@@ -268,16 +265,12 @@
                     type: "control", modeSwitchButton: false, editButton: false, editing: false,
                     itemTemplate: function (value, item) {
                         var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
-                        var $a = $("<a>").attr("href", "/orders/edit/" + item.pk).addClass("jsgrid-button").addClass("jsgrid-edit-button")
-                        var $customButton = $("<input>").addClass("jsgrid-button")
-                                .addClass("jsgrid-edit-button")
-                                .attr({
-                                    type: "button",
-                                });
+                        var $a = $("<a>").attr("href", "/orders/edit/" + item.pk).addClass("jsgrid-button").addClass("jsgrid-edit-button");
+                        var $customButton = $("<input>").addClass("jsgrid-button").addClass("jsgrid-edit-button").attr({type: "button"});
                         $a.append($customButton);
                         return $result.add($a);
                     }
-                },
+                }
             ],
 
             rowClass: function(item, itemIndex) {
@@ -293,9 +286,8 @@
                     default:
                         return "jsgrid-default-item";
                 }
-            },
+            }
         });
-
     });
 </script>
 
