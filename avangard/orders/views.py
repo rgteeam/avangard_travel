@@ -12,7 +12,15 @@ import datetime
 @login_required
 def orders_index(request):
     if request.method == 'GET':
-        return render(request, 'orders.html')
+        context = {'type': 'current'}
+        return render(request, 'orders.html', context)
+
+
+@login_required
+def get_old_orders(request):
+    if request.method == 'GET':
+        context = {'type': 'old'}
+        return render(request, 'orders.html', context)
 
 
 @login_required

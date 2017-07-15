@@ -116,16 +116,30 @@
             },
 
             onDataLoaded: function (args) {
-                subscribe();
-                setInterval("subscribe()", 10000);
+                {% if type == "current" %}
+                    subscribe();
+                    setInterval("subscribe()", 10000);
+                {% endif %}
             },
 
             controller: {
                 loadData: function (filter) {
+
+                    //Получение сведений о текущей дате и фильтрация
+
+                    var date = new Date();
+                    var dateStr = moment(date).format('YYYY-MM-DD HH:mm:ss');
+
+                    {% if type == "current" %}
+                        var url = "/api/orders/?format=json&date_gte=" + dateStr;
+                    {% else %}
+                        var url = "/api/orders/?format=json&date_lte=" + dateStr;
+                    {% endif %}
+
                     var d = $.Deferred();
                     $.ajax({
                         type: "GET",
-                        url: "/api/orders/?format=json"
+                        url: url
                     }).done(function (result) {
                         if (result[0] !== undefined) {
                             latest_id = result[0].pk;
