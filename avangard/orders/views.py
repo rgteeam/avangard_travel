@@ -29,15 +29,14 @@ def get_new_orders(request):
     if request.method == 'GET':
         latest_id = Order.objects.latest('pk').pk
         old_latest_id = int(request.GET["latest_id"])
-        new_objects = Order.objects.filter(pk__gt=old_latest_id, pk__lte=latest_id)
-
+        new_objects = Order.objects.filter(pk__gt=old_latest_id, pk__lte=latest_id).order_by('pk')
         order_dict = {}
         order_records = []
 
         for order_object in new_objects:
             pk = order_object.pk
             museum = order_object.museum.name
-            seance = order_object.seance.__str__()
+            seance = str(order_object.seance.start_time) + " - " + str(order_object.seance.end_time)
             date = order_object.seance.date.strftime("%Y-%m-%d")
             full_price = order_object.full_price
             fullticket_count = order_object.fullticket_count
@@ -48,12 +47,12 @@ def get_new_orders(request):
             name = order_object.name
             email = order_object.email
             phone = order_object.phone
+            company = order_object.seance.company_id
 
             record = {"pk": pk, "museum": museum, "seance": seance, "date": date, "full_price": full_price,
                       "fullticket_count": fullticket_count, "reduceticket_count": reduceticket_count,
                       "audioguide": audioguide, "accompanying_guide": accompanying_guide, "status": status,
-                      "name": name,
-                      "email": email, "phone": phone}
+                      "name": name, "email": email, "phone": phone, "company": company}
 
             order_records.append(record)
 
