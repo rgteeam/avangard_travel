@@ -242,6 +242,10 @@
                         {val: 4, text: 'Отказан'}
                     ];
                     var sel = $('<select>');
+                    {% if type == "current" %}
+                    {% else %}
+                    sel.attr('disabled', 'true')
+                    {% endif %}
                     $(arr).each(function () {
                         var sel_option = $("<option>").attr('value', this.val).text(this.text);
                         if (value === this.val) {
@@ -265,10 +269,14 @@
                     type: "control", modeSwitchButton: false, editButton: false, editing: false,
                     itemTemplate: function (value, item) {
                         var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+                        {% if type == "current" %}
                         var $a = $("<a>").attr("href", "/orders/edit/" + item.pk).addClass("jsgrid-button").addClass("jsgrid-edit-button");
                         var $customButton = $("<input>").addClass("jsgrid-button").addClass("jsgrid-edit-button").attr({type: "button"});
                         $a.append($customButton);
                         return $result.add($a);
+                        {% else %}
+                        return $result;
+                        {% endif %}
                     }
                 }
             ],
