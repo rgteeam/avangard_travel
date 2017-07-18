@@ -1,5 +1,7 @@
 from django.db import models
 from avangard.museums.models import Museum, Schedule
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 
 class Order(models.Model):
@@ -43,3 +45,11 @@ class Order(models.Model):
 
     class Meta:
         ordering = ('-pk',)
+
+
+@receiver(post_save, sender=Order, dispatch_uid="update_tickets_counts")
+def update_tickets_counts(sender, instance, created, **kwargs):
+    if created:
+        instance.seance.full_count -= instance.fullticket_count
+        instance.seance.reduce_count -= instance.reduceticket_count
+        instance.seance.save()
