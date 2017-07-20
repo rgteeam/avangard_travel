@@ -83,10 +83,9 @@ class Schedule(models.Model):
     def __str__(self):
         try:
             end_time = self.end_time.strftime("%H:%M")
-            print(self.company)
             return str(self.date.strftime("%d.%m.%Y")) + ", " + self.start_time.strftime("%H:%M") + " - " + end_time + ", " + self.company.name
         except Exception:
-            return str(self.date.strftime("%d.%m.%Y")) + ", " + self.start_time.strftime("%H:%M") + ", " + self.company.name
+            return str(self.date.strftime("%d.%m.%Y")) + ", " + self.start_time.strftime("%H:%M")
             # return self.museum.name + " " + str(self.date) + " " + str(self.start_time) + " " + str(self.end_time)
 
 
