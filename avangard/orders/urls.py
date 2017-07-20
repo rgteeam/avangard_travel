@@ -29,4 +29,5 @@ urlpatterns = [
     url(r'^update_status/(\d+)', views.update_order_status, name='update_status'),
     url(r'^check_new_orders', views.check_new_orders, name='check_new_orders'),
     url(r'^get_new_orders/', views.get_new_orders, name='get_new_orders'),
+    url(r'^get_latest_id/', views.get_latest_id, name='get_latest_id'),
 ]

@@ -25,6 +25,13 @@ def get_old_orders(request):
 
 @login_required
 @csrf_exempt
+def get_latest_id(request):
+    if request.method == 'GET':
+        latest_id = Order.objects.latest('pk').pk
+        return HttpResponse(latest_id)
+
+@login_required
+@csrf_exempt
 def get_new_orders(request):
     if request.method == 'GET':
         latest_id = Order.objects.latest('pk').pk

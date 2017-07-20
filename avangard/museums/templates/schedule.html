@@ -10,7 +10,8 @@
     <script type="text/javascript">
         var d = new Date();
         var dateStr = moment(d).format('YYYY-MM-DD');
-        var isDateSet = false
+        var isDateSet = false;
+        var schedule = undefined;
     </script>
 
     <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jsgrid/1.5.3/jsgrid.min.css" />
@@ -70,9 +71,10 @@
             });
 
             $('#datepicker12').on('changeDate', function () {
-                isDateSet = true
+                isDateSet = true;
+                schedule = undefined;
                 date = $('#datepicker12').datepicker('getFormattedDate');
-                dateStr = date
+                dateStr = date;
                 $('.date').html(new Date(date).toLocaleDateString());
                 $("#jsGrid").jsGrid("render").done(function() {
                     console.log("rendering completed and data loaded");
