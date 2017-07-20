@@ -3,19 +3,39 @@
 <script type="text/javascript">
 
     // Если изменили заказ
-    $(document).ready(function() {
-            setTimeout(function(){ webSocket.send('StatusChanged'); }, 1000)
-    });
+    /*$(document).ready(function () {
+     setTimeout(function () {
+     webSocket.send('StatusChanged');
+     }, 1000)
+     });*/
 
     //Идентификатор последней добавленной записи
 
-    var latest_id = 0;
+    var latest_id;
+    var curPageIndex = 1;
+    var ordersCount = 0;
+    var orders;
 
     //Создание вебсокета
     var webSocket = new WebSocket('ws://' + window.location.host + '/orders/');
-    webSocket.onmessage = function(message) {
-        if (message.data === "StatusChanged") {
-            $("#jsGrid").jsGrid("render").done(function() {});
+    webSocket.onmessage = function (message) {
+        message_obj = JSON.parse(message.data);
+        item = message_obj.item;
+        index = $.map(orders, function (x, index) {
+            if (x.pk == item.pk) {
+                return index;
+            }
+        });
+        if (index[0] !== undefined) {
+            if (message_obj.event === "status_changed") {
+                orders[index[0]] = item;
+                $("#jsGrid").jsGrid("render").done(function () {
+                });
+            } else if (message_obj.event === "item_deleted") {
+                orders.splice(index[0], 1);
+                $("#jsGrid").jsGrid("render").done(function () {
+                });
+            }
         }
     };
 
@@ -24,7 +44,7 @@
 
     function subscribe() {
         var xhr = new XMLHttpRequest();
-        var url = "/orders/check_new_orders";
+        var url = "/orders/check_new_orders/";
 
         xhr.open("POST", url, true);
         xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
@@ -40,18 +60,21 @@
 
                     $.ajax({
                         type: "GET",
-                        url: "/orders/get_new_orders",
+                        url: "/orders/get_new_orders/",
                         data: {'latest_id': latest_id}
                     }).done(function (result) {
-                        $.each(result.new_orders, function (i, val) {
 
-                            //Добавление в таблицу
+                        if (curPageIndex == 1) {
+                            $.each(result.new_orders, function (i, val) {
 
-                            $("#jsGrid").jsGrid("insertItem", val).done(function () {
-                                console.log("insertion completed");
+                                //Добавление в таблицу
+
+                                $("#jsGrid").jsGrid("insertItem", val).done(function () {
+                                    console.log("insertion completed");
+                                });
+                                latest_id = val.pk
                             });
-                            latest_id = val.pk
-                        });
+                        }
                     })
                 }
             }
@@ -65,15 +88,22 @@
         return d.getDate() + '.' + d.getMonth() + '.' + d.getFullYear();
     }
 
+    function createSubscription() {
+        {% if type == "current" %}
+            subscribe();
+            setInterval("subscribe()", 10000);
+        {% endif %}
+    }
+
     //Стратегия добавления новых записей
 
-    var MyCustomDirectLoadStrategy = function (grid) {
-        jsGrid.loadStrategies.DirectLoadingStrategy.call(this, grid);
+    var MyCustomPageLoadingStrategy = function (grid) {
+        jsGrid.loadStrategies.PageLoadingStrategy.call(this, grid);
     };
 
-    MyCustomDirectLoadStrategy.prototype = new jsGrid.loadStrategies.DirectLoadingStrategy();
+    MyCustomPageLoadingStrategy.prototype = new jsGrid.loadStrategies.PageLoadingStrategy();
 
-    MyCustomDirectLoadStrategy.prototype.finishInsert = function (insertedItem) {
+    MyCustomPageLoadingStrategy.prototype.finishInsert = function (insertedItem) {
         console.log(insertedItem);
         var grid = this._grid;
         grid.option("data").unshift(insertedItem);
@@ -84,15 +114,15 @@
         $row.children('.jsgrid-cell').css('background-color', '#fce38a');
     };
 
-    var origFinishDelete = jsGrid.loadStrategies.DirectLoadingStrategy.prototype.finishDelete;
+    var origFinishDelete = jsGrid.loadStrategies.PageLoadingStrategy.prototype.finishDelete;
 
-    MyCustomDirectLoadStrategy.prototype.finishDelete = function (deletedItem, deletedItemIndex) {
-        if(this._grid.deletionFailed) { // define deletionFailed on done of delete ajax request in deleteItem of controller
+    MyCustomPageLoadingStrategy.prototype.finishDelete = function (deletedItem, deletedItemIndex) {
+        if (this._grid.deletionFailed) { // define deletionFailed on done of delete ajax request in deleteItem of controller
             alert("Такого элемента уже не существует");
             return;
         }
         origFinishDelete.apply(this, arguments);
-        webSocket.send("StatusChanged");
+        webSocket.send(JSON.stringify({event: 'item_deleted', item: deletedItem}));
     };
 
     //Параметры таблицы
@@ -105,21 +135,17 @@
             filtering: false,
             editing: false,
             sorting: true,
-            paging: false,
+            paging: true,
             inserting: false,
             autoload: true,
+            pageLoading: true,
+            pageSize: 10,
 
 
             loadStrategy: function () {
-                return new MyCustomDirectLoadStrategy(this);
+                return new MyCustomPageLoadingStrategy(this);
             },
 
-            onDataLoaded: function (args) {
-                {% if type == "current" %}
-                    subscribe();
-                    setInterval("subscribe()", 10000);
-                {% endif %}
-            },
 
             controller: {
                 loadData: function (filter) {
@@ -136,24 +162,54 @@
                     {% endif %}
 
                     var d = $.Deferred();
-                    $.ajax({
-                        type: "GET",
-                        url: url
-                    }).done(function (result) {
-                        if (result[0] !== undefined) {
-                            latest_id = result[0].pk;
-                        }
-                        d.resolve($.map(result, function (item) {
-                            var seance = item.seance.start_time;
-                            if (item.seance.end_time !== null) {
-                                seance += " - ";
-                                seance += item.seance.end_time
+
+                    url += "&page=" + filter.pageIndex;
+
+                    if (orders === undefined || curPageIndex != filter.pageIndex) {
+                        curPageIndex = filter.pageIndex;
+                        $.ajax({
+                            type: "GET",
+                            url: url
+                        }).done(function (result) {
+
+                            if (latest_id === undefined) {
+                                if (result[0] !== undefined) {
+                                    latest_id = result[0].pk;
+                                    createSubscription()
+                                } else {
+                                    $.ajax({
+                                        type: "GET",
+                                        url: "/orders/get_latest_id/"
+                                    }).done(function (result) {
+                                        latest_id = result;
+                                        createSubscription()
+                                    })
+                                }
                             }
-                            return $.extend(item, {museum: item.museum.name, date: item.seance.date, seance: seance, company: item.seance.company_id});
-                        }));
-                    });
+
+                            data = $.map(result.results, function (item) {
+                                var seance = item.seance.start_time;
+                                if (item.seance.end_time !== null) {
+                                    seance += " - ";
+                                    seance += item.seance.end_time
+                                }
+                                return $.extend(item, {
+                                    museum: item.museum.name,
+                                    date: item.seance.date,
+                                    seance: seance,
+                                    company: item.seance.company_id
+                                });
+                            });
+                            orders = data;
+                            ordersCount = result.count;
+                            d.resolve({data: data, itemsCount: ordersCount});
+                        });
+                    } else {
+                        d.resolve({data: orders, itemsCount: ordersCount});
+                    }
                     return d.promise();
-                },
+                }
+                ,
 
                 deleteItem: function (item) {
                     return $.ajax({
@@ -174,10 +230,12 @@
                 {name: "phone", title: "Телефон", type: "text", align: "center", width: 100, editing: false},
                 {name: "email", title: "Email", type: "text", align: "center", width: 100, editing: false},
                 {name: "date", title: "Дата экскурсии", type: "text", align: "center", width: 100, editing: false},
-                {name: "company", title: "Компания", type: "text", align: "center", width: 100, editing: false,
-                itemTemplate: function (value, item) {
-                    return value;
-                }},
+                {
+                    name: "company", title: "Компания", type: "text", align: "center", width: 100, editing: false,
+                    itemTemplate: function (value, item) {
+                        return value;
+                    }
+                },
                 {name: "museum", title: "Музей", type: "text", align: "center", width: 100, editing: false},
                 {name: "seance", title: "Время", type: "text", align: "center", width: 75, editing: false},
                 {
@@ -221,14 +279,14 @@
                     width: 80,
                     editing: false,
                     itemTemplate: function (value, item) {
-                    var iconClass = "";
-                    if (value === true) {
-                        iconClass = "fa fa-check";
-                    } else if (value === false) {
-                        iconClass = "fa fa-times";
+                        var iconClass = "";
+                        if (value === true) {
+                            iconClass = "fa fa-check";
+                        } else if (value === false) {
+                            iconClass = "fa fa-times";
+                        }
+                        return $("<i>").attr("class", iconClass);
                     }
-                    return $("<i>").attr("class", iconClass);
-                }
                 },
                 {
                     name: "status", align: "center", title: "Статус", itemTemplate: function (value, item) {
@@ -256,9 +314,12 @@
                                     type: "POST",
                                     data: {"new_status": this.value},
                                     url: "/orders/update_status/" + item.pk
-                                }).then($("#jsGrid").jsGrid("render").done(function() {})).then(webSocket.send("StatusChanged"));
+                                }).then(item.status = parseInt(this.value)).then(webSocket.send(JSON.stringify({
+                                    event: "status_changed",
+                                    item: item
+                                })));
                             })
-                    }
+                }
                 },
                 {name: "full_price", title: "Цена", type: "number", align: "center", width: 50, editing: false},
                 {
@@ -273,7 +334,7 @@
                 }
             ],
 
-            rowClass: function(item, itemIndex) {
+            rowClass: function (item, itemIndex) {
                 switch (item.status) {
                     case 1:
                         return "jsgrid-new-item";
@@ -287,7 +348,8 @@
                         return "jsgrid-default-item";
                 }
             }
-        });
+        })
+        ;
     });
 </script>
 
