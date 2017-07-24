@@ -30,6 +30,7 @@ def get_latest_id(request):
         latest_id = Order.objects.latest('pk').pk
         return HttpResponse(latest_id)
 
+
 @login_required
 @csrf_exempt
 def get_new_orders(request):
@@ -80,7 +81,8 @@ def create_order(request):
             order_formset.save()
             return redirect('orders_index')
         else:
-            return render(request, 'create_order.html', {'type': 'create', "form": order_formset, "museum": museum})
+            return render(request, 'create_order.html', {'type': 'create', "form": order_formset, "museum": museum,
+                                                         "date": order_formset.cleaned_data["seance"].date})
 
 
 @login_required

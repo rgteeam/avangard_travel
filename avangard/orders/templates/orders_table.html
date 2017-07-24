@@ -2,22 +2,15 @@
 
 <script type="text/javascript">
 
-    // Если изменили заказ
-    /*$(document).ready(function () {
-     setTimeout(function () {
-     webSocket.send('StatusChanged');
-     }, 1000)
-     });*/
-
     //Идентификатор последней добавленной записи
 
-    var latest_id;
     var curPageIndex = 1;
     var ordersCount = 0;
     var orders;
 
     //Создание вебсокета
     var webSocket = new WebSocket('ws://' + window.location.host + '/orders/');
+
     webSocket.onmessage = function (message) {
         message_obj = JSON.parse(message.data);
         item = message_obj.item;
@@ -27,61 +20,23 @@
             }
         });
         if (index[0] !== undefined) {
-            if (message_obj.event === "status_changed") {
+            if (message_obj.event === "order_updated") {
                 orders[index[0]] = item;
                 $("#jsGrid").jsGrid("render").done(function () {
                 });
-            } else if (message_obj.event === "item_deleted") {
+            } else if (message_obj.event === "order_deleted") {
+
                 orders.splice(index[0], 1);
                 $("#jsGrid").jsGrid("render").done(function () {
                 });
             }
+        } else if (message_obj.event === "order_created" && curPageIndex == 1) {
+            orders.unshift(item);
+            orders.pop();
+            $("#jsGrid").jsGrid("render").done(function () {
+            });
         }
     };
-
-
-    //Long Poll для проверки новых заказов
-
-    function subscribe() {
-        var xhr = new XMLHttpRequest();
-        var url = "/orders/check_new_orders/";
-
-        xhr.open("POST", url, true);
-        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
-
-                //Проверка на новые заказы
-
-                if (xhr.responseText === "true") {
-
-                    //Получение новых заказов
-
-                    $.ajax({
-                        type: "GET",
-                        url: "/orders/get_new_orders/",
-                        data: {'latest_id': latest_id}
-                    }).done(function (result) {
-
-                        if (curPageIndex == 1) {
-                            $.each(result.new_orders, function (i, val) {
-
-                                //Добавление в таблицу
-
-                                $("#jsGrid").jsGrid("insertItem", val).done(function () {
-                                    console.log("insertion completed");
-                                });
-                                latest_id = val.pk
-                            });
-                        }
-                    })
-                }
-            }
-        };
-
-        xhr.send("latest_id=" + latest_id);
-    }
 
     function format_date(date_string) {
         var d = new Date(date_string);
@@ -94,36 +49,6 @@
             setInterval("subscribe()", 10000);
         {% endif %}
     }
-
-    //Стратегия добавления новых записей
-
-    var MyCustomPageLoadingStrategy = function (grid) {
-        jsGrid.loadStrategies.PageLoadingStrategy.call(this, grid);
-    };
-
-    MyCustomPageLoadingStrategy.prototype = new jsGrid.loadStrategies.PageLoadingStrategy();
-
-    MyCustomPageLoadingStrategy.prototype.finishInsert = function (insertedItem) {
-        console.log(insertedItem);
-        var grid = this._grid;
-        grid.option("data").unshift(insertedItem);
-        grid.refresh();
-        var $row = $("#jsGrid").jsGrid("rowByItem", insertedItem);
-        console.log($row);
-        $row.addClass("jsgrid-new-item");
-        $row.children('.jsgrid-cell').css('background-color', '#fce38a');
-    };
-
-    var origFinishDelete = jsGrid.loadStrategies.PageLoadingStrategy.prototype.finishDelete;
-
-    MyCustomPageLoadingStrategy.prototype.finishDelete = function (deletedItem, deletedItemIndex) {
-        if (this._grid.deletionFailed) { // define deletionFailed on done of delete ajax request in deleteItem of controller
-            alert("Такого элемента уже не существует");
-            return;
-        }
-        origFinishDelete.apply(this, arguments);
-        webSocket.send(JSON.stringify({event: 'item_deleted', item: deletedItem}));
-    };
 
     //Параметры таблицы
 
@@ -140,12 +65,6 @@
             autoload: true,
             pageLoading: true,
             pageSize: 10,
-
-
-            loadStrategy: function () {
-                return new MyCustomPageLoadingStrategy(this);
-            },
-
 
             controller: {
                 loadData: function (filter) {
@@ -171,22 +90,6 @@
                             type: "GET",
                             url: url
                         }).done(function (result) {
-
-                            if (latest_id === undefined) {
-                                if (result[0] !== undefined) {
-                                    latest_id = result[0].pk;
-                                    createSubscription()
-                                } else {
-                                    $.ajax({
-                                        type: "GET",
-                                        url: "/orders/get_latest_id/"
-                                    }).done(function (result) {
-                                        latest_id = result;
-                                        createSubscription()
-                                    })
-                                }
-                            }
-
                             data = $.map(result.results, function (item) {
                                 var seance = item.seance.start_time;
                                 if (item.seance.end_time !== null) {
@@ -214,12 +117,7 @@
                 deleteItem: function (item) {
                     return $.ajax({
                         type: "DELETE",
-                        url: "/orders/delete/" + item.pk,
-                        success: function (result) {
-                            if (item.pk === latest_id) {
-                                latest_id = result.latest_id
-                            }
-                        }
+                        url: "/orders/delete/" + item.pk
                     });
                 }
             },
@@ -318,10 +216,7 @@
                                     type: "POST",
                                     data: {"new_status": this.value},
                                     url: "/orders/update_status/" + item.pk
-                                }).then(item.status = parseInt(this.value)).then(webSocket.send(JSON.stringify({
-                                    event: "status_changed",
-                                    item: item
-                                })));
+                                }).then(item.status = parseInt(this.value))
                             })
                 }
                 },

@@ -36,24 +36,46 @@
                                 <div id="datepicker"></div>
                             </div>
 
+                            {% if form.non_field_errors %}
+                                <div class="alert alert-danger" role="alert">
+                                    {{ form.non_field_errors.0 }}.
+                                </div>
+                            {% endif %}
+
                             <div class="form-group">
-                                <label for="seance">Доступное время:</label>
+                                <label for="id_seance">Доступное время:</label>
                                 {{ form.seance }}
                             </div>
 
 
-                            <div class="form-group">
-                                <label for="fullticket_count">Количество взрослых билетов (1 шт.
+                            <div class="form-group {% if form.fullticket_count.errors or form.non_field_errors %} has-danger {% endif %}">
+
+                                <label class="form-control-label" for="id_fullticket_count">Количество взрослых билетов
+                                    (1 шт.
                                     - {{ museum.fullticket_price }}
                                     р.):</label>
+
                                 {{ form.fullticket_count }}
+
+                                {% if form.fullticket_count.errors %}
+                                    <div class="form-control-feedback">{{ form.fullticket_count.errors }}</div>
+                                {% endif %}
+
                             </div>
 
-                            <div class="form-group">
-                                <label for="reduceticket_count">Количество льготных билетов (1 шт.
+                            <div class="form-group {% if form.reduceticket_count.errors or form.non_field_errors %} has-danger {% endif %}">
+
+                                <label class="form-control-label" for="id_reduceticket_count">Количество льготных
+                                    билетов (1 шт.
                                     - {{ museum.reduceticket_price }}
                                     р.):</label>
+
                                 {{ form.reduceticket_count }}
+
+                                {% if form.reduceticket_count.errors %}
+                                    <div class="form-control-feedback">{{ form.reduceticket_count.errors }}</div>
+                                {% endif %}
+
                             </div>
 
                             <div class="checkbox">
@@ -122,15 +144,15 @@
 
     <script type="text/javascript">
 
-        function get_fullticket_price(){
+        function get_fullticket_price() {
             return $('#id_fullticket_count').val() * {{ museum.fullticket_price }};
         }
 
-        function get_reduceticket_price(){
+        function get_reduceticket_price() {
             return $('#id_reduceticket_count').val() * {{ museum.reduceticket_price }};
         }
 
-        function get_audioguide_price(){
+        function get_audioguide_price() {
             if (document.getElementById('id_audioguide').checked) {
                 var total_count = parseInt($('#id_reduceticket_count').val()) + parseInt($('#id_fullticket_count').val());
                 audioguide_price = total_count * {{ museum.audioguide_price }};
@@ -140,7 +162,7 @@
             return audioguide_price;
         }
 
-        function get_accompanying_guide_price(){
+        function get_accompanying_guide_price() {
             if (document.getElementById('id_accompanying_guide').checked) {
                 accompanying_guide_price = {{ museum.accompanying_guide_price }};
             } else {
@@ -215,22 +237,28 @@
                     data: "date=" + date + "&museum_id={{ museum.pk }}",
                     success: function (data) {
                         var output = [];
-                        var selected = 0;
-                        {% if form.seance.value != None %}
-                            selected = {{ form.seance.value }};
-                        {% else %}
-                            output.push('<option value="" selected="">---------</option>');
-                        {% endif %}
+                        var selected = undefined;
 
                         $.each(data['seances'], function (key, value) {
                             output.push('<option value="' + value.value + '">' + value.text + '</option>');
+                            {% if form.seance.value != None %}
+                                var selectValue = {{ form.seance.value }}
+                                if (selectValue == value.value) {
+                                    selected = selectValue;
+                                }
+                            {% endif %}
                         });
+
+                        if (output.length == 0) {
+                            output.push('<option value="" selected="">Нет сеансов</option>');
+                        }
 
                         $('#id_seance').html(output.join(''));
 
-                        if (selected != 0) {
-                            $('#id_seance').val(selected)
+                        if (selected !== undefined) {
+                            $('#id_seance').val(selected);
                         }
+
                     }
                 });
             });

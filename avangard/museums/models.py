@@ -68,6 +68,12 @@ class Schedule(models.Model):
     def _get_start_time_str(self):
         return self.start_time.strftime("%H:%M")
 
+    def _get_time_str(self):
+        if self.end_time_str != "":
+            return "%s - %s" % (self.start_time_str, self.end_time_str)
+        else:
+            return self.start_time_str
+
     def _get_end_time_str(self):
         try:
             return self.end_time.strftime("%H:%M")
@@ -79,6 +85,7 @@ class Schedule(models.Model):
 
     start_time_str = property(_get_start_time_str)
     end_time_str = property(_get_end_time_str)
+    time_str = property(_get_time_str)
 
     def __str__(self):
         try:

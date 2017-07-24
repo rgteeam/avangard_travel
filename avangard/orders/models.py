@@ -1,7 +1,9 @@
 from django.db import models
 from avangard.museums.models import Museum, Schedule
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
+from channels.channel import Group
+import json
 
 
 class Order(models.Model):
@@ -53,3 +55,38 @@ def update_tickets_counts(sender, instance, created, **kwargs):
         instance.seance.full_count -= instance.fullticket_count
         instance.seance.reduce_count -= instance.reduceticket_count
         instance.seance.save()
+
+@receiver(post_save, sender=Order, dispatch_uid="order_created")
+def order_created(sender, instance, created, **kwargs):
+
+    event_name = "order_created" if created else "order_updated"
+
+    Group('orders_table').send({
+        "text": json.dumps({"event": event_name,
+                            "item": {"pk": instance.pk,
+                                     "museum": instance.museum.name,
+                                     "seance": instance.seance.time_str,
+                                     "date": instance.seance.date.strftime("%Y-%m-%d"),
+                                     "full_price": instance.full_price,
+                                     "fullticket_count": instance.fullticket_count,
+                                     "reduceticket_count": instance.reduceticket_count,
+                                     "audioguide": instance.audioguide,
+                                     "accompanying_guide": instance.accompanying_guide,
+                                     "status": int(instance.status),
+                                     "name": instance.name,
+                                     "email": instance.email,
+                                     "phone": instance.phone,
+                                     "company": instance.seance.company.pk}
+        })
+    })
+
+@receiver(post_delete, sender=Order)
+def order_deleted(sender, instance, **kwargs):
+
+    instance.seance.full_count += instance.fullticket_count
+    instance.seance.reduce_count += instance.reduceticket_count
+    instance.seance.save()
+
+    Group('orders_table').send({
+        "text": json.dumps({"event": "order_deleted", "item": {"pk": instance.pk}})
+    })
