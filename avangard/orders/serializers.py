@@ -10,6 +10,25 @@ class OrderSerializer(serializers.ModelSerializer):
     seance = ScheduleSerializer(read_only=True)
     museum_id = serializers.PrimaryKeyRelatedField(queryset=Museum.objects.all(), source='museum', write_only=True)
     seance_id = serializers.PrimaryKeyRelatedField(queryset=Schedule.objects.all(), source='seance', write_only=True)
+    fullticket_count = serializers.IntegerField(min_value=1)
+    reduceticket_count = serializers.IntegerField(min_value=1)
+
     class Meta:
         model = Order
-        fields = ('pk', 'museum', 'seance', 'museum_id', 'seance_id', 'fullticket_count', 'reduceticket_count', 'audioguide', 'accompanying_guide', 'full_price', 'added', 'updated', 'chat_id', 'user_id', 'status', 'name', 'email', 'phone')
+        fields = (
+            'pk', 'museum', 'seance', 'museum_id', 'seance_id', 'fullticket_count', 'reduceticket_count', 'audioguide',
+            'accompanying_guide', 'full_price', 'added', 'updated', 'chat_id', 'user_id', 'status', 'name', 'email',
+            'phone')
+
+
+    def validate(self, data):
+        seance = data["seance"]
+        fullticket_count = int(data["fullticket_count"])
+        reduceticket_count = int(data["reduceticket_count"])
+        if seance.full_count < fullticket_count:
+            raise serializers.ValidationError({'fullticket_count': ['Too much full tickets']})
+        if seance.reduce_count < reduceticket_count:
+            raise serializers.ValidationError({'reduceticket_count': ['Too much reduce tickets']})
+        if seance.museum.max_count < reduceticket_count + fullticket_count:
+            raise serializers.ValidationError('Max group count error')
+        return data
