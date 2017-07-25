@@ -5,7 +5,7 @@ from .models import Order
 from .forms import OrderForm
 from avangard.museums.models import Schedule, Museum
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_exempt, csrf_protect
 import datetime
 
 
@@ -78,6 +78,8 @@ def create_order(request):
         return render(request, 'create_order.html', {'type': 'create', "form": order_formset, "museum": museum})
     elif request.method == 'POST':
         if order_formset.is_valid():
+            full_price_key_name = "start_full_price"
+            reduce_price_key_name = "start_reduce_price"
             order_formset.save()
             return redirect('orders_index')
         else:
@@ -93,6 +95,13 @@ def get_seances_for_date(request):
     seances = Schedule.objects.filter(museum=museum, date=date)
     data = [{'value': seance.id, 'text': str(seance)} for seance in seances]
     return JsonResponse({'seances': data})
+
+
+@login_required
+@csrf_protect
+def seance_selected(request):
+    seance = Schedule.objects.get(pk=request.POST["seance_id"])
+    return JsonResponse({'seance': {'full_price': seance.full_price, 'reduce_price': seance.reduce_price}})
 
 
 @login_required

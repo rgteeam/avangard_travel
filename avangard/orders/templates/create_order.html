@@ -6,7 +6,46 @@
     <script src='{% static 'js/jquery.min.js' %}' , integrity='' , crossorigin='anonymous'></script>
     <script type="text/javascript" src="{% static 'js/moment-with-locales.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/bootstrap-datepicker.min.js' %}"></script>
+    <script type="text/javascript">
+
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        var csrftoken = getCookie('csrftoken');
+
+        function csrfSafeMethod(method) {
+            // these HTTP methods do not require CSRF protection
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+
+    </script>
+
+    <script type="text/javascript">
+        var seance_full_ticket_price = 0;
+        var seance_reduce_ticket_price = 0;
+    </script>
+
     <link rel="stylesheet" href="{% static 'css/bootstrap-datepicker3.min.css' %}">
+
 {% endblock %}
 
 {% block content %}
@@ -50,9 +89,10 @@
 
                             <div class="form-group {% if form.fullticket_count.errors or form.non_field_errors %} has-danger {% endif %}">
 
-                                <label class="form-control-label" for="id_fullticket_count">Количество взрослых билетов
+                                <label id="id_fullticket_count_label" class="form-control-label"
+                                       for="id_fullticket_count">Количество взрослых билетов
                                     (1 шт.
-                                    - {{ museum.fullticket_price }}
+                                    -
                                     р.):</label>
 
                                 {{ form.fullticket_count }}
@@ -65,9 +105,10 @@
 
                             <div class="form-group {% if form.reduceticket_count.errors or form.non_field_errors %} has-danger {% endif %}">
 
-                                <label class="form-control-label" for="id_reduceticket_count">Количество льготных
+                                <label id="id_reduceticket_count_label" class="form-control-label"
+                                       for="id_reduceticket_count">Количество льготных
                                     билетов (1 шт.
-                                    - {{ museum.reduceticket_price }}
+                                    -
                                     р.):</label>
 
                                 {{ form.reduceticket_count }}
@@ -145,11 +186,11 @@
     <script type="text/javascript">
 
         function get_fullticket_price() {
-            return $('#id_fullticket_count').val() * {{ museum.fullticket_price }};
+            return $('#id_fullticket_count').val() * seance_full_ticket_price;
         }
 
         function get_reduceticket_price() {
-            return $('#id_reduceticket_count').val() * {{ museum.reduceticket_price }};
+            return $('#id_reduceticket_count').val() * seance_reduce_ticket_price;
         }
 
         function get_audioguide_price() {
@@ -251,6 +292,9 @@
 
                         if (output.length == 0) {
                             output.push('<option value="" selected="">Нет сеансов</option>');
+                            setup_seance_price_labels(0, 0)
+                        } else {
+                            setup_selected_seance(data['seances'][0].value)
                         }
 
                         $('#id_seance').html(output.join(''));
@@ -265,6 +309,30 @@
 
             $('#datepicker').datepicker('setDate', date);
         });
+
+        function setup_selected_seance(val) {
+            $.ajax
+            ({
+                type: "Post",
+                url: "/orders/seance_selected/",
+                data: "seance_id=" + val
+            }).done(function (result) {
+                setup_seance_price_labels(result.seance.full_price, result.seance.reduce_price)
+            })
+        }
+
+        function setup_seance_price_labels(full_price, reduce_price) {
+            seance_full_ticket_price = full_price;
+            seance_reduce_ticket_price = reduce_price;
+            $("#id_fullticket_count_label").text("Количество взрослых билетов(1 шт. - " + seance_full_ticket_price + " р.):");
+            $("#id_reduceticket_count_label").text("Количество льготных билетов(1 шт. - " + seance_reduce_ticket_price + " р.):");
+        }
+
+        $('#id_seance').on('change', function (e) {
+            var optionSelected = $("option:selected", this);
+            setup_selected_seance(this.value)
+        });
+
 
         function getDate() {
             var d = new Date();

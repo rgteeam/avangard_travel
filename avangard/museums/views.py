@@ -55,8 +55,8 @@ def schedule_create(request):
         s.save()
         response_data = {}
         response_data['id'] = s.id
-        response_data['full_price'] = s.full_price
-        response_data['reduce_price'] = s.reduce_price
+        response_data['full_price'] = s.full_price.value
+        response_data['reduce_price'] = s.reduce_price.value
         return JsonResponse(response_data)
 
 
