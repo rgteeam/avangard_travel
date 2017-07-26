@@ -10,8 +10,8 @@ class OrderSerializer(serializers.ModelSerializer):
     seance = ScheduleSerializer(read_only=True)
     museum_id = serializers.PrimaryKeyRelatedField(queryset=Museum.objects.all(), source='museum', write_only=True)
     seance_id = serializers.PrimaryKeyRelatedField(queryset=Schedule.objects.all(), source='seance', write_only=True)
-    fullticket_count = serializers.IntegerField(min_value=1)
-    reduceticket_count = serializers.IntegerField(min_value=1)
+    fullticket_count = serializers.IntegerField(min_value=0)
+    reduceticket_count = serializers.IntegerField(min_value=0)
 
     class Meta:
         model = Order
