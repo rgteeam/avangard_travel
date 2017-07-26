@@ -26,9 +26,9 @@ class OrderSerializer(serializers.ModelSerializer):
         fullticket_count = int(data["fullticket_count"])
         reduceticket_count = int(data["reduceticket_count"])
         if seance.full_count < fullticket_count:
-            raise serializers.ValidationError({'fullticket_count': ['Too much full tickets']})
+            raise serializers.ValidationError({'fullticket_count': 'Too much full tickets'})
         if seance.reduce_count < reduceticket_count:
-            raise serializers.ValidationError({'reduceticket_count': ['Too much reduce tickets']})
+            raise serializers.ValidationError({'reduceticket_count': 'Too much reduce tickets'})
         if seance.museum.max_count < reduceticket_count + fullticket_count:
             raise serializers.ValidationError('Max group count error')
         return data
