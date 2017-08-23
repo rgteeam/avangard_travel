@@ -19,24 +19,28 @@ from rest_framework import routers
 from avangard.account.views import check_email
 from avangard.museums.api import MuseumViewSet,ScheduleViewSet,CompanyViewSet
 from avangard.orders.api import OrderViewSet
+from avangard.chat.api import GetDialogsViewSet, MessageHistoryViewSet, MarkAsRead
 
 router = routers.DefaultRouter()
 router.register(r'museums', MuseumViewSet, 'museum')
 router.register(r'companys', CompanyViewSet, 'company')
 router.register(r'schedule', ScheduleViewSet, 'schedule')
 router.register(r'orders', OrderViewSet, 'order')
-
+router.register(r'chat_rooms', GetDialogsViewSet, 'chat_room')
+router.register(r'messages', MessageHistoryViewSet, 'messages')
 
 
 urlpatterns = [
     url(r'^api/rest-auth/', include('rest_auth.urls')),
     url(r'^api/rest-auth/registration/', include('rest_auth.registration.urls')),
     url(r'^api/rest-auth/check-email/', check_email),
+    url(r'^api/chat/mark_as_read/', MarkAsRead.as_view(), name='mark_as_read'),
 
     url(r'^api/', include(router.urls)),
     url(r'^admin/', admin.site.urls),
     url(r'^account/', include('avangard.account.urls')),
     url(r'^orders/', include('avangard.orders.urls')),
+    url(r'^chat/', include('avangard.chat.urls')),
     url(r'^', include('avangard.museums.urls')),
 ]
 
