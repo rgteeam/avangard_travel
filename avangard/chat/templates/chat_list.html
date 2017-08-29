@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block title %}Вход — Avangard Travel{% endblock %}
+{% block content %}
+    <div class="container" style="width: 500px; margin-top:20px;">
+        <div class="list-group">
+            {% for chat in chat_list %}
+                <a href="/chat/{{ chat.pk }}" class="list-group-item list-group-item-action">{{ chat.name }}</a>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
+{% block footer %}
+{% endblock %}

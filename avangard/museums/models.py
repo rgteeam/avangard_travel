@@ -4,6 +4,8 @@ from django.utils import timezone
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from channels.channel import Group
+from avangard.chat.models import ChatRoom
+from django.contrib.auth.models import User
 import json
 
 
@@ -16,9 +18,16 @@ class Museum(models.Model):
     audioguide_price = models.IntegerField(default=0, verbose_name="Цена аудиогоида")
     accompanying_guide_price = models.IntegerField(default=0, verbose_name="Цена сопровождающего гида")
     max_count = models.IntegerField(default=0, verbose_name="Макс. кол-во человек в группе")
+    chat_room = models.OneToOneField(ChatRoom, on_delete=models.CASCADE, null=True)
+
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        if self.pk is None:
+            self.chat_room = ChatRoom.objects.create(name=self.name, type=1)
+        super(Museum, self).save()
 
     def __str__(self):
         return self.name
+
 
 
 class Company(models.Model):
