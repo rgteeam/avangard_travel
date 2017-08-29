@@ -74,15 +74,18 @@ def create_order(request):
     museum_id = request.GET.get('museum_id', 1)
     museum = Museum.objects.get(pk=museum_id)
     order_formset = OrderForm(initial={'museum': museum}, data=request.POST or None)
+    print('1')
     if request.method == 'GET':
         return render(request, 'create_order.html', {'type': 'create', "form": order_formset, "museum": museum})
     elif request.method == 'POST':
         if order_formset.is_valid():
+            print('2')
             full_price_key_name = "start_full_price"
             reduce_price_key_name = "start_reduce_price"
             order_formset.save()
             return redirect('orders_index')
         else:
+            print('3')
             return render(request, 'create_order.html', {'type': 'create', "form": order_formset, "museum": museum,
                                                          "date": order_formset.cleaned_data["seance"].date})
 
@@ -131,14 +134,14 @@ def edit_order(request, order_id):
     order_formset = OrderForm(request.POST or None, instance=instance)
     if request.method == 'GET':
         return render(request, 'create_order.html',
-                      {'type': 'edit', 'museum': instance.museum, "form": order_formset, "date": instance.seance.date})
+                      {'type': 'edit', 'museum': instance.museum, "form": order_formset, "date": instance.seance.date, "fullticket_store": instance.fullticket_store, "reduceticket_store": instance.reduceticket_store, "order": instance})
     elif request.method == 'POST':
         if order_formset.is_valid():
             order_formset.save()
             return redirect('orders_index')
         else:
             return render(request, 'create_order.html',
-                          {'type': 'edit', 'museum': instance.museum, "form": order_formset})
+                          {'type': 'edit', 'museum': instance.museum, "form": order_formset, "date": instance.seance.date, "fullticket_store": instance.fullticket_store, "reduceticket_store": instance.reduceticket_store, "order": instance})
 
 
 @csrf_exempt

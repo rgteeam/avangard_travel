@@ -70,8 +70,8 @@
                         <div class="card-block">
 
                             {{ form.museum.as_hidden }}
-{#                            {{ form.fullticket_store.as_hidden }}#}
-{#                            {{ form.reduceticket_store.as_hidden }}#}
+                            {{ form.fullticket_store.as_hidden }}
+                            {{ form.reduceticket_store.as_hidden }}
 
                             <div class="form-group">
                                 <div id="datepicker"></div>
@@ -188,9 +188,6 @@
     <script type="text/javascript">
 
         function get_ticket_price(ticket_store) {
-            if (ticket_store.length == 0) {
-                return 0;
-            }
             var ticket_data = JSON.parse(ticket_store.replace(/&quot;/g, '"'));
             var sum = 0;
             $.each(ticket_data, function (key, value) {
@@ -297,8 +294,9 @@
             {% endif %}
 
             $('#datepicker').on('changeDate', function () {
+                console.log("changed");
                 date = $('#datepicker').datepicker('getFormattedDate');
-                console.log("Date was changed on " + date);
+                console.log(date);
                 $.ajax
                 ({
                     type: "Get",
@@ -317,6 +315,7 @@
                                 }
                             {% endif %}
                         });
+
                         if (output.length == 0) {
                             output.push('<option value="" selected="">Нет сеансов</option>');
                             setup_seance_price_labels(0, 0)

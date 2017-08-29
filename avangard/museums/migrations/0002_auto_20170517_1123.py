@@ -16,8 +16,8 @@ class Migration(migrations.Migration):
             name='Schedule',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('start_time', models.CharField(max_length=50, verbose_name='Начало')),
-                ('end_time', models.IntegerField(default=0, verbose_name='Конец')),
+                ('start_time', models.TimeField(verbose_name='Начало')),
+                ('end_time', models.TimeField(verbose_name='Конец')),
                 ('max_count', models.BooleanField(default=False, verbose_name='Квота')),
             ],
         ),

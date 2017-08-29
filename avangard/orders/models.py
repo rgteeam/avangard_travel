@@ -3,6 +3,7 @@ from avangard.museums.models import Museum, Schedule
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from channels.channel import Group
+from django.contrib.postgres.fields import JSONField, ArrayField
 import json
 
 
@@ -21,6 +22,8 @@ class Order(models.Model):
     seance = models.ForeignKey(Schedule, on_delete=models.CASCADE, null=True)
     fullticket_count = models.IntegerField(default=0, verbose_name="Количество взрослых билетов")
     reduceticket_count = models.IntegerField(default=0, verbose_name="Количество льготных билетов")
+    fullticket_store = JSONField(default=list([]))
+    reduceticket_store = JSONField(default=list([]))
     audioguide = models.BooleanField(default=False, verbose_name="Аудиогид")
     accompanying_guide = models.BooleanField(default=False, verbose_name="Сопровождающий гид")
     chat_id = models.IntegerField(null=True, blank=True)
@@ -49,12 +52,100 @@ class Order(models.Model):
         ordering = ('-pk',)
 
 
-@receiver(post_save, sender=Order, dispatch_uid="update_tickets_counts")
-def update_tickets_counts(sender, instance, created, **kwargs):
-    if created:
-        instance.seance.full_count -= instance.fullticket_count
-        instance.seance.reduce_count -= instance.reduceticket_count
+def new_order(instance):
+    fullticket_data_list = list()
+    fullticket_data_dict = dict()
+    fullticket_data_dict[instance.fullticket_count] = instance.seance.full_price
+    fullticket_data_list.append(fullticket_data_dict)
+    instance.fullticket_store = json.dumps(fullticket_data_list)
+    reduceticket_data_list = list()
+    reduceticket_data_dict = dict()
+    reduceticket_data_dict[instance.reduceticket_count] = instance.seance.reduce_price
+    reduceticket_data_list.append(reduceticket_data_dict)
+    instance.reduceticket_store = json.dumps(reduceticket_data_list)
+    instance.save(update_fields={'fullticket_store', 'reduceticket_store'})
+    instance.seance.full_count -= instance.fullticket_count
+    instance.seance.reduce_count -= instance.reduceticket_count
+    instance.seance.save()
+
+
+def tickets_added(ticket_exist, ticket_store, ticket_count, price, ticket_kind, instance):
+    ticket_data = json.loads(ticket_store)
+    if ticket_exist == 0:
+        ticket_data = [{ticket_count - ticket_exist: price}]
+    else:
+        ticket_data.append({ticket_count - ticket_exist: price})
+    if ticket_kind == "fullticket_store":
+        instance.fullticket_store = json.dumps(ticket_data)
+        instance.save(update_fields={ticket_kind})
+        instance.seance.full_count -= ticket_count - ticket_exist
         instance.seance.save()
+    elif ticket_kind == "reduceticket_store":
+        instance.reduceticket_store = json.dumps(ticket_data)
+        instance.save(update_fields={ticket_kind})
+        instance.seance.reduce_count -= ticket_count - ticket_exist
+        instance.seance.save()
+
+
+def tickets_removed(ticket_exist, ticket_store, ticket_count, instance, ticket_kind):
+    ticket_data = json.loads(ticket_store)
+    need_delete = ticket_exist - ticket_count
+    lens = len(ticket_data) - 1
+    if ticket_kind == "fullticket_store":
+        instance.seance.full_count += need_delete
+        instance.seance.save()
+    elif ticket_kind == "reduceticket_store":
+        instance.seance.reduce_count += need_delete
+        instance.seance.save()
+    for i, dic in enumerate(reversed(ticket_data)):
+        for key, val in dic.items():
+            if need_delete > 0:
+                if int(key) >= need_delete:
+                    del ticket_data[lens - i]
+                    if (len(ticket_data) > 0 and int(key) != need_delete) or (len(ticket_data) == 0):
+                        ticket_data.append({int(key) - need_delete: val})
+                    need_delete = need_delete - int(key)
+                    if ticket_kind == "fullticket_store":
+                        instance.fullticket_store = json.dumps(ticket_data)
+                    elif ticket_kind == "reduceticket_store":
+                        instance.reduceticket_store = json.dumps(ticket_data)
+                    instance.save(update_fields={ticket_kind})
+                    break
+                if int(key) < need_delete:
+                    del ticket_data[lens - i]
+                    need_delete = need_delete - int(key)
+                    if ticket_kind == "fullticket_store":
+                        instance.fullticket_store = json.dumps(ticket_data)
+                    elif ticket_kind == "reduceticket_store":
+                        instance.reduceticket_store = json.dumps(ticket_data)
+                    instance.save(update_fields={ticket_kind})
+                    break
+            else:
+                return
+
+
+@receiver(post_save, sender=Order, dispatch_uid="update_tickets_counts")
+def update_tickets_counts(sender, instance, update_fields, created, **kwargs):
+    if update_fields == {'fullticket_store'} or update_fields == {'reduceticket_store'}:
+        return
+    if created:  # заказ создается впервые
+        new_order(instance)
+    else:  # заказ редактируется
+        fullticket_exist = sum([int(val) for dic in json.loads(instance.fullticket_store) for val in dic.keys()])
+        reduceticket_exist = sum([int(val) for dic in json.loads(instance.reduceticket_store) for val in dic.keys()])
+
+        if instance.fullticket_count > fullticket_exist:  # добавлены новые взрослые билеты
+            tickets_added(fullticket_exist, instance.fullticket_store, instance.fullticket_count, instance.seance.full_price, 'fullticket_store', instance)
+
+        if instance.reduceticket_count > reduceticket_exist:  # добавлены новые льготные билеты
+            tickets_added(reduceticket_exist, instance.reduceticket_store, instance.reduceticket_count, instance.seance.reduce_price, 'reduceticket_store', instance)
+
+        if instance.fullticket_count < fullticket_exist:  # взрослых билетов стало меньше
+            tickets_removed(fullticket_exist, instance.fullticket_store, instance.fullticket_count, instance, 'fullticket_store')
+
+        if instance.reduceticket_count < reduceticket_exist:  # льготных билетов стало меньше
+            tickets_removed(reduceticket_exist, instance.reduceticket_store, instance.reduceticket_count, instance, 'reduceticket_store')
+
 
 @receiver(post_save, sender=Order, dispatch_uid="order_created")
 def order_created(sender, instance, created, **kwargs):
@@ -76,9 +167,9 @@ def order_created(sender, instance, created, **kwargs):
                                      "name": instance.name,
                                      "email": instance.email,
                                      "phone": instance.phone,
-                                     "company": instance.seance.company.pk}
-        })
+                                     "company": instance.seance.company.pk}})
     })
+
 
 @receiver(post_delete, sender=Order)
 def order_deleted(sender, instance, **kwargs):

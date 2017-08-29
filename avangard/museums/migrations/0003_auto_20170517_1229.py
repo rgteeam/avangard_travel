@@ -25,19 +25,4 @@ class Migration(migrations.Migration):
             name='museum',
             field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='museums.Museum'),
         ),
-        migrations.AlterField(
-            model_name='schedule',
-            name='end_time',
-            field=models.TimeField(default=django.utils.timezone.now, verbose_name='Конец'),
-        ),
-        migrations.AlterField(
-            model_name='schedule',
-            name='max_count',
-            field=models.IntegerField(default=0, verbose_name='Квота билетов'),
-        ),
-        migrations.AlterField(
-            model_name='schedule',
-            name='start_time',
-            field=models.TimeField(default=django.utils.timezone.now, verbose_name='Начало'),
-        ),
     ]
