@@ -58,7 +58,7 @@
         messages = [];
 
         //Создание вебсокета
-        var webSocket = new WebSocket('ws://' + window.location.host + '/chat/' + room_id);
+        var webSocket = new WebSocket('ws://' + window.location.host + '/ws/chat/' + room_id);
 
         webSocket.onmessage = function (message) {
 
