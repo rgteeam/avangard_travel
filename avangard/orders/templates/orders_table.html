@@ -9,7 +9,7 @@
     var orders;
 
     //Создание вебсокета
-    var webSocket = new WebSocket('ws://' + window.location.host + '/orders/');
+    var webSocket = new WebSocket('ws://' + window.location.host + '/ws/orders/');
 
     webSocket.onmessage = function (message) {
         message_obj = JSON.parse(message.data);

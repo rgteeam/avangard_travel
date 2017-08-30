@@ -2,7 +2,7 @@
 
 <script type="text/javascript">
 
-    var webSocket = new WebSocket('ws://' + window.location.host + '/schedule/');
+    var webSocket = new WebSocket('ws://' + window.location.host + '/ws/schedule/');
 
     webSocket.onmessage = function (message) {
         message_obj = JSON.parse(message.data);
