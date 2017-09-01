@@ -1,6 +1,12 @@
 {% extends "base.html" %}
 {% load staticfiles %}
-{% block title %}Список заказов{% endblock %}
+{% block title %}
+    {% if type == 'old' %}
+        Архив заказов
+    {% else %}
+        Список заказов
+    {% endif %}
+{% endblock %}
 {% block style %}
     <script src='{% static 'js/jquery.min.js' %}' , integrity='' , crossorigin='anonymous'></script>
     <script src="https://npmcdn.com/tether@1.2.4/dist/js/tether.min.js"></script>

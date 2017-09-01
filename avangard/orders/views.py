@@ -74,18 +74,15 @@ def create_order(request):
     museum_id = request.GET.get('museum_id', 1)
     museum = Museum.objects.get(pk=museum_id)
     order_formset = OrderForm(initial={'museum': museum}, data=request.POST or None)
-    print('1')
     if request.method == 'GET':
         return render(request, 'create_order.html', {'type': 'create', "form": order_formset, "museum": museum})
     elif request.method == 'POST':
         if order_formset.is_valid():
-            print('2')
             full_price_key_name = "start_full_price"
             reduce_price_key_name = "start_reduce_price"
             order_formset.save()
             return redirect('orders_index')
         else:
-            print('3')
             return render(request, 'create_order.html', {'type': 'create', "form": order_formset, "museum": museum,
                                                          "date": order_formset.cleaned_data["seance"].date})
 

@@ -1,8 +1,15 @@
 {% extends "base.html" %}
 {% load staticfiles %}
-{% block title %}Создать заказ{% endblock %}
+{% block title %}
+    {% if type == 'edit' %}
+        Редактировать заказ
+    {% else %}
+        Создать заказ
+    {% endif %}
+{% endblock %}
 
 {% block style %}
+    <!--suppress ALL -->
     <script src='{% static 'js/jquery.min.js' %}' , integrity='' , crossorigin='anonymous'></script>
     <script type="text/javascript" src="{% static 'js/moment-with-locales.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/bootstrap-datepicker.min.js' %}"></script>
@@ -191,9 +198,8 @@
             if (ticket_store.length == 0) {
                 return 0;
             }
-            var ticket_data = JSON.parse(ticket_store.replace(/&quot;/g, '"'));
             var sum = 0;
-            $.each(ticket_data, function (key, value) {
+            $.each(ticket_store, function (key, value) {
                 $.each(value, function (key, value) {
                     sum += parseInt(key) * parseInt(value);
                 });
@@ -202,15 +208,39 @@
             return sum;
         }
 
-        function update_fullticket_price(fullticket_exist) {
-            var fullticket_new = parseInt($('#id_fullticket_count').val());
-            if (fullticket_new >= fullticket_exist) {
-                return (fullticket_new - fullticket_exist) * seance_full_ticket_price;
-            }
-            if (fullticket_new < fullticket_exist) {
-                return (fullticket_new - fullticket_exist) * seance_full_ticket_price;
-            }
-{#            return parseInt($('#id_reduceticket_count').val()) * seance_reduce_ticket_price;#}
+        function update_ticket_price(ticket_store, ticket_exist, ticket_new, ticket_price) {
+            var ticket_data = JSON.parse(ticket_store.replace(/&quot;/g, '"'));
+            var need_delete = ticket_exist - ticket_new;
+            console.log("Нужно удалить " + need_delete);
+            var lens = ticket_data.length;
+            ticket_data.reverse();
+            for (var i = 0; i < lens; i++) {
+                for (var [key, value] of Object.entries(ticket_data[i])) {
+                    if (need_delete > 0) {
+                        if (parseInt(key) >= need_delete) {
+                            delete ticket_data[i];
+                            if (((ticket_data.length > 0) && (parseInt(key) != need_delete)) || (ticket_data.length == 0)) {
+                                var obj = {};
+                                obj[parseInt(key) - parseInt(need_delete)] = value;
+                                ticket_data.push(obj);
+                            }
+                            need_delete = (need_delete - parseInt(key)) < 0 ? 0 : need_delete - parseInt(key);
+                            break;
+                        }
+                        if (parseInt(key) < need_delete) {
+                            delete ticket_data[i];
+                            need_delete = need_delete - parseInt(key);
+                            break;
+                        }
+                    } else if (need_delete < 0) {
+                        var obj = {};
+                        obj[parseInt(ticket_new) - parseInt(ticket_exist)] = ticket_price;
+                        ticket_data.push(obj);
+                        return ticket_data;
+                    }
+                };
+            };
+            return ticket_data;
         }
 
         function update_reduceticket_price() {
@@ -219,7 +249,9 @@
 
         function get_audioguide_price() {
             if (document.getElementById('id_audioguide').checked) {
-                var total_count = parseInt($('#id_reduceticket_count').val()) + parseInt($('#id_fullticket_count').val());
+                var full_ticket_count = isNaN(parseInt($('#id_fullticket_count').val())) || parseInt($('#id_fullticket_count').val()) < 0 ? 0 : parseInt($('#id_fullticket_count').val());
+                var reduce_ticket_count = isNaN(parseInt($('#id_reduceticket_count').val())) || parseInt($('#id_reduceticket_count').val()) < 0 ? 0 : parseInt($('#id_reduceticket_count').val());
+                var total_count = full_ticket_count + reduce_ticket_count;
                 audioguide_price = total_count * {{ museum.audioguide_price }};
             } else {
                 audioguide_price = 0;
@@ -236,28 +268,47 @@
             return accompanying_guide_price;
         }
 
+        if ("{{ type }}" == "create") {
+            console.log('Set ticket variables');
+            var full_ticket_price = 0;
+            var reduce_ticket_price = 0;
+        }
 {#        var full_ticket_price = get_ticket_price("{{ fullticket_store }}");#}
 {#        var reduce_ticket_price = get_ticket_price("{{ reduceticket_store }}");#}
         var audioguide_price = get_audioguide_price();
         var accompanying_guide_price = get_accompanying_guide_price();
 
         function get_loaded_prices() {
-            full_ticket_price = get_ticket_price("{{ fullticket_store }}");
-            reduce_ticket_price = get_ticket_price("{{ reduceticket_store }}");
+            var fullticket_str = JSON.parse("{{ fullticket_store }}".replace(/&quot;/g, '"'));
+            var reduceticket_str = JSON.parse("{{ reduceticket_store }}".replace(/&quot;/g, '"'));
+            full_ticket_price = get_ticket_price(fullticket_str);
+            reduce_ticket_price = get_ticket_price(reduceticket_str);
             update_audio_guide_price();
             get_total_price();
         }
 
         $('#id_fullticket_count').keyup(function () {
-{#            console.log(update_fullticket_price("{{ instance.fullticket_count }}"));#}
-            full_ticket_price += update_fullticket_price("{{ instance.fullticket_count }}");
-            console.log(full_ticket_price);
+            if ("{{ type }}" == "create") {
+                full_ticket_price = isNaN(parseInt($('#id_fullticket_count').val())) ? 0 : parseInt($('#id_fullticket_count').val()) * seance_full_ticket_price;
+            } else {
+                var fullticket_new = isNaN(parseInt($('#id_fullticket_count').val())) ? 0 : parseInt($('#id_fullticket_count').val());
+                full_ticket_price = update_ticket_price("{{ fullticket_store }}", "{{ order.fullticket_count }}", fullticket_new, seance_full_ticket_price);
+                console.log(full_ticket_price);
+                full_ticket_price = get_ticket_price(full_ticket_price);
+            }
             update_audio_guide_price();
-            get_total_price()
+            get_total_price();
         });
 
         $('#id_reduceticket_count').keyup(function () {
-            reduce_ticket_price += update_reduceticket_price();
+            if ("{{ type }}" == "create") {
+                reduce_ticket_price = isNaN(parseInt($('#id_reduceticket_count').val())) ? 0 : parseInt($('#id_reduceticket_count').val()) * seance_reduce_ticket_price;
+            } else {
+                var reduceticket_new = isNaN(parseInt($('#id_reduceticket_count').val())) ? 0 : parseInt($('#id_reduceticket_count').val());
+                reduce_ticket_price = update_ticket_price("{{ reduceticket_store }}", "{{ order.reduceticket_count }}", reduceticket_new, seance_reduce_ticket_price);
+                console.log(reduce_ticket_price);
+                reduce_ticket_price = get_ticket_price(reduce_ticket_price);
+            }
             update_audio_guide_price();
             get_total_price();
         });
@@ -275,8 +326,7 @@
         }
 
         function get_total_price() {
-            totalSum = 0;
-            totalSum = full_ticket_price + reduce_ticket_price + audioguide_price + accompanying_guide_price;
+            var totalSum = full_ticket_price + reduce_ticket_price + audioguide_price + accompanying_guide_price;
             $("#total_price").text(totalSum);
             $('#fullticket_price').text(full_ticket_price);
             $('#reduceticket_price').text(reduce_ticket_price);
@@ -298,7 +348,7 @@
 
             $('#datepicker').on('changeDate', function () {
                 date = $('#datepicker').datepicker('getFormattedDate');
-                console.log("Date was changed on " + date);
+                console.log("Date was set on " + date);
                 $.ajax
                 ({
                     type: "Get",
@@ -334,6 +384,11 @@
                 });
             });
 
+            if ("{{ type }}" == "edit") {
+                console.log('Calculating full price');
+                get_loaded_prices();
+            }
+
             $('#datepicker').datepicker('setDate', date);
         });
 
@@ -351,7 +406,10 @@
         function setup_seance_price_labels(full_price, reduce_price) {
             seance_full_ticket_price = full_price;
             seance_reduce_ticket_price = reduce_price;
-            get_loaded_prices();
+{#            if ("{{ type }}" == "edit") {#}
+{#                console.log('Calculating full price');#}
+{#                get_loaded_prices();#}
+{#            }#}
             $("#id_fullticket_count_label").text("Количество взрослых билетов(1 шт. - " + seance_full_ticket_price + " р.):");
             $("#id_reduceticket_count_label").text("Количество льготных билетов(1 шт. - " + seance_reduce_ticket_price + " р.):");
         }
