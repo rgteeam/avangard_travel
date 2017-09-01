@@ -77,8 +77,6 @@
                         <div class="card-block">
 
                             {{ form.museum.as_hidden }}
-{#                            {{ form.fullticket_store.as_hidden }}#}
-{#                            {{ form.reduceticket_store.as_hidden }}#}
 
                             <div class="form-group">
                                 <div id="datepicker"></div>
@@ -273,8 +271,7 @@
             var full_ticket_price = 0;
             var reduce_ticket_price = 0;
         }
-{#        var full_ticket_price = get_ticket_price("{{ fullticket_store }}");#}
-{#        var reduce_ticket_price = get_ticket_price("{{ reduceticket_store }}");#}
+
         var audioguide_price = get_audioguide_price();
         var accompanying_guide_price = get_accompanying_guide_price();
 
@@ -406,10 +403,6 @@
         function setup_seance_price_labels(full_price, reduce_price) {
             seance_full_ticket_price = full_price;
             seance_reduce_ticket_price = reduce_price;
-{#            if ("{{ type }}" == "edit") {#}
-{#                console.log('Calculating full price');#}
-{#                get_loaded_prices();#}
-{#            }#}
             $("#id_fullticket_count_label").text("Количество взрослых билетов(1 шт. - " + seance_full_ticket_price + " р.):");
             $("#id_reduceticket_count_label").text("Количество льготных билетов(1 шт. - " + seance_reduce_ticket_price + " р.):");
         }
