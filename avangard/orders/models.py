@@ -36,7 +36,8 @@ class Order(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
     def _get_full_price(self):
-        full_price = self.fullticket_count * self.museum.fullticket_price + self.reduceticket_count * self.museum.reduceticket_price
+
+        full_price = self.fullticket_count * self.seance.full_price + self.reduceticket_count * self.seance.reduce_price
         if self.accompanying_guide:
             full_price += self.museum.accompanying_guide_price
         if self.audioguide:

@@ -8,6 +8,8 @@ class OrderSerializer(serializers.ModelSerializer):
     status = serializers.ChoiceField(choices=Order.STATUS_CHOICES, required=False)
     museum = MuseumSerializer(read_only=True)
     seance = ScheduleSerializer(read_only=True)
+    fullticket_store = serializers.CharField(read_only=True)
+    reduceticket_store = serializers.CharField(read_only=True)
     museum_id = serializers.PrimaryKeyRelatedField(queryset=Museum.objects.all(), source='museum', write_only=True)
     seance_id = serializers.PrimaryKeyRelatedField(queryset=Schedule.objects.all(), source='seance', write_only=True)
     fullticket_count = serializers.IntegerField(min_value=0)
@@ -16,7 +18,7 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = (
-            'pk', 'museum', 'seance', 'museum_id', 'seance_id', 'fullticket_count', 'reduceticket_count', 'audioguide',
+            'pk', 'museum', 'seance', 'museum_id', 'seance_id', 'fullticket_count', 'fullticket_store', 'reduceticket_store','reduceticket_count', 'audioguide',
             'accompanying_guide', 'full_price', 'added', 'updated', 'chat_id', 'user_id', 'status', 'name', 'email',
             'phone')
 

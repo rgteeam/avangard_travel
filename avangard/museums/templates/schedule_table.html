@@ -23,7 +23,8 @@
                 });
             }
         } else if (message_obj.event === "schedule_created" && item.date == dateStr) {
-            schedule.push(item)
+            schedule.push(item);
+            console.log("socket");
             $("#jsGrid").jsGrid("render").done(function () {
             });
         }
@@ -116,12 +117,13 @@
                         item.pk = response.id;
                         item.reduce_price = response.reduce_price;
                         item.full_price = response.full_price;
-                        d.resolve(item);
+{#                        schedule.push(item);#}
+                        console.log("ajax");
+{#                        d.resolve(item);#}
                     }).fail(function () {
                         return false
                     });
-
-                    //return d.promise();
+                    return d.promise();
                 },
 
                 updateItem: function (updatingItem) {
