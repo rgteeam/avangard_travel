@@ -8,7 +8,6 @@ import json
 
 
 class Order(models.Model):
-
     NEW_STATUS = 1
     CONFIRMED_STATUS = 2
     PURCHASED_STATUS = 3
@@ -37,7 +36,8 @@ class Order(models.Model):
 
     def _get_full_price(self):
 
-        full_price = self.fullticket_count * self.seance.full_price + self.reduceticket_count * self.seance.reduce_price
+        full_price = get_price(self.fullticket_store) + get_price(self.reduceticket_store)
+
         if self.accompanying_guide:
             full_price += self.museum.accompanying_guide_price
         if self.audioguide:
@@ -47,10 +47,21 @@ class Order(models.Model):
     full_price = property(_get_full_price)
 
     def __str__(self):
-        return self.name + ", " + str(self.seance.date.strftime("%d.%m.%Y")) + ", " + self.museum.name + ", " + self.seance.start_time.strftime("%H:%M") + "-" + self.seance.end_time.strftime("%H:%M") + " " + str(self.full_price) + " руб."
+        return self.name + ", " + str(
+            self.seance.date.strftime("%d.%m.%Y")) + ", " + self.museum.name + ", " + self.seance.start_time.strftime(
+            "%H:%M") + "-" + self.seance.end_time.strftime("%H:%M") + " " + str(self.full_price) + " руб."
 
     class Meta:
         ordering = ('-pk',)
+
+
+def get_price(store):
+    ticket_data = json.loads(store)
+    price = 0
+    for element in ticket_data:
+        for key, val in element.items():
+            price += int(key) * int(val)
+    return price
 
 
 def new_order(instance):
@@ -136,21 +147,24 @@ def update_tickets_counts(sender, instance, update_fields, created, **kwargs):
         reduceticket_exist = sum([int(val) for dic in json.loads(instance.reduceticket_store) for val in dic.keys()])
 
         if instance.fullticket_count > fullticket_exist:  # добавлены новые взрослые билеты
-            tickets_added(fullticket_exist, instance.fullticket_store, instance.fullticket_count, instance.seance.full_price, 'fullticket_store', instance)
+            tickets_added(fullticket_exist, instance.fullticket_store, instance.fullticket_count,
+                          instance.seance.full_price, 'fullticket_store', instance)
 
         if instance.reduceticket_count > reduceticket_exist:  # добавлены новые льготные билеты
-            tickets_added(reduceticket_exist, instance.reduceticket_store, instance.reduceticket_count, instance.seance.reduce_price, 'reduceticket_store', instance)
+            tickets_added(reduceticket_exist, instance.reduceticket_store, instance.reduceticket_count,
+                          instance.seance.reduce_price, 'reduceticket_store', instance)
 
         if instance.fullticket_count < fullticket_exist:  # взрослых билетов стало меньше
-            tickets_removed(fullticket_exist, instance.fullticket_store, instance.fullticket_count, instance, 'fullticket_store')
+            tickets_removed(fullticket_exist, instance.fullticket_store, instance.fullticket_count, instance,
+                            'fullticket_store')
 
         if instance.reduceticket_count < reduceticket_exist:  # льготных билетов стало меньше
-            tickets_removed(reduceticket_exist, instance.reduceticket_store, instance.reduceticket_count, instance, 'reduceticket_store')
+            tickets_removed(reduceticket_exist, instance.reduceticket_store, instance.reduceticket_count, instance,
+                            'reduceticket_store')
 
 
 @receiver(post_save, sender=Order, dispatch_uid="order_created")
 def order_created(sender, instance, created, **kwargs):
-
     event_name = "order_created" if created else "order_updated"
 
     Group('orders_table').send({
@@ -174,7 +188,6 @@ def order_created(sender, instance, created, **kwargs):
 
 @receiver(post_delete, sender=Order)
 def order_deleted(sender, instance, **kwargs):
-
     instance.seance.full_count += instance.fullticket_count
     instance.seance.reduce_count += instance.reduceticket_count
     instance.seance.save()
