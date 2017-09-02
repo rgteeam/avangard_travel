@@ -4,12 +4,29 @@ from avangard.museums.models import Museum, Schedule
 from rest_framework import serializers
 
 
+class StoreField(serializers.Field):
+
+    def to_representation(self, obj):
+        array = []
+
+        data = obj.strip('[').rstrip(']')
+        objects = data.split(', ')
+        for object in objects:
+            object_data = object.strip('{').rstrip('}')
+            key = int(object_data.split(':')[0].strip('"').rstrip('"'))
+            value = float(object_data.split(':')[1])
+            array.append({
+                'count': key,
+                'price': value,
+            })
+        return array
+
 class OrderSerializer(serializers.ModelSerializer):
     status = serializers.ChoiceField(choices=Order.STATUS_CHOICES, required=False)
     museum = MuseumSerializer(read_only=True)
     seance = ScheduleSerializer(read_only=True)
-    fullticket_store = serializers.CharField(read_only=True)
-    reduceticket_store = serializers.CharField(read_only=True)
+    fullticket_store = StoreField(read_only=True)
+    reduceticket_store = StoreField(read_only=True)
     museum_id = serializers.PrimaryKeyRelatedField(queryset=Museum.objects.all(), source='museum', write_only=True)
     seance_id = serializers.PrimaryKeyRelatedField(queryset=Schedule.objects.all(), source='seance', write_only=True)
     fullticket_count = serializers.IntegerField(min_value=0)
