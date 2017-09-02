@@ -11,11 +11,13 @@ class OrderForm(ModelForm):
                   'name', 'email', 'phone']
         seance = forms.ModelChoiceField(queryset=None, empty_label=None, to_field_name="seance")
         audioguide = forms.BooleanField(initial=False, required=False)
+        fullticket_count = forms.DecimalField(required=True, min_value=0)
+        reduceticket_count = forms.DecimalField(required=True, min_value=0)
         accompanying_guide = forms.BooleanField(initial=False, required=False)
         widgets = {
             'seance': forms.Select(attrs={'class': 'form-control'}),
-            'fullticket_count': forms.NumberInput(attrs={'class': 'form-control'}),
-            'reduceticket_count': forms.NumberInput(attrs={'class': 'form-control'}),
+            'fullticket_count': forms.NumberInput(attrs={'class': 'form-control', 'min': 0}),
+            'reduceticket_count': forms.NumberInput(attrs={'class': 'form-control', 'min': 0}),
             'accompanying_guide': forms.CheckboxInput(attrs={'style': 'margin-right: 10px'}),
             'audioguide': forms.CheckboxInput(attrs={'style': 'margin-right: 10px'}),
             'name': forms.TextInput(attrs={'class': 'form-control'}),
