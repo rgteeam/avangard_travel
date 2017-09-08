@@ -6,28 +6,28 @@ from django.db.models import Q
 
 # Create your views here.
 
-# Получение списка комнат
 
+# Получение списка комнат
 @login_required
 def index(request):
     chat_list = ChatRoom.objects.all()
     context = {'chat_list': chat_list}
     return render(request, 'chat_list.html', context)
 
-# Рендеринг шаблона чата
 
+# Рендеринг шаблона чата
 @login_required
 def chat_room(request, room_id):
-    context = {'room_id': room_id, 'user_id' : request.user.id}
+    museum = ChatRoom.objects.get(pk=room_id)
+    context = {'room_id': room_id, 'user_id': request.user.id, 'museum': museum}
     return render(request, 'dialog_list.html', context)
 
-# Получение диалогов для комнаты
 
+# Получение диалогов для комнаты
 @login_required
 def get_dialogs(request, room_id):
     dialogs = Message.objects.filter(room_id=room_id).exclude(sender=request.user).values('sender').order_by().distinct()
-    dialogs_dict = {}
-    dialogs_dict["dialogs"] = []
+    dialogs_dict = {"dialogs": []}
     for dialog in dialogs:
         message = Message.objects.filter(Q(room_id=room_id), Q(sender=dialog['sender']) | Q(recipient=dialog['sender'])).first()
         if message.sender != request.user:
@@ -40,5 +40,4 @@ def get_dialogs(request, room_id):
                   "status": message.status, "out": message.out,
                   "timestamp": message.timestamp}
         dialogs_dict["dialogs"].append(record)
-
     return JsonResponse(dialogs_dict)

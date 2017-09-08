@@ -33,7 +33,6 @@ class GetDialogsViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)
     queryset = ChatRoom.objects.all()
 
-
     def list(self, request):
         print(request.user.pk)
         message_queryset = Message.objects.filter(Q(sender=request.user.pk) | Q(recipient=request.user.pk))
@@ -48,8 +47,8 @@ class GetDialogsViewSet(viewsets.ModelViewSet):
         serializer = ChatRoomSerializer(self.queryset, many=True)
         return Response(serializer.data)
 
-# Обновление статуса сообщения
 
+# Обновление статуса сообщения
 class MarkAsRead(generics.UpdateAPIView):
     serializer_class = MessageSerializer
     authentication_classes = (BearerAuthentication, SessionAuthentication)
@@ -64,7 +63,7 @@ class MarkAsRead(generics.UpdateAPIView):
         response_dict = {}
 
         if len(queryset) == 0:
-            response_dict["error"] =  "ids not found"
+            response_dict["error"] = "ids not found"
             return JsonResponse(response_dict)
 
         response_dict["success"] = []
@@ -86,7 +85,6 @@ class MessageHistoryViewSet(viewsets.ModelViewSet):
     pagination_class = StandardResultsSetPagination
     queryset = Message.objects.all()
 
-
     def get_queryset(self):
         room_id = self.request.query_params.get('room_id', None)
         chat_id = self.request.query_params.get('chat_id', None)
@@ -99,12 +97,11 @@ class MessageHistoryViewSet(viewsets.ModelViewSet):
             queryset = Message.objects.all()
         return queryset, chat_id
 
-
     def list(self, request):
         queryset, chat_id = self.get_queryset()
         if queryset != None:
             queryset = queryset.filter(Q(sender=request.user.pk) | Q(recipient=request.user.pk))
-            unread_queryset = queryset.filter(recipient=request.user.pk, status = 1).values_list('pk', flat=True)
+            unread_queryset = queryset.filter(recipient=request.user.pk, status=1).values_list('pk', flat=True)
 
             page = self.paginate_queryset(queryset)
 

@@ -47,6 +47,9 @@ class Message(models.Model):
     class Meta:
         ordering = ('-timestamp',)
 
+    def __str__(self):
+        return str(self.sender) + " – " + str(self.recipient) + ": " + self.text
+
 
 @receiver(post_save, sender=Message, dispatch_uid="new_message")
 def new_message(sender, instance, created, **kwargs):

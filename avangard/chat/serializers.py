@@ -3,8 +3,8 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 from avangard.account.serializers import ShortUserSerializer
 
-# Сообщение в чате
 
+# Сообщение в чате
 class MessageSerializer(serializers.HyperlinkedModelSerializer):
     sender = ShortUserSerializer(read_only=True)
     recipient = ShortUserSerializer(read_only=True)
@@ -15,11 +15,10 @@ class MessageSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Message
-        fields = (
-        'pk', 'text', 'sender', 'recipient', 'sender_id', 'recipient_id', 'status', 'room_id', 'timestamp')
+        fields = ('pk', 'text', 'sender', 'recipient', 'sender_id', 'recipient_id', 'status', 'room_id', 'timestamp')
+
 
 # Комната в чате (содержит информацию о комнате, количество непрочитанных сообщений и последнее сообщение)
-
 class ChatRoomSerializer(serializers.HyperlinkedModelSerializer):
     last_message = MessageSerializer(read_only=True)
     unread_count = serializers.IntegerField(read_only=True)
