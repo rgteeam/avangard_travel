@@ -1,0 +1,17 @@
+INSERT INTO public.django_content_type (id, app_label, model) VALUES (1, 'admin', 'logentry');
+INSERT INTO public.django_content_type (id, app_label, model) VALUES (2, 'auth', 'permission');
+INSERT INTO public.django_content_type (id, app_label, model) VALUES (3, 'auth', 'group');
+INSERT INTO public.django_content_type (id, app_label, model) VALUES (4, 'auth', 'user');
+INSERT INTO public.django_content_type (id, app_label, model) VALUES (5, 'contenttypes', 'contenttype');
+INSERT INTO public.django_content_type (id, app_label, model) VALUES (6, 'sessions', 'session');
+INSERT INTO public.django_content_type (id, app_label, model) VALUES (7, 'sites', 'site');
+INSERT INTO public.django_content_type (id, app_label, model) VALUES (8, 'authtoken', 'token');
+INSERT INTO public.django_content_type (id, app_label, model) VALUES (9, 'account', 'emailaddress');
+INSERT INTO public.django_content_type (id, app_label, model) VALUES (10, 'account', 'emailconfirmation');
+INSERT INTO public.django_content_type (id, app_label, model) VALUES (11, 'avangard.account', 'userprofile');
+INSERT INTO public.django_content_type (id, app_label, model) VALUES (12, 'museums', 'museum');
+INSERT INTO public.django_content_type (id, app_label, model) VALUES (13, 'museums', 'schedule');
+INSERT INTO public.django_content_type (id, app_label, model) VALUES (14, 'museums', 'company');
+INSERT INTO public.django_content_type (id, app_label, model) VALUES (15, 'orders', 'order');
+INSERT INTO public.django_content_type (id, app_label, model) VALUES (16, 'chat', 'chatroom');
+INSERT INTO public.django_content_type (id, app_label, model) VALUES (17, 'chat', 'message');

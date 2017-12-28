@@ -1,0 +1,2 @@
+INSERT INTO public.museums_museum (id, name, accompanying_guide_price, audioguide_price, fullticket_price, reduceticket_price, max_count, chat_room_id) VALUES (1, 'Эрмитаж', 1000, 100, 600, 400, 25, null);
+INSERT INTO public.museums_museum (id, name, accompanying_guide_price, audioguide_price, fullticket_price, reduceticket_price, max_count, chat_room_id) VALUES (2, 'Русский музей', 1500, 200, 500, 400, 30, 1);
