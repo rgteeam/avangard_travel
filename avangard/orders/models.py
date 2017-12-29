@@ -11,10 +11,14 @@ class Order(models.Model):
     NEW_STATUS = 1
     CONFIRMED_STATUS = 2
     PURCHASED_STATUS = 3
+    DENY_STATUS = 4
+    SCANNED_STATUS = 5
     STATUS_CHOICES = (
         (NEW_STATUS, 'New'),
         (CONFIRMED_STATUS, 'Confirmed'),
         (PURCHASED_STATUS, 'Purchased'),
+        (DENY_STATUS, 'Deny'),
+        (SCANNED_STATUS, 'Scanned')
     )
 
     museum = models.ForeignKey(Museum, on_delete=models.CASCADE, null=True)

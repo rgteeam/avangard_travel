@@ -1,1 +1,0 @@
-INSERT INTO public."avangard.account_userprofile" (id, phone, user_id) VALUES (1, '89818583616', 2);
