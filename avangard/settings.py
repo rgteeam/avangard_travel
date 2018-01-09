@@ -24,7 +24,7 @@ SECRET_KEY = 'i$m!vwfs#-f+d64uokar!#aj03)2_3zpp=$qy4f%af%oi80)o7'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['78.155.206.246']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
