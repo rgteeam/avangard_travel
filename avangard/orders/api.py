@@ -1,4 +1,4 @@
-from rest_framework import viewsets, filters, generics
+from rest_framework import viewsets, generics
 from rest_framework.decorators import api_view
 from rest_framework.reverse import reverse
 from rest_framework.response import Response
@@ -9,6 +9,8 @@ from django.db import models as django_models
 from avangard.orders.models import Order
 from django.db.models import Q
 import datetime
+from django_filters import rest_framework as filters
+
 
 class StandardResultsSetPagination(PageNumberPagination):
     page_size = 10

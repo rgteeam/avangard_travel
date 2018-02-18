@@ -22,7 +22,7 @@ class ChatRoom(models.Model):
 
     type = models.IntegerField(choices=TYPE_CHOICES, default=MUSEUM_ROOM, verbose_name="Тип чата")
     name = models.CharField(max_length=100, verbose_name="Название чата")
-    room_admin = models.ForeignKey(User, related_name="Admin", default=User.objects.filter(is_superuser=True)[0].pk)
+    room_admin = models.ForeignKey(User, related_name="Admin", default=User.objects.filter(is_superuser=True)[0].pk, on_delete=models.PROTECT)
     #room_admin = models.ForeignKey(User, related_name="Admin")
     def __str__(self):
         return self.name
@@ -38,7 +38,7 @@ class Message(models.Model):
 
     status = models.IntegerField(choices=MESSAGE_STATUS, default=NEW, verbose_name="Стутус сообщения")
 
-    room = models.ForeignKey(ChatRoom)
+    room = models.ForeignKey(ChatRoom, on_delete=models.PROTECT)
     sender = models.ForeignKey(User, related_name="sender", on_delete=models.CASCADE, null=True)
     recipient = models.ForeignKey(User, related_name="recipient", on_delete=models.CASCADE, null=True)
     text = models.TextField()

@@ -6,5 +6,5 @@ from django.dispatch import receiver
 # Create your models here.
 
 class UserProfile(models.Model):
-    user = models.OneToOneField(User)
+    user = models.OneToOneField(User, on_delete=models.PROTECT)
     phone = models.CharField(max_length=30, default="")
