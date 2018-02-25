@@ -11,7 +11,8 @@ from django_filters import rest_framework as filters
 
 
 class ScheduleFilter(filters.FilterSet):
-    def get_closest(self, queryset, name, value):
+    @staticmethod
+    def get_closest(queryset, name, value):
         range_start = (datetime.combine(date.today(), value) - timedelta(minutes=30)).time()
         range_end = (datetime.combine(date.today(), value) + timedelta(minutes=30)).time()
         closest_qs = queryset.filter(start_time__range=(range_start, range_end)).order_by('start_time')

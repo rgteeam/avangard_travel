@@ -5,10 +5,10 @@
     var webSocket = new WebSocket('ws://' + window.location.host + '/ws/schedule/');
 
     webSocket.onmessage = function (message) {
-        message_obj = JSON.parse(message.data);
-        item = message_obj.item;
-        index = $.map(schedule, function (x, index) {
-            if (x.pk == item.pk) {
+        var message_obj = JSON.parse(message.data);
+        var item = message_obj.item;
+        var index = $.map(schedule, function (x, index) {
+            if (x.pk === item.pk) {
                 return index;
             }
         });
@@ -22,7 +22,7 @@
                 $("#jsGrid").jsGrid("render").done(function () {
                 });
             }
-        } else if (message_obj.event === "schedule_created" && item.date == dateStr) {
+        } else if (message_obj.event === "schedule_created" && item.date === dateStr) {
             schedule.push(item);
             console.log("socket");
             $("#jsGrid").jsGrid("render").done(function () {
@@ -52,7 +52,7 @@
         jsGrid.validators.end_time = {
             message: "Введите верное время в промежутке между 00:00 и 23:59",
             validator: function (value, item) {
-                if ((typeof value == 'undefined') || value == '-' || value == '') {
+                if ((typeof value === 'undefined') || value === '-' || value === '') {
                     value = '-';
                     return true
                 }
@@ -73,12 +73,12 @@
 
 
             onItemUpdating: function (args) {
-                previousItem = args.previousItem;
+                var previousItem = args.previousItem;
             },
 
             controller: {
                 loadData: function (filter) {
-                    if (isDateSet == true) {
+                    if (isDateSet === true) {
                         var d = $.Deferred();
                         if (schedule === undefined) {
                             $.ajax({
@@ -96,10 +96,10 @@
                 },
 
                 insertItem: function (item) {
-                    if (typeof item.full_count == 'undefined') {
+                    if (typeof item.full_count === 'undefined') {
                         item.full_count = 0
                     }
-                    if (typeof item.reduce_count == 'undefined') {
+                    if (typeof item.reduce_count === 'undefined') {
                         item.reduce_count = 0
                     }
 

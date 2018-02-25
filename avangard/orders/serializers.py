@@ -8,11 +8,10 @@ class StoreField(serializers.Field):
 
     def to_representation(self, obj):
         array = []
-
         data = obj.strip('[').rstrip(']')
         objects = data.split(', ')
-        for object in objects:
-            object_data = object.strip('{').rstrip('}')
+        for cur_object in objects:
+            object_data = cur_object.strip('{').rstrip('}')
             key = int(object_data.split(':')[0].strip('"').rstrip('"'))
             value = float(object_data.split(':')[1])
             array.append({
@@ -20,6 +19,7 @@ class StoreField(serializers.Field):
                 'price': value,
             })
         return array
+
 
 class OrderSerializer(serializers.ModelSerializer):
     status = serializers.ChoiceField(choices=Order.STATUS_CHOICES, required=False)
@@ -35,10 +35,9 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = (
-            'pk', 'museum', 'seance', 'museum_id', 'seance_id', 'fullticket_count', 'fullticket_store', 'reduceticket_store','reduceticket_count', 'audioguide',
+            'pk', 'museum', 'seance', 'museum_id', 'seance_id', 'fullticket_count', 'fullticket_store', 'reduceticket_store', 'reduceticket_count', 'audioguide',
             'accompanying_guide', 'full_price', 'added', 'updated', 'chat_id', 'user_id', 'status', 'name', 'email',
             'phone')
-
 
     def validate(self, data):
         seance = data["seance"]

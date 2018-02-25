@@ -29,7 +29,6 @@ class Museum(models.Model):
         return self.name
 
 
-
 class Company(models.Model):
     name = models.CharField(max_length=50, verbose_name="Название компании")
 
@@ -111,11 +110,11 @@ def delete_schedule(sender, instance, **kwargs):
         "text": json.dumps({"event": "schedule_deleted", "item": {"pk": instance.pk}})
     })
 
+
 @receiver(post_save, sender=Schedule)
 def save_schedule(sender, instance, created, **kwargs):
 
     event_name = "schedule_created" if created else "schedule_updated"
-
     Group('schedule_table').send({
         "text": json.dumps({"event": event_name, "item": {
             "start_time": instance.start_time_str,

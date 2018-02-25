@@ -45,7 +45,7 @@ def ws_disconnect_chat(message, room_id):
 
 def ws_user_connect_chat(message, user_id):
 
-    unread_count = len(Message.objects.filter(status=1, recipient__pk = user_id))
+    unread_count = len(Message.objects.filter(status=1, recipient__pk=user_id))
 
     text = {"event": "user_connected", "unread_count": unread_count}
     message.reply_channel.send({"accept": True, "text": json.dumps(text)})
@@ -59,5 +59,3 @@ def ws_user_message_chat(message, user_id):
 
 def ws_user_disconnect_chat(message, user_id):
     Group('user-chat-%s' % user_id).discard(message.reply_channel)
-
-

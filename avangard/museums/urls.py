@@ -19,7 +19,6 @@ from django.conf.urls import url, include
 from . import views
 
 
-
 urlpatterns = [
     url(r'^$', views.index, name='index'),
     url(r'^museums/(\d+)/schedule/', views.museum_schedule, name='museum_schedule'),
@@ -30,4 +29,3 @@ urlpatterns = [
     url(r'^museums/edit/(\d+)', views.edit_museum, name='edit_museum'),
     url(r'^museums/delete/(\d+)', views.delete_museum, name='delete_museum'),
 ]
-

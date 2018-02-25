@@ -4,10 +4,10 @@ from django_tables2.utils import A
 
 
 class MuseumTable(tables.Table):
-    name = tables.LinkColumn('museum_schedule', args=[A('pk')] , attrs={
+    name = tables.LinkColumn('museum_schedule', args=[A('pk')], attrs={
             "td": {"style": "width:15%"}
         })
-    operations = tables.TemplateColumn(template_name='operations_column.html', verbose_name=(' '), attrs={
+    operations = tables.TemplateColumn(template_name='operations_column.html', verbose_name=' ', attrs={
             "td": {"align": "right", "style": "width:25%"}
         })
 

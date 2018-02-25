@@ -12,10 +12,10 @@
     var webSocket = new WebSocket('ws://' + window.location.host + '/ws/orders/');
 
     webSocket.onmessage = function (message) {
-        message_obj = JSON.parse(message.data);
-        item = message_obj.item;
-        index = $.map(orders, function (x, index) {
-            if (x.pk == item.pk) {
+        var message_obj = JSON.parse(message.data);
+        var item = message_obj.item;
+        var index = $.map(orders, function (x, index) {
+            if (x.pk === item.pk) {
                 return index;
             }
         });
@@ -30,7 +30,7 @@
                 $("#jsGrid").jsGrid("render").done(function () {
                 });
             }
-        } else if (message_obj.event === "order_created" && curPageIndex == 1) {
+        } else if (message_obj.event === "order_created" && curPageIndex === 1) {
             orders.unshift(item);
             orders.pop();
             $("#jsGrid").jsGrid("render").done(function () {
@@ -46,7 +46,8 @@
     function createSubscription() {
         {% if type == "current" %}
             subscribe();
-            setInterval("subscribe()", 10000);
+            // language=JavaScript
+            setInterval(subscribe(), 10000);
         {% endif %}
     }
 
@@ -84,13 +85,13 @@
 
                     url += "&page=" + filter.pageIndex;
 
-                    if (orders === undefined || curPageIndex != filter.pageIndex) {
+                    if (orders === undefined || curPageIndex !== filter.pageIndex) {
                         curPageIndex = filter.pageIndex;
                         $.ajax({
                             type: "GET",
                             url: url
                         }).done(function (result) {
-                            data = $.map(result.results, function (item) {
+                            var data = $.map(result.results, function (item) {
                                 var seance = item.seance.start_time;
                                 if (item.seance.end_time !== null) {
                                     seance += " - ";

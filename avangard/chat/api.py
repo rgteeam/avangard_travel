@@ -33,7 +33,7 @@ class GetDialogsViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)
     queryset = ChatRoom.objects.all()
 
-    def list(self, request):
+    def list(self, request, **kwargs):
         print(request.user.pk)
         message_queryset = Message.objects.filter(Q(sender=request.user.pk) | Q(recipient=request.user.pk))
         for room in self.queryset:
@@ -97,9 +97,9 @@ class MessageHistoryViewSet(viewsets.ModelViewSet):
             queryset = Message.objects.all()
         return queryset, chat_id
 
-    def list(self, request):
+    def list(self, request, **kwargs):
         queryset, chat_id = self.get_queryset()
-        if queryset != None:
+        if queryset is not None:
             queryset = queryset.filter(Q(sender=request.user.pk) | Q(recipient=request.user.pk))
             unread_queryset = queryset.filter(recipient=request.user.pk, status=1).values_list('pk', flat=True)
 
@@ -110,9 +110,7 @@ class MessageHistoryViewSet(viewsets.ModelViewSet):
             else:
                 serializer = self.get_serializer(queryset, many=True)
 
-            result = {}
-            result["data"] = serializer.data
-            result["unread_ids"] = unread_queryset
+            result = {"data": serializer.data, "unread_ids": unread_queryset}
             if chat_id is not None:
                 result['chat_id'] = chat_id
             else:

@@ -1,7 +1,7 @@
 {% load django_tables2 %}
 {% load i18n %}
 {% block table-wrapper %}
-    <div class="table-container" style="width: 95%; margin: 0px auto;">
+    <div class="table-container" style="width: 95%; margin: 0 auto;">
         {% block table %}
             <table {% if table.attrs %} {{ table.attrs.as_html }}{% else %}class="table"{% endif %} id="django_table">
                 {% block table.thead %}

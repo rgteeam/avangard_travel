@@ -45,7 +45,7 @@ class OrderForm(ModelForm):
 
     def clean(self):
         cleaned_data = super(OrderForm, self).clean()
-        if ('fullticket_count' in cleaned_data and 'reduceticket_count' in cleaned_data):
+        if 'fullticket_count' in cleaned_data and 'reduceticket_count' in cleaned_data:
             fullticket_count = int(cleaned_data['fullticket_count'])
             reduceticket_count = int(cleaned_data['reduceticket_count'])
             seance = cleaned_data.get("seance")

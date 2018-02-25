@@ -73,7 +73,7 @@
             $('#datepicker12').on('changeDate', function () {
                 isDateSet = true;
                 schedule = undefined;
-                date = $('#datepicker12').datepicker('getFormattedDate');
+                var date = $('#datepicker12').datepicker('getFormattedDate');
                 dateStr = date;
                 $('.date').html(new Date(date).toLocaleDateString());
                 $("#jsGrid").jsGrid("render").done(function() {
@@ -86,7 +86,7 @@
 
     </script>
     <script src="https://npmcdn.com/tether@1.2.4/dist/js/tether.min.js"></script>
-    <script src='{% static 'js/bootstrap.min.js.css' %}' , integrity='', crossorigin='anonymous'></script>
+    <script src='{% static 'js/bootstrap.min.js.css' %}' , integrity='' , crossorigin='anonymous'></script>
 {% endblock %}
 
 {% block footer %}

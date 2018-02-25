@@ -4,8 +4,6 @@ from django.contrib.auth.decorators import login_required
 from avangard.chat.models import ChatRoom, Message
 from django.db.models import Q
 
-# Create your views here.
-
 
 # Получение списка комнат
 @login_required

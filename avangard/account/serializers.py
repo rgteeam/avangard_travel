@@ -7,6 +7,7 @@ from allauth.utils import email_address_exists
 from allauth.account.adapter import get_adapter
 from allauth.account.utils import setup_user_email
 
+
 class RegisterSerializer(serializers.Serializer):
     email = serializers.EmailField(required=allauth_settings.EMAIL_REQUIRED)
     first_name = serializers.CharField(required=True, write_only=True)
@@ -14,10 +15,12 @@ class RegisterSerializer(serializers.Serializer):
     phone = serializers.CharField(required=True, write_only=True)
     password = serializers.CharField(required=True, write_only=True)
 
-    def validate_password(self, password):
+    @staticmethod
+    def validate_password(password):
         return get_adapter().clean_password(password)
 
-    def validate_email(self, email):
+    @staticmethod
+    def validate_email(email):
         email = get_adapter().clean_email(email)
         if allauth_settings.UNIQUE_EMAIL:
             if email and email_address_exists(email):
@@ -39,17 +42,18 @@ class RegisterSerializer(serializers.Serializer):
         self.cleaned_data = self.get_cleaned_data()
         adapter.save_user(request, user, self)
         setup_user_email(request, user, [])
-        profile = UserProfile(user=user,phone=self.validated_data.get('phone', ''))
+        profile = UserProfile(user=user, phone=self.validated_data.get('phone', ''))
         profile.save()
         user.save()
         return user
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
-    #follows = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    # follows = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
     class Meta:
         model = UserProfile
         fields = ('phone',)
+
 
 class UserSerializer(serializers.ModelSerializer):
     userprofile = UserProfileSerializer()
@@ -57,6 +61,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('pk', 'username', 'first_name', 'last_name', 'email', 'userprofile')
+
 
 class ShortUserSerializer(serializers.ModelSerializer):
 

@@ -7,4 +7,5 @@ from .models import Order
 class OrderAdmin(admin.ModelAdmin):
     readonly_fields = ('added', 'updated', 'full_price')
 
+
 admin.site.register(Order, OrderAdmin)

@@ -38,10 +38,7 @@ def schedule_update(request, schedule_id):
         schedule.full_coefficient_string = s.full_coefficient_string
         schedule.company_id = s.company_id
         schedule.save()
-
-        response_data = {}
-        response_data['full_price'] = schedule.full_price
-        response_data['reduce_price'] = schedule.reduce_price
+        response_data = {'full_price': schedule.full_price, 'reduce_price': schedule.reduce_price}
         return JsonResponse(response_data)
 
 
@@ -53,10 +50,7 @@ def schedule_create(request):
     if request.method == 'POST':
         s = parse_schedule_from_post(request.POST)
         s.save()
-        response_data = {}
-        response_data['id'] = s.id
-        response_data['full_price'] = s.full_price
-        response_data['reduce_price'] = s.reduce_price
+        response_data = {'id': s.id, 'full_price': s.full_price, 'reduce_price': s.reduce_price}
         return JsonResponse(response_data)
 
 
@@ -121,21 +115,21 @@ def edit_museum(request, museum_id):
             return render(request, 'create_museum.html', {'type': 'edit', "form": museum_formset})
 
 
-def parse_schedule_from_post(dict):
-    start_time = datetime.datetime.strptime(dict['start_time'], '%H:%M').time()
+def parse_schedule_from_post(museum_data):
+    start_time = datetime.datetime.strptime(museum_data['start_time'], '%H:%M').time()
 
     try:
-        end_time = datetime.datetime.strptime(dict['end_time'], '%H:%M').time()
-    except ValueError as e:
+        end_time = datetime.datetime.strptime(museum_data['end_time'], '%H:%M').time()
+    except ValueError as err:
         end_time = None
 
-    date = datetime.datetime.strptime(dict['date'], "%Y-%m-%d").date()
-    full_count = int(dict['full_count'])
-    reduce_count = int(dict['reduce_count'])
-    full_coefficient_string = dict['full_coefficient_string']
-    reduce_coefficient_string = dict['reduce_coefficient_string']
-    museum_id = dict['museum_id']
-    company_id = dict['company_id']
+    date = datetime.datetime.strptime(museum_data['date'], "%Y-%m-%d").date()
+    full_count = int(museum_data['full_count'])
+    reduce_count = int(museum_data['reduce_count'])
+    full_coefficient_string = museum_data['full_coefficient_string']
+    reduce_coefficient_string = museum_data['reduce_coefficient_string']
+    museum_id = museum_data['museum_id']
+    company_id = museum_data['company_id']
     s = Schedule(start_time=start_time, end_time=end_time, date=date, full_count=full_count, reduce_count=reduce_count,
                  full_coefficient_string=full_coefficient_string, reduce_coefficient_string=reduce_coefficient_string)
     s.museum_id = museum_id

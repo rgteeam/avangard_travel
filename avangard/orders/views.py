@@ -78,8 +78,8 @@ def create_order(request):
         return render(request, 'create_order.html', {'type': 'create', "form": order_formset, "museum": museum})
     elif request.method == 'POST':
         if order_formset.is_valid():
-            full_price_key_name = "start_full_price"
-            reduce_price_key_name = "start_reduce_price"
+            # full_price_key_name = "start_full_price"
+            # reduce_price_key_name = "start_reduce_price"
             order_formset.save()
             return redirect('orders_index')
         else:

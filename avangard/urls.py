@@ -17,7 +17,7 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from rest_framework import routers
 from avangard.account.views import check_email
-from avangard.museums.api import MuseumViewSet,ScheduleViewSet,CompanyViewSet
+from avangard.museums.api import MuseumViewSet, ScheduleViewSet, CompanyViewSet
 from avangard.orders.api import OrderViewSet
 from avangard.chat.api import GetDialogsViewSet, MessageHistoryViewSet, MarkAsRead
 
@@ -43,4 +43,3 @@ urlpatterns = [
     url(r'^chat/', include('avangard.chat.urls')),
     url(r'^', include('avangard.museums.urls')),
 ]
-
