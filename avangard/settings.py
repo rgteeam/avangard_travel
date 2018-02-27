@@ -23,7 +23,7 @@ DEBUG = eval(os.environ.get('DEBUG_MODE', 'True'))
 
 TEMPLATE_DEBUG = DEBUG
 
-ALLOWED_HOSTS = ['46.21.248.14']
+ALLOWED_HOSTS = ['212.92.98.99']
 
 
 # Application definition
