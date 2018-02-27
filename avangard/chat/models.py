@@ -23,8 +23,12 @@ class ChatRoom(models.Model):
     type = models.IntegerField(choices=TYPE_CHOICES, default=MUSEUM_ROOM, verbose_name="Тип чата")
     name = models.CharField(max_length=100, verbose_name="Название чата")
     room_admin = models.ForeignKey(User, related_name="Admin", default=User.objects.filter(is_superuser=True)[0].pk, on_delete=models.PROTECT)
+<<<<<<< HEAD
     # room_admin = models.ForeignKey(User, related_name="Admin")
 
+=======
+    # room_admin = models.ForeignKey(User, related_name="Admin", on_delete=models.PROTECT)
+>>>>>>> deploy_v2
     def __str__(self):
         return self.name
 
