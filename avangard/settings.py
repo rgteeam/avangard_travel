@@ -23,7 +23,7 @@ DEBUG = eval(os.environ.get('DEBUG_MODE', 'True'))
 
 TEMPLATE_DEBUG = DEBUG
 
-ALLOWED_HOSTS = ['212.92.98.99']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -183,7 +183,7 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
-STATIC_ROOT = os.path.join(BASE_DIR, "assets/")
+# STATIC_ROOT = os.path.join(BASE_DIR, "assets/")
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
