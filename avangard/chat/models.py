@@ -24,6 +24,7 @@ class ChatRoom(models.Model):
     name = models.CharField(max_length=100, verbose_name="Название чата")
     room_admin = models.ForeignKey(User, related_name="Admin", default=User.objects.filter(is_superuser=True)[0].pk, on_delete=models.PROTECT)
     # room_admin = models.ForeignKey(User, related_name="Admin", on_delete=models.PROTECT)
+
     def __str__(self):
         return self.name
 
