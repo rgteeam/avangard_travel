@@ -24,6 +24,7 @@ from . import views
 login_forbidden = user_passes_test(lambda u: u.is_anonymous(), '/')
 
 urlpatterns = [
-    url(r'^login', login_forbidden(login), {'template_name': 'login.html', 'authentication_form': LoginForm}, name='login'),
+    url(r'^login', login, {'template_name': 'login.html', 'authentication_form': LoginForm}, name='login'),
+    # url(r'^login', login_forbidden(login), {'template_name': 'login.html', 'authentication_form': LoginForm}, name='login'),
     url(r'^logout', logout, {'next_page': '/'}, name='logout'),
 ]
