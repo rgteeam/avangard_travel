@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'django_filters',
     'avangard.account',
     'avangard.museums',
+    'avangard.setting',
     'avangard.orders',
     'avangard.chat',
     'django_tables2',

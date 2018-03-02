@@ -39,6 +39,7 @@ urlpatterns = [
     url(r'^api/', include(router.urls)),
     url(r'^admin/', admin.site.urls),
     url(r'^account/', include('avangard.account.urls')),
+    url(r'^settings/', include('avangard.setting.urls')),
     url(r'^orders/', include('avangard.orders.urls')),
     url(r'^chat/', include('avangard.chat.urls')),
     url(r'^', include('avangard.museums.urls')),
