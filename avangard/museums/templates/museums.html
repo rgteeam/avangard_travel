@@ -1,18 +1,16 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% block title %}Список музеев{% endblock %}
-
-{% block content %}
-    {% include "table.html" %}
-    <script src='{% static 'js/jquery.min.js' %}' , integrity='' , crossorigin='anonymous'></script>
-    <script src="https://npmcdn.com/tether@1.2.4/dist/js/tether.min.js"></script>
-    <script src='{% static 'js/../../static/js/bootstrap.min.js.css' %}' , integrity='' ,
-            crossorigin='anonymous'></script>
+{% block style %}
     <style type="text/css">
         .operation {
             margin: 3px;
         }
     </style>
 {% endblock %}
+{% block content %}
+    {% include "table.html" %}
+{% endblock %}
 {% block footer %}
+    {% include "footer.html" %}
 {% endblock %}

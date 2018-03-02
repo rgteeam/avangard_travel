@@ -3,6 +3,11 @@
 {% block title %}Расписание{% endblock %}
 
 {% block style %}
+    <style>
+    #datepicker12, .date {
+        margin-left: 1em;
+    }
+    </style>
     <script src='{% static 'js/jquery.min.js' %}' , integrity='' , crossorigin='anonymous'></script>
     <script type="text/javascript" src="{% static 'js/moment-with-locales.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/bootstrap-datepicker.min.js' %}"></script>
@@ -24,10 +29,10 @@
 
 {% block content %}
 
-    <div class="container" style="width: 100%">
+    <div class="">
         <div class="panel-heading">
             <div class="panel-title text-center">
-                <h1 class="title">Расписание - {{ museum.name }} </h1>
+                <h2 class="title">Расписание - {{ museum.name }} </h2>
                 <hr/>
             </div>
         </div>
@@ -85,10 +90,9 @@
         });
 
     </script>
-    <script src="https://npmcdn.com/tether@1.2.4/dist/js/tether.min.js"></script>
     <script src='{% static 'js/bootstrap.min.js.css' %}' , integrity='' , crossorigin='anonymous'></script>
 {% endblock %}
 
 {% block footer %}
-
+    {% include "footer.html" %}
 {% endblock %}
