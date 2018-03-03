@@ -110,7 +110,7 @@ def update_order_status(request, order_id):
     new_status = request.POST["new_status"]
     order = get_object_or_404(Order, pk=order_id)
     order.status = new_status
-    order.save(update_fields=["status"])
+    order.save()
     return HttpResponse(status=200)
 
 

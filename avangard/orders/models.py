@@ -4,7 +4,9 @@ from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from channels.channel import Group
 from django.contrib.postgres.fields import JSONField, ArrayField
+from avangard import settings
 import json
+import qrcode
 
 
 class Order(models.Model):
@@ -37,6 +39,27 @@ class Order(models.Model):
     phone = models.CharField(max_length=12, verbose_name="Номер телефона")
     added = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+    qr_code = models.FileField(upload_to='qr_code', blank=True)
+
+    def save(self, **kwargs):
+        if self.status == "2":
+            self.qr_code = self.generate_qrcode()
+        super(Order, self).save()
+
+    def generate_qrcode(self):
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=10,
+            border=4,
+        )
+        data = '%s' % self.fullticket_count
+        qr.add_data(data)
+        qr.make(fit=True)
+        filename = '%s.png' % self.pk
+        img = qr.make_image()
+        img.save(settings.MEDIA_ROOT + "/qr_code/" + filename)
+        return "/qr_code/" + filename
 
     def _get_full_price(self):
 
@@ -79,7 +102,7 @@ def new_order(instance):
     reduceticket_data_dict[instance.reduceticket_count] = instance.seance.reduce_price
     reduceticket_data_list.append(reduceticket_data_dict)
     instance.reduceticket_store = json.dumps(reduceticket_data_list)
-    instance.save(update_fields={'fullticket_store', 'reduceticket_store'})
+    instance.save()
     instance.seance.full_count -= instance.fullticket_count
     instance.seance.reduce_count -= instance.reduceticket_count
     instance.seance.save()
@@ -93,12 +116,12 @@ def tickets_added(ticket_exist, ticket_store, ticket_count, price, ticket_kind, 
         ticket_data.append({ticket_count - ticket_exist: price})
     if ticket_kind == "fullticket_store":
         instance.fullticket_store = json.dumps(ticket_data)
-        instance.save(update_fields={ticket_kind})
+        instance.save()
         instance.seance.full_count -= ticket_count - ticket_exist
         instance.seance.save()
     elif ticket_kind == "reduceticket_store":
         instance.reduceticket_store = json.dumps(ticket_data)
-        instance.save(update_fields={ticket_kind})
+        instance.save()
         instance.seance.reduce_count -= ticket_count - ticket_exist
         instance.seance.save()
 
@@ -125,7 +148,7 @@ def tickets_removed(ticket_exist, ticket_store, ticket_count, instance, ticket_k
                         instance.fullticket_store = json.dumps(ticket_data)
                     elif ticket_kind == "reduceticket_store":
                         instance.reduceticket_store = json.dumps(ticket_data)
-                    instance.save(update_fields={ticket_kind})
+                    instance.save()
                     break
                 if int(key) < need_delete:
                     del ticket_data[lens - i]
@@ -134,7 +157,7 @@ def tickets_removed(ticket_exist, ticket_store, ticket_count, instance, ticket_k
                         instance.fullticket_store = json.dumps(ticket_data)
                     elif ticket_kind == "reduceticket_store":
                         instance.reduceticket_store = json.dumps(ticket_data)
-                    instance.save(update_fields={ticket_kind})
+                    instance.save()
                     break
             else:
                 return
