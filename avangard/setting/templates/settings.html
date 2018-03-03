@@ -11,7 +11,36 @@
             crossorigin='anonymous'></script>
 {% endblock %}
 {% block content %}
-    Крайнее время до выкупа заказа:
+    <div class="container">
+        <div class="alert alert-success alert-dismissible" role="alert">
+          <strong></strong>Время до выкупа заказа успешно сохранено!
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="card">
+            <form action="" method="post"> {% csrf_token %}
+                <div class="card-body">
+                    <div class="input-group mb-2">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1">Время до выкупа заказа</span>
+                      </div>
+                      <input type="text" class="form-control" name="prebuy_time_input" aria-label="Время" id="prebuy_time_input" aria-describedby="basic-addon1">
+                    </div>
+                    <button type="submit" class="btn btn-success mb-2 float-right">Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script type="application/javascript">
+        {% if type == 'updated' %}
+            $('.alert').alert();
+        {% else %}
+            $('.alert').alert('close');
+        {% endif %}
+        var el = document.getElementById("prebuy_time_input");
+        el.value = '{{ prebuy_time }}';
+    </script>
 {% endblock %}
 {% block footer %}
 {% endblock %}
