@@ -5,6 +5,7 @@ from django.dispatch import receiver
 from channels.channel import Group
 from django.contrib.postgres.fields import JSONField, ArrayField
 from avangard import settings
+from os import remove as file_remove
 import json
 import qrcode
 
@@ -39,7 +40,7 @@ class Order(models.Model):
     phone = models.CharField(max_length=12, verbose_name="Номер телефона")
     added = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
-    qr_code = models.CharField(max_length=100, verbose_name="QR code")
+    qr_code = models.CharField(max_length=100, verbose_name="QR code", blank=True)
 
     def save(self, **kwargs):
         if self.status == "3":
@@ -247,7 +248,8 @@ def order_deleted(sender, instance, **kwargs):
         instance.seance.full_count += instance.fullticket_count
         instance.seance.reduce_count += instance.reduceticket_count
         instance.seance.save()
-
+    filename = '%s.png' % instance.pk
+    file_remove(settings.MEDIA_ROOT + "/qr_code/" + filename)
     Group('orders_table').send({
         "text": json.dumps({"event": "order_deleted", "item": {"pk": instance.pk}})
     })
