@@ -42,8 +42,9 @@ class Order(models.Model):
     qr_code = models.FileField(upload_to='qr_code', blank=True)
 
     def save(self, **kwargs):
-        if self.status == "2":
+        if self.status == "3":
             self.qr_code = self.generate_qrcode()
+            print('qrcode was generated')
         super(Order, self).save()
 
     def generate_qrcode(self):
@@ -193,7 +194,6 @@ def update_tickets_counts(sender, instance, update_fields, created, **kwargs):
 @receiver(post_save, sender=Order, dispatch_uid="order_created")
 def order_created(sender, instance, created, **kwargs):
     event_name = "order_created" if created else "order_updated"
-
     Group('orders_table').send({
         "text": json.dumps({"event": event_name,
                             "item": {"pk": instance.pk,
@@ -213,11 +213,39 @@ def order_created(sender, instance, created, **kwargs):
     })
 
 
+@receiver(post_save, sender=Order, dispatch_uid="return_tickets")
+def return_tickets(sender, instance, created, **kwargs):
+    if int(instance.status) == 4:
+        print('tickets were returned')
+        instance.seance.full_count += instance.fullticket_count
+        instance.seance.reduce_count += instance.reduceticket_count
+        instance.seance.save()
+        event_name = "schedule_updated"
+        Group('schedule_table').send({
+            "text": json.dumps({"event": event_name, "item": {
+                "start_time": instance.seance.start_time_str,
+                "end_time": instance.seance.end_time_str,
+                "full_coefficient_string": instance.seance.full_coefficient_string,
+                "reduce_coefficient_string": instance.seance.reduce_coefficient_string,
+                "museum_id": instance.seance.museum.pk,
+                "full_count": instance.seance.full_count,
+                "reduce_count": instance.seance.reduce_count,
+                "pk": instance.seance.pk,
+                "full_price": instance.seance.full_price,
+                "reduce_price": instance.seance.reduce_price,
+                "date": instance.seance.date.strftime("%Y-%m-%d"),
+                "company_id": instance.seance.company.pk,
+            }
+            })
+        })
+
+
 @receiver(post_delete, sender=Order)
 def order_deleted(sender, instance, **kwargs):
-    instance.seance.full_count += instance.fullticket_count
-    instance.seance.reduce_count += instance.reduceticket_count
-    instance.seance.save()
+    if int(instance.status) != 4:
+        instance.seance.full_count += instance.fullticket_count
+        instance.seance.reduce_count += instance.reduceticket_count
+        instance.seance.save()
 
     Group('orders_table').send({
         "text": json.dumps({"event": "order_deleted", "item": {"pk": instance.pk}})
