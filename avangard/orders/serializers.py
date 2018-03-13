@@ -37,7 +37,7 @@ class OrderSerializer(serializers.ModelSerializer):
         fields = (
             'pk', 'museum', 'seance', 'museum_id', 'seance_id', 'fullticket_count', 'fullticket_store', 'reduceticket_store', 'reduceticket_count', 'audioguide',
             'accompanying_guide', 'full_price', 'added', 'updated', 'chat_id', 'user_id', 'status', 'name', 'email',
-            'phone')
+            'phone', 'qr_code')
 
     def validate(self, data):
         seance = data["seance"]

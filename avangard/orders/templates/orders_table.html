@@ -125,12 +125,12 @@
 
             fields: [
                 {name: "pk", title: "ID", type: "text", align: "center", width: 30, editing: false},
-                {name: "name", title: "Имя", type: "text", align: "center", width: 100, editing: false},
-                {name: "phone", title: "Телефон", type: "text", align: "center", width: 100, editing: false},
-                {name: "email", title: "Email", type: "text", align: "center", width: 100, editing: false},
-                {name: "date", title: "Дата экскурсии", type: "text", align: "center", width: 100, editing: false},
+                {name: "name", title: "Имя", type: "text", align: "center", width: 50, editing: false},
+                {name: "phone", title: "Телефон", type: "text", align: "center", width: 70, editing: false},
+                {name: "email", title: "Email", type: "text", align: "center", width: 80, editing: false},
+                {name: "date", title: "Дата", type: "text", align: "center", width: 80, editing: false},
                 {
-                    name: "company", title: "Компания", type: "text", align: "center", width: 100, editing: false,
+                    name: "company", title: "Компания", type: "text", align: "center", width: 75, editing: false,
                     itemTemplate: function (value, item) {
                         return value;
                     }
@@ -155,7 +155,7 @@
                 },
                 {
                     name: "audioguide",
-                    title: "Аудиогид",
+                    title: "Аудио",
                     type: "text",
                     align: "center",
                     width: 50,
@@ -172,7 +172,7 @@
                 },
                 {
                     name: "accompanying_guide",
-                    title: "Сопровождающий гид",
+                    title: "Сопр. гид",
                     type: "text",
                     align: "center",
                     width: 80,
@@ -221,6 +221,16 @@
                                 }).then(item.status = parseInt(this.value))
                             })
                 }
+                },
+                {
+                    name: "qr_code", title: "QR", type: "text", align: "center", width: 50, editing: false,
+                    itemTemplate: function (value, item) {
+                        if (value != "") {
+                            return $("<a>").attr("href", "/media" + value).append($("<i>").attr("class", "fa fa-qrcode"));
+                        } else {
+                            return $("<i>").attr("class", "fa fa-times");
+                        }
+                    }
                 },
                 {name: "full_price", title: "Цена", type: "number", align: "center", width: 50, editing: false},
                 {

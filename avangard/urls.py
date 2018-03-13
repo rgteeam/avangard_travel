@@ -20,6 +20,8 @@ from avangard.account.views import check_email
 from avangard.museums.api import MuseumViewSet, ScheduleViewSet, CompanyViewSet
 from avangard.orders.api import OrderViewSet
 from avangard.chat.api import GetDialogsViewSet, MessageHistoryViewSet, MarkAsRead
+from django.conf import settings
+from django.conf.urls.static import static
 
 router = routers.DefaultRouter()
 router.register(r'museums', MuseumViewSet, 'museum')
@@ -43,4 +45,4 @@ urlpatterns = [
     url(r'^orders/', include('avangard.orders.urls')),
     url(r'^chat/', include('avangard.chat.urls')),
     url(r'^', include('avangard.museums.urls')),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

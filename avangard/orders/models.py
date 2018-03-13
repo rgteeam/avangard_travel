@@ -39,7 +39,7 @@ class Order(models.Model):
     phone = models.CharField(max_length=12, verbose_name="Номер телефона")
     added = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
-    qr_code = models.FileField(upload_to='qr_code', blank=True)
+    qr_code = models.CharField(max_length=100, verbose_name="QR code")
 
     def save(self, **kwargs):
         if self.status == "3":
@@ -54,7 +54,7 @@ class Order(models.Model):
             box_size=10,
             border=4,
         )
-        data = '%s' % self.fullticket_count
+        data = self.name + " " + self.phone + " " + str(self.seance.date)
         qr.add_data(data)
         qr.make(fit=True)
         filename = '%s.png' % self.pk
@@ -209,7 +209,8 @@ def order_created(sender, instance, created, **kwargs):
                                      "name": instance.name,
                                      "email": instance.email,
                                      "phone": instance.phone,
-                                     "company": instance.seance.company.pk}})
+                                     "company": instance.seance.company.pk,
+                                     "qr_code": instance.qr_code}})
     })
 
 
