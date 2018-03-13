@@ -230,6 +230,9 @@
                         {% if type == "current" %}
                         var $a = $("<a>").attr("href", "/orders/edit/" + item.pk).addClass("jsgrid-button").addClass("jsgrid-edit-button");
                         var $customButton = $("<input>").addClass("jsgrid-button").addClass("jsgrid-edit-button").attr({type: "button"});
+                        if (parseInt(item.status) === 4) {
+                            $customButton.attr('disabled','disabled');
+                        }
                         $a.append($customButton);
                         return $result.add($a);
                         {% else %}
