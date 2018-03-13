@@ -1,3 +1,4 @@
+from datetime import datetime
 from django import forms
 from django.forms import ModelForm
 from .models import Order
@@ -45,6 +46,11 @@ class OrderForm(ModelForm):
 
     def clean(self):
         cleaned_data = super(OrderForm, self).clean()
+        date = Schedule.objects.get(pk=self.data['seance']).date
+        present = datetime.now()
+        year, month, day = date.year, date.month, date.day
+        if datetime(year, month, day) < present:
+            raise forms.ValidationError("Невозможно создать заказ на уже прошедшее событие")
         if 'fullticket_count' in cleaned_data and 'reduceticket_count' in cleaned_data:
             fullticket_count = int(cleaned_data['fullticket_count'])
             reduceticket_count = int(cleaned_data['reduceticket_count'])
