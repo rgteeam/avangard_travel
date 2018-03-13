@@ -195,9 +195,9 @@
                     var arr = [
                         {val: 1, text: 'Новый'},
                         {val: 2, text: 'Одобрен'},
-                        {val: 3, text: 'Выкуплен'},
+                        {val: 3, text: 'Оплачен'},
                         {val: 4, text: 'Отказан'},
-                        {val: 5, text: 'Отсканирован'}
+                        {val: 5, text: 'Отсканирован'},
                     ];
                     var sel = $('<select>');
                     {% if type == "current" %}
@@ -252,6 +252,8 @@
                         return "jsgrid-purchased-item";
                     case 4:
                         return "jsgrid-denied-item";
+                    case 5:
+                        return "jsgrid-scanned-item";
                     default:
                         return "jsgrid-default-item";
                 }
