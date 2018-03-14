@@ -13,7 +13,7 @@
 {% block content %}
     <div class="container">
         <div class="alert alert-success alert-dismissible" role="alert">
-          <strong></strong>Время до выкупа заказа успешно сохранено!
+          <strong></strong>Настройки успешно сохранены!
           <button type="button" class="close" data-dismiss="alert" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -21,6 +21,12 @@
         <div class="card">
             <form action="" method="post"> {% csrf_token %}
                 <div class="card-body">
+                    <div class="input-group mb-2">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon2">Компании</span>
+                      </div>
+                      <input type="text" class="form-control" name="companies_input" aria-label="Компании" id="companies_input" aria-describedby="basic-addon2">
+                    </div>
                     <div class="input-group mb-2">
                       <div class="input-group-prepend">
                         <span class="input-group-text" id="basic-addon1">Время до выкупа заказа</span>
@@ -38,8 +44,10 @@
         {% else %}
             $('.alert').alert('close');
         {% endif %}
-        var el = document.getElementById("prebuy_time_input");
-        el.value = '{{ prebuy_time }}';
+        var prtime = document.getElementById("prebuy_time_input");
+        var comp = document.getElementById("companies_input");
+        comp.value = '{{ current_companies }}';
+        prtime.value = '{{ prebuy_time }}';
     </script>
 {% endblock %}
 {% block footer %}
