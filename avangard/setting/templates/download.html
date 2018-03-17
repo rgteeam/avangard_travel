@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block title %}
+    Экспорт заказов
+{% endblock %}
+{% block style %}
+    <script src='{% static 'js/jquery.min.js' %}' , integrity='' , crossorigin='anonymous'></script>
+    <script src="https://npmcdn.com/tether@1.2.4/dist/js/tether.min.js"></script>
+    <script src="https://npmcdn.com/bootstrap@4.0.0-alpha.5/dist/js/bootstrap.min.js"></script>
+    <script src='{% static 'js/../../static/css/../../static/js/bootstrap.min.js.css' %}' , integrity='' ,
+            crossorigin='anonymous'></script>
+    <script type="text/javascript" src="{% static 'js/bootstrap-datepicker.min.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/bootstrap-datepicker3.min.css' %}">
+{% endblock %}
+{% block content %}
+    <div class="container">
+        <div class="jumbotron">
+          <p>Экспорт заказов за {{ export_date }}</p>
+            <hr>
+          <p class="lead">
+            <a class="btn btn-primary btn-lg" href="/media/export/Export14-03-2018.xlsx" role="button"><i class="fa fa-download" aria-hidden="true"></i>&nbsp;Скачать</a>
+          </p>
+        </div>
+    </div>
+{% endblock %}
+{% block footer %}
+{% endblock %}

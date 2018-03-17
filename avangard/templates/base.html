@@ -39,6 +39,11 @@
               </li>
             </ul>
             {% if user.is_authenticated == True %}
+                <form class="form-inline my-2 my-lg-0" method="post" action="/orders/info/">{% csrf_token %}
+                  <input class="form-control mr-sm-2" type="search" placeholder="Номер заказа" aria-label="Search" name="order_id">
+                  <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Найти</button>
+                </form>
+                &nbsp;&nbsp;&nbsp;
                 <form class="form-inline my-2 my-lg-0" name="logout_form" id="logout_form" method="post" action="/account/logout/">{% csrf_token %}
                     <input class="form-control mr-sm-2" style="border:none; background: none;" type="submit" value="Выйти" id="perform_logout_button">
                     <a href="/logout" style="display:none;" id="logout_link">Выйти</a>

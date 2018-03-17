@@ -141,6 +141,61 @@ def edit_order(request, order_id):
                           {'type': 'edit', 'museum': instance.museum, "form": order_formset, "date": instance.seance.date, "fullticket_store": instance.fullticket_store, "reduceticket_store": instance.reduceticket_store, "order": instance})
 
 
+@login_required
+def info_order(request, order_id=None):
+    if order_id is None:
+        order_id = request.POST['order_id']
+    try:
+        currnt_order = Order.objects.get(id=int(order_id))
+        order_formset = OrderForm(request.POST or None, instance=currnt_order)
+
+        pk = currnt_order.pk
+        museum = currnt_order.museum.name
+        seance = str(currnt_order.seance.start_time.strftime("%H:%M")) + "-" + str(currnt_order.seance.end_time.strftime("%H:%M"))
+        date = currnt_order.seance.date.strftime("%d-%m-%Y")
+        full_price = currnt_order.full_price
+        fullticket_count = currnt_order.fullticket_count
+        reduceticket_count = currnt_order.reduceticket_count
+        if currnt_order.audioguide is True:
+            audioguide = "Да"
+        else:
+            audioguide = "Нет"
+        if currnt_order.accompanying_guide is True:
+            accompanying_guide = "Да"
+        else:
+            accompanying_guide = "Нет"
+        if currnt_order.status == 1:
+            status = "Новый"
+        elif currnt_order.status == 2:
+            status = "Одобрен"
+        elif currnt_order.status == 3:
+            status = "Оплачен"
+        elif currnt_order.status == 4:
+            status = "Отказан"
+        elif currnt_order.status == 5:
+            status = "Отсканирован"
+        name = currnt_order.name
+        email = currnt_order.email
+        phone = currnt_order.phone
+        company = currnt_order.seance.company_id
+        fullticket_store = currnt_order.fullticket_store
+        reduceticket_store = currnt_order.reduceticket_store
+        qr_code = currnt_order.qr_code
+        record = {"pk": pk, "museum": museum, "seance": seance, "date": date, "full_price": full_price,
+                  "fullticket_count": fullticket_count, "reduceticket_count": reduceticket_count,
+                  "audioguide": audioguide, "accompanying_guide": accompanying_guide, "status": status,
+                  "name": name, "email": email, "phone": phone, "company": company, "fullticket_store": fullticket_store,
+                  "reduceticket_store": reduceticket_store, "qr_code": qr_code}
+
+        context = {"order": record}
+    except ValueError:
+        context = {"order": "NaN"}
+    except Order.DoesNotExist:
+        context = {"order": "None"}
+
+    return render(request, 'order_info.html', context)
+
+
 @csrf_exempt
 @login_required
 def delete_order(request, order_id):

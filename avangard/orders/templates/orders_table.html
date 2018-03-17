@@ -124,9 +124,9 @@
             },
 
             fields: [
-                {name: "pk", title: "ID", type: "text", align: "center", width: 30, editing: false},
+                {name: "pk", title: "№", type: "text", align: "center", width: 40, editing: false},
                 {name: "name", title: "Имя", type: "text", align: "center", width: 50, editing: false},
-                {name: "phone", title: "Телефон", type: "text", align: "center", width: 70, editing: false},
+                {name: "phone", title: "Телефон", type: "text", align: "center", width: 80, editing: false},
                 {name: "email", title: "Email", type: "text", align: "center", width: 80, editing: false},
                 {name: "date", title: "Дата", type: "text", align: "center", width: 80, editing: false},
                 {
@@ -142,7 +142,7 @@
                     title: "Кол-во взрослых",
                     type: "number",
                     align: "center",
-                    width: 75,
+                    width: 65,
                     editing: false
                 },
                 {
@@ -150,7 +150,7 @@
                     title: "Кол-во льготных",
                     type: "number",
                     align: "center",
-                    width: 75,
+                    width: 65,
                     editing: false
                 },
                 {
@@ -234,19 +234,23 @@
                 },
                 {name: "full_price", title: "Цена", type: "number", align: "center", width: 50, editing: false},
                 {
-                    type: "control", modeSwitchButton: false, editButton: false, editing: false,
+                    type: "control", modeSwitchButton: false, editButton: false, editing: false, width: 75,
                     itemTemplate: function (value, item) {
                         var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
                         {% if type == "current" %}
-                        var $a = $("<a>").attr("href", "/orders/edit/" + item.pk).addClass("jsgrid-button").addClass("jsgrid-edit-button");
-                        var $customButton = $("<input>").addClass("jsgrid-button").addClass("jsgrid-edit-button").attr({type: "button"});
-                        if ((parseInt(item.status) === 4) || (parseInt(item.status) === 3) || (parseInt(item.status) === 5)) {
-                            $customButton.css('display','none');
-                        }
-                        $a.append($customButton);
-                        return $result.add($a);
+                            var $a = $("<a>").attr("href", "/orders/edit/" + item.pk).addClass("jsgrid-button").addClass("jsgrid-edit-button");
+                            var $customButton = $("<input>").addClass("jsgrid-button").addClass("jsgrid-edit-button").attr({type: "button"});
+                            if ((parseInt(item.status) === 4) || (parseInt(item.status) === 3) || (parseInt(item.status) === 5)) {
+                                $customButton.css('display','none');
+                            }
+                            $a.append($customButton);
+                            var $res = $result.add($a);
+                            var $a = $("<a>").attr("href", "/orders/info/" + item.pk).addClass("jsgrid-button").addClass("jsgrid-search-button");
+                            var $customButton = $("<input>").addClass("jsgrid-button").addClass("jsgrid-search-button").attr({type: "button"});
+                            $a.append($customButton);
+                            return $res.add($a);
                         {% else %}
-                        return $result;
+                            return $result;
                         {% endif %}
                     }
                 }
@@ -268,8 +272,7 @@
                         return "jsgrid-default-item";
                 }
             }
-        })
-        ;
+        });
     });
 </script>
 

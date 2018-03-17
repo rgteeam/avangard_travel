@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block title %}
+        Информация о заказе
+{% endblock %}
+{% block style %}
+    <script src='{% static 'js/jquery.min.js' %}' , integrity='' , crossorigin='anonymous'></script>
+    <script src="https://npmcdn.com/tether@1.2.4/dist/js/tether.min.js"></script>
+    <script src="https://npmcdn.com/bootstrap@4.0.0-alpha.5/dist/js/bootstrap.min.js"></script>
+    <script src='{% static 'js/../../static/css/../../static/js/bootstrap.min.js.css' %}' , integrity='' ,
+            crossorigin='anonymous'></script>
+    <script type="text/javascript" src="{% static 'js/moment-with-locales.min.js' %}"></script>
+
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        {% if order == 'NaN' %}
+            <div class="alert alert-danger" role="alert">
+              Неверный номер заказа!
+            </div>
+        {% elif order == "None" %}
+            <div class="alert alert-danger" role="alert">
+              Заказ с таким номером не найден!
+            </div>
+        {% else %}
+            <div class="card">
+                <div class="card-body">
+                    <h2>Информация о заказе № {{ order.pk }}</h2><br>
+                    <p class=""><b>Статус</b>: {{ order.status }}</p>
+                    <p class=""><b>Название музея</b>: {{ order.museum }}</p>
+                    <p class=""><b>Дата</b>: {{ order.date }}</p>
+                    <p class=""><b>Время</b>: {{ order.seance }}</p>
+                    <p class=""><b>ФИО</b>: {{ order.name }}</p>
+                    <p class=""><b>Телефон</b>: {{ order.phone }}</p>
+                    <p class=""><b>Email</b>: {{ order.email }}</p>
+                    <p class=""><b>Количество взрослых билетов</b>: {{ order.fullticket_count }}</p>
+                    <p class=""><b>Количество льготных билетов</b>: {{ order.reduceticket_count }}</p>
+                    <p class=""><b>Аудиогид</b>: {{ order.audioguide }}</p>
+                    <p class=""><b>Сопровождающий гид</b>: {{ order.accompanying_guide }}</p>
+                    <p class=""><b>Цена</b>: {{ order.full_price }}</p>
+                    {% if order.qr_code != "" %}
+                        <p class=""><b>QR код</b>:<br>
+                        <img src="/media/{{ order.qr_code }}" alt="" width="150px"></p>
+                    {% endif %}
+                    <button type="button" class="btn btn-secondary" data-toggle="modal">Отправить заказ на e-mail</button>
+                    <button type="button" class="btn btn-dark" onclick="print_doc()"><i class="fa fa-print" aria-hidden="true"></i>&nbsp;Печать</button>
+                    <br><br>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    <script>
+        function print_doc(){
+            window.print() ;
+        }
+    </script>
+{% endblock %}
+{% block footer %}
+{% endblock %}

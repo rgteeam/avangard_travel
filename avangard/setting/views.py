@@ -31,3 +31,14 @@ def settings_index(request):
         current_companies_str = ", ".join(i.name for i in current_companies)
         context = {'prebuy_time': current_value, 'current_companies': current_companies_str, 'type': 'updated'}
         return render(request, 'settings.html', context)
+
+
+@login_required
+def export(request):
+    if request.method == 'POST':
+        export_email = str(request.POST.get("email_input"))
+        export_date = str(request.POST.get("date_input"))
+        print(export_email, export_date)
+        context = {"export_date": export_date}
+        return render(request, 'download.html', context)
+

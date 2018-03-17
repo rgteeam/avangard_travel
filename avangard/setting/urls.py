@@ -21,4 +21,6 @@ from . import views
 
 urlpatterns = [
     url(r'^$', views.settings_index, name='settings_index'),
+    url(r'^export/', views.export, name='export'),
+
 ]
