@@ -9,8 +9,6 @@ from django.contrib.auth.models import User
 import json
 
 
-# Create your models here.
-
 class Museum(models.Model):
     name = models.CharField(max_length=50, verbose_name="Название")
     fullticket_price = models.IntegerField(default=0, verbose_name="Цена взрослый")

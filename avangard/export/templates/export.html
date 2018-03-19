@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block title %}
+    Экспортировать заказы
+{% endblock %}
+{% block style %}
+    <script src='{% static 'js/jquery.min.js' %}' , integrity='' , crossorigin='anonymous'></script>
+    <script src="https://npmcdn.com/tether@1.2.4/dist/js/tether.min.js"></script>
+    <script src="https://npmcdn.com/bootstrap@4.0.0-alpha.5/dist/js/bootstrap.min.js"></script>
+    <script src='{% static 'js/../../static/css/../../static/js/bootstrap.min.js.css' %}' , integrity='' ,
+            crossorigin='anonymous'></script>
+    <script type="text/javascript" src="{% static 'js/bootstrap-datepicker.min.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/bootstrap-datepicker3.min.css' %}">
+{% endblock %}
+{% block content %}
+    <div class="container">
+        <h2>Экспортировать заказы</h2>
+        <div class="card">
+            <form action="export/" method="post"> {% csrf_token %}
+                <div class="card-body">
+                    <div class="form-row">
+                        <div class="col col-md-4">
+                            <div id="datepicker"></div>
+                        </div>
+                        <div class="col col-md-8">
+                            <div class="input-group mb-2">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text" for="inputGroupSelect01">Выберите музей</label>
+                                </div>
+                                <select class="custom-select" id="inputGroupSelect01" name="museum">
+                                    <option selected>Выберите...</option>
+                                    {% for key, value in museums.items %}
+                                        <option value="{{ key }}">{{ value }}</option>
+                                    {% endfor %}
+                                </select>
+
+                            </div>
+                            <div class="input-group mb-2">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text" for="export_date">Введите дату</label>
+                                </div>
+                                <input type="text" class="form-control" id="export_date" name="date_input"
+                                       aria-label="Введите дату">
+                            </div>
+                            <div class="input-group mb-2">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text" for="email_input">Введите email</label>
+                                </div>
+                                <input type="text" class="form-control" name="email_input" aria-label="Введите email"
+                                       id="email_input">
+                            </div>
+                            <button type="submit" class="btn btn-dark mb-2 float-right">Экспорт</button>
+                        </div>
+                    </div>
+                    <br>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
+        function getDate() {
+            var d = new Date();
+            var currDate = d.getDate();
+            var currMonth = d.getMonth() + 1;
+            var currYear = d.getFullYear();
+            var dateStr = currDate + "-" + currMonth + "-" + currYear;
+            return dateStr;
+        }
+
+        $(function () {
+            $('#datepicker').datepicker({format: 'dd-mm-yyyy'});
+
+            {% if date != None %}
+                var date = "{{ date|date:"d-m-Y" }}";
+            {% else %}
+                var date = getDate();
+            {% endif %}
+
+            $('#datepicker').on('changeDate', function () {
+                date = $('#datepicker').datepicker('getFormattedDate');
+                console.log("Date was set on " + date);
+                $("#export_date").val(date);
+            });
+
+            $('#datepicker').datepicker('setDate', date);
+        });
+    </script>
+{% endblock %}
+{% block footer %}
+{% endblock %}

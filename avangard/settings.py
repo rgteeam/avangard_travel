@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'avangard.account',
     'avangard.museums',
     'avangard.setting',
+    'avangard.export',
     'avangard.orders',
     'avangard.chat',
     'django_tables2',

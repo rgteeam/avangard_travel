@@ -4,5 +4,5 @@ from rest_framework import routers
 from . import views
 
 urlpatterns = [
-    url(r'^$', views.settings_index, name='settings_index'),
+    url(r'^$', views.export, name='export'),
 ]
