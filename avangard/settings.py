@@ -42,7 +42,10 @@ INSTALLED_APPS = [
     'rest_auth',
     'allauth',
     'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.telegram',
     'rest_auth.registration',
+    'corsheaders',
     'django_filters',
     'avangard.account',
     'avangard.museums',
@@ -87,6 +90,12 @@ AUTHENTICATION_BACKENDS = (
  "allauth.account.auth_backends.AuthenticationBackend",
 )
 
+SOCIALACCOUNT_PROVIDERS = {
+    'telegram': {
+        'TOKEN': 'insert-token-received-from-botfather'
+    }
+}
+
 REST_AUTH_REGISTER_SERIALIZERS = {
     'REGISTER_SERIALIZER': 'avangard.account.serializers.RegisterSerializer',
 }
@@ -111,8 +120,11 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
 
+CORS_ORIGIN_ALLOW_ALL = True
 ROOT_URLCONF = 'avangard.urls'
 
 TEMPLATES = [

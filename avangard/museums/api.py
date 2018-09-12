@@ -35,7 +35,7 @@ class ScheduleFilter(filters.FilterSet):
 class MuseumFilter(filters.FilterSet):
     class Meta:
         model = Museum
-        fields = ['name']
+        fields = ['id', 'name']
 
 
 @api_view(['GET'])

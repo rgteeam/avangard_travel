@@ -87,7 +87,7 @@ def create_order(request):
                                                          "date": order_formset.cleaned_data["seance"].date})
 
 
-@login_required
+# @login_required
 @csrf_exempt
 def get_seances_for_date(request):
     date = datetime.datetime.strptime(request.GET["date"], "%d-%m-%Y").date()
@@ -97,8 +97,8 @@ def get_seances_for_date(request):
     return JsonResponse({'seances': data})
 
 
-@login_required
-@csrf_protect
+# @login_required
+@csrf_exempt
 def seance_selected(request):
     seance = Schedule.objects.get(pk=request.POST["seance_id"])
     return JsonResponse({'seance': {'full_price': seance.full_price, 'reduce_price': seance.reduce_price}})

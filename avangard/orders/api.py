@@ -30,12 +30,17 @@ class OrderFilter(filters.FilterSet):
         qs = queryset.filter(Q(seance__date__lt=date.date()) | (Q(seance__date=date.date()) & Q(seance__start_time__lt=date.time())))
         return qs
 
+    def filter_by_pk(self, queryset, name, value):
+        qs = queryset.filter(pk=value)
+        return qs
+
     date_lte = django_filters.Filter(name="date_lte", method="filter_date_lte")
     date_gte = django_filters.Filter(name="date_gte", method="filter_date_gte")
+    pk = django_filters.Filter(name="pk", method="filter_by_pk")
 
     class Meta:
         model = Order
-        fields = {'chat_id', 'user_id', 'date_gte', 'date_lte'}
+        fields = {'chat_id', 'user_id', 'date_gte', 'date_lte', 'email', 'pk'}
 
 
 class OrderViewSet(viewsets.ModelViewSet):

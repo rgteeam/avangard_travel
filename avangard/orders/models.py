@@ -248,6 +248,7 @@ def order_deleted(sender, instance, **kwargs):
         instance.seance.full_count += instance.fullticket_count
         instance.seance.reduce_count += instance.reduceticket_count
         instance.seance.save()
+    if int(instance.status) == 3 or int(instance.status) == 5:
         filename = '%s.png' % instance.pk
         file_remove(settings.MEDIA_ROOT + "/qr_code/" + filename)
     Group('orders_table').send({
