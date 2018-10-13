@@ -19,6 +19,8 @@ from rest_framework import routers
 from avangard.account.views import check_email
 from avangard.museums.api import MuseumViewSet, ScheduleViewSet, CompanyViewSet
 from avangard.orders.api import OrderViewSet
+from avangard.tourtickets.api import TourticketViewSet
+from avangard.proxycard.api import ProxycardViewSet
 from avangard.chat.api import GetDialogsViewSet, MessageHistoryViewSet, MarkAsRead
 from django.conf import settings
 from django.conf.urls.static import static
@@ -28,6 +30,8 @@ router.register(r'museums', MuseumViewSet, 'museum')
 router.register(r'companys', CompanyViewSet, 'company')
 router.register(r'schedule', ScheduleViewSet, 'schedule')
 router.register(r'orders', OrderViewSet, 'order')
+router.register(r'tourtickets', TourticketViewSet, 'tourticket')
+router.register(r'proxycard', ProxycardViewSet, 'proxycard')
 router.register(r'chat_rooms', GetDialogsViewSet, 'chat_room')
 router.register(r'messages', MessageHistoryViewSet, 'messages')
 
@@ -42,8 +46,9 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^account/', include('avangard.account.urls')),
     url(r'^accounts/', include('allauth.urls')),
-    url(r'^setting/', include('avangard.setting.urls')),
     url(r'^export/', include('avangard.export.urls')),
+    url(r'^tourtickets/', include('avangard.tourtickets.urls')),
+    url(r'^proxycard/', include('avangard.proxycard.urls')),
     url(r'^settings/', include('avangard.setting.urls')),
     url(r'^orders/', include('avangard.orders.urls')),
     url(r'^chat/', include('avangard.chat.urls')),

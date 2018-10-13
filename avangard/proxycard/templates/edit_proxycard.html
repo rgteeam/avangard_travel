@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block title %}
+    Создать туртикеты
+{% endblock %}
+{% block style %}
+    <script src='{% static 'js/jquery.min.js' %}' , integrity='' , crossorigin='anonymous'></script>
+    <script src="https://npmcdn.com/tether@1.2.4/dist/js/tether.min.js"></script>
+    <script src="https://npmcdn.com/bootstrap@4.0.0-alpha.5/dist/js/bootstrap.min.js"></script>
+    <script src='{% static 'js/../../static/css/../../static/js/bootstrap.min.js.css' %}' , integrity='' ,
+            crossorigin='anonymous'></script>
+{% endblock %}
+{% block content %}
+    <style>
+        .card-block {
+            padding: 10px;
+        }
+        .card {
+            margin-bottom: 30px;
+        }
+    </style>
+    <div class="container" style="width: 85%; margin-top: 25px;">
+        <div class="panel-heading">
+            <div class="panel-title">
+                <h2 class="title">Информация о заявке</h2>
+                <hr/>
+            </div>
+        </div>
+        {% if notification is not None %}
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+          <strong>Успешно!</strong> {{ notification }}
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        {% endif %}
+        <form action="/proxycard/edit/{{ instance.id }}" method="post"> {% csrf_token %}
+        <div class="input-group mb-3">
+              <div class="input-group-prepend">
+                <label class="input-group-text" for="status">Статус</label>
+              </div>
+              <select class="custom-select" id="status" name="status">
+                <option value="1">Новый</option>
+                <option value="2">Подтверждено</option>
+              </select>
+            </div>
+        <div class="card">
+            <div class="card-body">
+                <p class=""><b>ФИО создателя</b>: {{ instance.sender_name }}</p>
+                <p class=""><b>Email создателя</b>: {{ instance.sender_email }}</p>
+                <p class=""><b>Дата создания заявки</b>: {{ instance.added }}</p>
+                <br>
+                <p class=""><b>Название корабля</b>: {{ instance.vessel }}</p>
+                <p class=""><b>Дата прибытия</b>: {{ instance.arrival_date }}</p>
+                <br>
+                <p class=""><b>ФИО</b>: {{ instance.name }}</p>
+                <p class=""><b>Дата рождения</b>: {{ instance.date }}</p>
+                <p class=""><b>Пасспортные данные</b>: {{ instance.passport }}</p>
+                <p class=""><b>Марка транспортного средства</b>: {{ instance.car_mark }}</p>
+                <p class=""><b>Государственные регистрационные знаки</b>: {{ instance.car_plates }}</p>
+                <br>
+            </div>
+        </div>
+            <input type="submit" class="btn btn-success" value="Обновить информацию">
+        </form>
+    </div>
+    <br>
+    <br>
+    <script>
+     element = document.getElementById("status");
+     element.value = {{ instance.status }};
+    </script>
+{% endblock %}
+{% block footer %}
+{% endblock %}

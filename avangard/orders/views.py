@@ -76,6 +76,7 @@ def create_order(request):
     order_formset = OrderForm(initial={'museum': museum}, data=request.POST or None)
     if request.method == 'GET':
         return render(request, 'create_order.html', {'type': 'create', "form": order_formset, "museum": museum})
+        return render(request, 'create_order.html', {'type': 'create', "form": order_formset, "museum": museum})
     elif request.method == 'POST':
         if order_formset.is_valid():
             # full_price_key_name = "start_full_price"

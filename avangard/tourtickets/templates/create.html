@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block title %}
+    Создать туртикеты
+{% endblock %}
+{% block style %}
+    <script src='{% static 'js/jquery.min.js' %}' , integrity='' , crossorigin='anonymous'></script>
+    <script src="https://npmcdn.com/tether@1.2.4/dist/js/tether.min.js"></script>
+    <script src="https://npmcdn.com/bootstrap@4.0.0-alpha.5/dist/js/bootstrap.min.js"></script>
+    <script src='{% static 'js/../../static/css/../../static/js/bootstrap.min.js.css' %}' , integrity='' ,
+            crossorigin='anonymous'></script>
+{% endblock %}
+{% block content %}
+    <div class="container">
+        <h2>Сформировать туртикеты</h2>
+        <br>
+        <form action="/tourtickets/download/{{ instance.id }}" method="POST"> {% csrf_token %}
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th scope="col">ФИО</th>
+                    <th scope="col">Дата рождения</th>
+                    <th scope="col">Номер паспорта</th>
+                    <th scope="col">Гражданство</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for record in instance.passenger %}
+                    <tr>
+                        <td>{{ record.name }}</td>
+                        <td>{{ record.date }}</td>
+                        <td>{{ record.passport }}</td>
+                        <td>{{ record.citizenship }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <div class="form-group row">
+                <div class="col-4">
+                    <label for="tt_number">Номер туртикета</label>
+                    <input class="form-control" id="tt_number" type="text" name="tt_number" value="{{ instance.tt_number }}">
+                </div>
+                <div class="col-4">
+                    <label for="vessel">Название корабля</label>
+                    <input class="form-control" id="vessel" type="text" name="vessel" value="{{ instance.vessel }}">
+                </div>
+                <div class="col-4">
+                    <label for="service_dates">Даты обслуживания</label>
+                    <input class="form-control" id="service_dates" type="text" name="service_dates" value="{{ instance.service_dates }}">
+                </div>
+            </div>
+            <input type="submit" value="Сформировать туртикеты" class="btn btn-success btn-xs">
+        </form>
+    </div>
+{% endblock %}
+{% block footer %}
+{% endblock %}

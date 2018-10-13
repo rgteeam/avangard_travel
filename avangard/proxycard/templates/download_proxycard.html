@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block title %}
+    Скачать туртикеты
+{% endblock %}
+{% block style %}
+    <script src='{% static 'js/jquery.min.js' %}' , integrity='' , crossorigin='anonymous'></script>
+    <script src="https://npmcdn.com/tether@1.2.4/dist/js/tether.min.js"></script>
+    <script src="https://npmcdn.com/bootstrap@4.0.0-alpha.5/dist/js/bootstrap.min.js"></script>
+    <script src='{% static 'js/../../static/css/../../static/js/bootstrap.min.js.css' %}' , integrity='' ,
+            crossorigin='anonymous'></script>
+{% endblock %}
+{% block content %}
+    <div class="container">
+        <h2>Скачать туртикеты</h2>
+        <br>
+          <p class="lead">
+            <a class="btn btn-primary btn-lg" href="" role="button" id="link">
+                <i class="fa fa-download" aria-hidden="true"></i>&nbsp;Скачать файл
+            </a>
+          </p>
+    </div>
+    <script>
+        var url = "{{ document }}";
+        var correct_str = url.substring(url.indexOf("avangard_travel") + 15);
+        document.getElementById("link").href = correct_str;
+    </script>
+{% endblock %}
+{% block footer %}
+{% endblock %}

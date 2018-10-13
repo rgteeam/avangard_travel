@@ -53,6 +53,8 @@ INSTALLED_APPS = [
     'avangard.export',
     'avangard.orders',
     'avangard.chat',
+    'avangard.tourtickets',
+    'avangard.proxycard',
     'django_tables2',
     'channels',
 ]

@@ -31,17 +31,24 @@
                 <a class="nav-link" href="/orders">Заказы</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="/chat">Чат</a>
+                <a class="nav-link" href="/tourtickets">Туртикеты</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/proxycard">Прокси-карты</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/orders/old">Архив</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="/export">Экспорт</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="/settings">Настройки</a>
+                <a class="nav-link" href="/chat">Чат</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="/orders/old">Архив</a>
+                <a class="nav-link" href="/settings">Настройки</a>
               </li>
+
             </ul>
             {% if user.is_authenticated == True %}
                 <form class="form-inline my-2 my-lg-0" method="post" action="/orders/info/">{% csrf_token %}
