@@ -1,3 +1,12 @@
+<div class="container">
+    <p class="text-nowrap text-right" style="margin-bottom: 15px; margin-top: -15px;"><span class="jsgrid-new-item">&nbsp;Новый&nbsp;</span>&nbsp;&nbsp;&nbsp;
+    <span class="jsgrid-approved-item">&nbsp;Одобрен&nbsp;</span>&nbsp;&nbsp;&nbsp;
+    <span class="jsgrid-purchased-item">&nbsp;Оплачен&nbsp;</span>&nbsp;&nbsp;&nbsp;
+    <span class="jsgrid-ready-item">&nbsp;Собран&nbsp;</span>&nbsp;&nbsp;&nbsp;
+    <span class="jsgrid-passed-item">&nbsp;Передан&nbsp;</span>&nbsp;&nbsp;&nbsp;
+    <span class="jsgrid-scanned-item">&nbsp;Отсканирован&nbsp;</span>&nbsp;&nbsp;&nbsp;
+    <span class="jsgrid-denied-item">&nbsp;Отказан&nbsp;</span></p>
+</div>
 <div id="jsGrid"></div>
 
 <script type="text/javascript">
@@ -196,8 +205,10 @@
                         {val: 1, text: 'Новый'},
                         {val: 2, text: 'Одобрен'},
                         {val: 3, text: 'Оплачен'},
-                        {val: 4, text: 'Отказан'},
-                        {val: 5, text: 'Отсканирован'}
+                        {val: 4, text: 'Собран'},
+                        {val: 5, text: 'Передан'},
+                        {val: 6, text: 'Отсканирован'},
+                        {val: 7, text: 'Отказан'}
                     ];
                     var sel = $('<select>');
                     {% if type == "current" %}
@@ -265,9 +276,13 @@
                     case 3:
                         return "jsgrid-purchased-item";
                     case 4:
-                        return "jsgrid-denied-item";
+                        return "jsgrid-ready-item";
                     case 5:
+                        return "jsgrid-passed-item";
+                    case 6:
                         return "jsgrid-scanned-item";
+                    case 7:
+                        return "jsgrid-denied-item";
                     default:
                         return "jsgrid-default-item";
                 }

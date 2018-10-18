@@ -14,14 +14,19 @@ class Order(models.Model):
     NEW_STATUS = 1
     CONFIRMED_STATUS = 2
     PURCHASED_STATUS = 3
-    DENY_STATUS = 4
-    SCANNED_STATUS = 5
+    READY_STATUS = 4
+    PASSED_STATUS = 5
+    SCANNED_STATUS = 6
+    DENY_STATUS = 7
+
     STATUS_CHOICES = (
         (NEW_STATUS, 'New'),
         (CONFIRMED_STATUS, 'Confirmed'),
         (PURCHASED_STATUS, 'Purchased'),
-        (DENY_STATUS, 'Deny'),
-        (SCANNED_STATUS, 'Scanned')
+        (READY_STATUS, 'Ready'),
+        (PASSED_STATUS, 'Passed'),
+        (SCANNED_STATUS, 'Scanned'),
+        (DENY_STATUS, 'Deny')
     )
 
     museum = models.ForeignKey(Museum, on_delete=models.CASCADE, null=True)
@@ -217,7 +222,7 @@ def order_created(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=Order, dispatch_uid="return_tickets")
 def return_tickets(sender, instance, created, **kwargs):
-    if int(instance.status) == 4:
+    if int(instance.status) == 7:
         print('tickets were returned')
         instance.seance.full_count += instance.fullticket_count
         instance.seance.reduce_count += instance.reduceticket_count
@@ -244,11 +249,11 @@ def return_tickets(sender, instance, created, **kwargs):
 
 @receiver(post_delete, sender=Order)
 def order_deleted(sender, instance, **kwargs):
-    if int(instance.status) != 4:
+    if int(instance.status) != 7:
         instance.seance.full_count += instance.fullticket_count
         instance.seance.reduce_count += instance.reduceticket_count
         instance.seance.save()
-    if int(instance.status) == 3 or int(instance.status) == 5:
+    if int(instance.status) == 3 or int(instance.status) == 6:
         filename = '%s.png' % instance.pk
         file_remove(settings.MEDIA_ROOT + "/qr_code/" + filename)
     Group('orders_table').send({
