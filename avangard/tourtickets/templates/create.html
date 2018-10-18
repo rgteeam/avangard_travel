@@ -18,6 +18,7 @@
             <table class="table table-bordered">
                 <thead>
                 <tr>
+                    <th scope="col">№</th>
                     <th scope="col">ФИО</th>
                     <th scope="col">Дата рождения</th>
                     <th scope="col">Номер паспорта</th>
@@ -27,6 +28,7 @@
                 <tbody>
                 {% for record in instance.passenger %}
                     <tr>
+                        <td>{{ forloop.counter }}</td>
                         <td>{{ record.name }}</td>
                         <td>{{ record.date }}</td>
                         <td>{{ record.passport }}</td>
