@@ -17,7 +17,7 @@ class Museum(models.Model):
     accompanying_guide_price = models.IntegerField(default=0, verbose_name="Цена сопровождающего гида")
     max_count = models.IntegerField(default=0, verbose_name="Макс. кол-во человек в группе")
     chat_room = models.OneToOneField(ChatRoom, on_delete=models.CASCADE, null=True)
-    contract_number = models.CharField(max_length=15, verbose_name="Номер договора")
+    voucher_numbers = models.CharField(max_length=30, verbose_name="Диапазон номеров ваучеров")
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         if self.pk is None:
@@ -33,6 +33,7 @@ class Museum(models.Model):
 
 class Company(models.Model):
     name = models.CharField(max_length=50, verbose_name="Название компании")
+    contract_number = models.CharField(max_length=15, verbose_name="Номер договора")
 
     def __str__(self):
         return self.name

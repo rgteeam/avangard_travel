@@ -5,13 +5,13 @@ from rest_framework import serializers, viewsets
 class MuseumSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Museum
-        fields = ('pk', 'name', 'fullticket_price', 'reduceticket_price', 'audioguide_price', 'accompanying_guide_price', 'max_count', 'contract_number')
+        fields = ('pk', 'name', 'fullticket_price', 'reduceticket_price', 'audioguide_price', 'accompanying_guide_price', 'max_count', 'voucher_numbers')
 
 
 class CompanySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Company
-        fields = ('pk', 'name')
+        fields = ('pk', 'name', 'contract_number')
 
 
 class ScheduleSerializer(serializers.HyperlinkedModelSerializer):
