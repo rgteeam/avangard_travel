@@ -1,3 +1,5 @@
+import json
+import qrcode
 from django.db import models
 from avangard.museums.models import Museum, Schedule
 from django.db.models.signals import post_save, post_delete
@@ -6,8 +8,7 @@ from channels.channel import Group
 from django.contrib.postgres.fields import JSONField, ArrayField
 from avangard import settings
 from os import remove as file_remove
-import json
-import qrcode
+from mailmerge import MailMerge
 
 
 class Order(models.Model):
@@ -46,11 +47,12 @@ class Order(models.Model):
     added = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     qr_code = models.CharField(max_length=100, verbose_name="QR code", blank=True)
+    voucher = models.CharField(max_length=100, verbose_name="Ваучер", blank=True)
 
     def save(self, **kwargs):
         if self.status == "3":
             self.qr_code = self.generate_qrcode()
-            print('qrcode was generated')
+            self.voucher = self.generate_voucher()
         super(Order, self).save()
 
     def generate_qrcode(self):
@@ -66,7 +68,36 @@ class Order(models.Model):
         filename = '%s.png' % self.pk
         img = qr.make_image()
         img.save(settings.MEDIA_ROOT + "/qr_code/" + filename)
+        print('qrcode was generated')
         return "/qr_code/" + filename
+
+    def generate_voucher(self):
+        template_filename = "Voucher_template.docx"
+        template = settings.MEDIA_ROOT + "/voucher_template/" + template_filename
+        document = MailMerge(template)
+        document.merge(
+            voucher_id='100001',
+            voucher_contract=str(self.seance.company.contract_number),
+            voucher_company_name=str(self.seance.company.name),
+            voucher_company_phone=str(self.seance.company.phone),
+            voucher_company_email=str(self.seance.company.email),
+            voucher_order_date=str(self.seance.date),
+            voucher_order_time=str(self.seance.time_str),
+            voucher_order_museum=str(self.museum),
+            voucher_order_country="Россия",
+            voucher_fullticket_count=str(self.fullticket_count),
+            voucher_reduceticket_count=str(self.reduceticket_count),
+            voucher_reduceticket_count2=str(self.reduceticket_count),
+            voucher_tourlider_count='1',
+            voucher_specialmark='нет',
+            voucher_guide_name=str(self.name),
+            voucher_tourlider_name=str(self.name)
+        )
+        output_filename = str(self.name) + ".docx"
+        output_path = settings.MEDIA_ROOT + "voucher_exported/" + output_filename
+        document.write(output_path)
+        print('voucher was generated')
+        return "/voucher_exported/" + output_filename
 
     def _get_full_price(self):
 

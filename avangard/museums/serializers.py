@@ -11,7 +11,7 @@ class MuseumSerializer(serializers.HyperlinkedModelSerializer):
 class CompanySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Company
-        fields = ('pk', 'name', 'contract_number')
+        fields = ('pk', 'name', 'contract_number', 'phone', 'email')
 
 
 class ScheduleSerializer(serializers.HyperlinkedModelSerializer):

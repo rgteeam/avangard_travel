@@ -43,8 +43,11 @@
                         <p class=""><b>QR код</b>:<br>
                         <img src="/media/{{ order.qr_code }}" alt="" width="150px"></p>
                     {% endif %}
-                    <button type="button" class="btn btn-secondary" data-toggle="modal">Отправить заказ на e-mail</button>
-                    <button type="button" class="btn btn-dark" onclick="print_doc()"><i class="fa fa-print" aria-hidden="true"></i>&nbsp;Печать</button>
+                    {% if order.voucher != "" %}
+                        <a class="btn btn-success" href="/media/{{ order.voucher }}" role="button">Скачать ваучер</a>
+                    {% endif %}
+                    <a class="btn btn-secondary" href="#" role="button">Отправить заказ на e-mail</a>
+                    <button type="button" class="btn btn-dark" onclick="print_doc()"><i class="fa fa-print" aria-hidden="true"></i>&nbsp;Печать заказа</button>
                     <br><br>
                 </div>
             </div>

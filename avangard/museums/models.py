@@ -34,6 +34,8 @@ class Museum(models.Model):
 class Company(models.Model):
     name = models.CharField(max_length=50, verbose_name="Название компании")
     contract_number = models.CharField(max_length=15, verbose_name="Номер договора")
+    phone = models.CharField(max_length=30, verbose_name="Номер телефона", default="(812) 640-02-28")
+    email = models.CharField(max_length=30, verbose_name="Электронная почта", default="info@avangard-travel.ru")
 
     def __str__(self):
         return self.name

@@ -76,7 +76,6 @@ def create_order(request):
     order_formset = OrderForm(initial={'museum': museum}, data=request.POST or None)
     if request.method == 'GET':
         return render(request, 'create_order.html', {'type': 'create', "form": order_formset, "museum": museum})
-        return render(request, 'create_order.html', {'type': 'create', "form": order_formset, "museum": museum})
     elif request.method == 'POST':
         if order_formset.is_valid():
             # full_price_key_name = "start_full_price"
@@ -172,9 +171,13 @@ def info_order(request, order_id=None):
         elif currnt_order.status == 3:
             status = "Оплачен"
         elif currnt_order.status == 4:
-            status = "Отказан"
+            status = "Собран"
         elif currnt_order.status == 5:
+            status = "Передан"
+        elif currnt_order.status == 6:
             status = "Отсканирован"
+        elif currnt_order.status == 7:
+            status = "Отказан"
         name = currnt_order.name
         email = currnt_order.email
         phone = currnt_order.phone
@@ -182,11 +185,12 @@ def info_order(request, order_id=None):
         fullticket_store = currnt_order.fullticket_store
         reduceticket_store = currnt_order.reduceticket_store
         qr_code = currnt_order.qr_code
+        voucher = currnt_order.voucher
         record = {"pk": pk, "museum": museum, "seance": seance, "date": date, "full_price": full_price,
                   "fullticket_count": fullticket_count, "reduceticket_count": reduceticket_count,
                   "audioguide": audioguide, "accompanying_guide": accompanying_guide, "status": status,
                   "name": name, "email": email, "phone": phone, "company": company, "fullticket_store": fullticket_store,
-                  "reduceticket_store": reduceticket_store, "qr_code": qr_code}
+                  "reduceticket_store": reduceticket_store, "qr_code": qr_code, "voucher": voucher}
 
         context = {"order": record}
     except ValueError:
