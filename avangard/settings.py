@@ -42,8 +42,8 @@ INSTALLED_APPS = [
     'rest_auth',
     'allauth',
     'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.telegram',
+    # 'allauth.socialaccount',
+    # 'allauth.socialaccount.providers.telegram',
     'rest_auth.registration',
     'corsheaders',
     'django_filters',
@@ -92,11 +92,11 @@ AUTHENTICATION_BACKENDS = (
  "allauth.account.auth_backends.AuthenticationBackend",
 )
 
-SOCIALACCOUNT_PROVIDERS = {
-    'telegram': {
-        'TOKEN': 'insert-token-received-from-botfather'
-    }
-}
+# SOCIALACCOUNT_PROVIDERS = {
+#     'telegram': {
+#         'TOKEN': 'insert-token-received-from-botfather'
+#     }
+# }
 
 REST_AUTH_REGISTER_SERIALIZERS = {
     'REGISTER_SERIALIZER': 'avangard.account.serializers.RegisterSerializer',
