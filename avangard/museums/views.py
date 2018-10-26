@@ -1,19 +1,16 @@
-# Create your views here.
-
 from django.shortcuts import render, HttpResponse, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
-from avangard.museums.models import Museum, Schedule
-
+from avangard.museums.models import Museum, Schedule, Company
 from avangard.museums.forms import MuseumForm
 from avangard.museums.tables import MuseumTable
 from django_tables2 import RequestConfig
 from django.views.decorators.csrf import csrf_exempt
 import datetime
+import json
 
 
 # Удаление записи расписания
-
 @csrf_exempt
 @login_required
 def schedule_delete(request, schedule_id):
@@ -23,7 +20,6 @@ def schedule_delete(request, schedule_id):
 
 
 # Обновление записи расписания
-
 @csrf_exempt
 @login_required
 def schedule_update(request, schedule_id):
@@ -43,7 +39,6 @@ def schedule_update(request, schedule_id):
 
 
 # Создание записи расписания
-
 @csrf_exempt
 @login_required
 def schedule_create(request):
@@ -55,19 +50,21 @@ def schedule_create(request):
 
 
 # Получение расписания
-
 @csrf_exempt
 @login_required
 def museum_schedule(request, museum_id):
     museum = Museum.objects.get(pk=museum_id)
-
+    companies = Company.objects.all()
+    comp_list = list()
+    for i in companies:
+        comp_list.append(dict({"pk": i.id, "name": i.name}))
+    comp_json = json.dumps(comp_list)
     if request.method == 'GET':
-        context = {'date': datetime.date.today(), 'museum': museum}
+        context = {'date': datetime.date.today(), 'museum': museum, 'companies': comp_json}
         return render(request, 'schedule.html', context)
 
 
 # Список музеев
-
 @login_required
 def index(request):
     table = MuseumTable(Museum.objects.all())
@@ -76,7 +73,6 @@ def index(request):
 
 
 # Форма создания музея
-
 @login_required
 def create_museum(request):
     museum_formset = MuseumForm(request.POST or None)
@@ -91,7 +87,6 @@ def create_museum(request):
 
 
 # Удаление музея
-
 @login_required
 def delete_museum(request, museum_id):
     museum = Museum.objects.get(pk=museum_id)
@@ -100,7 +95,6 @@ def delete_museum(request, museum_id):
 
 
 # Форма редактирвоания музея
-
 @login_required
 def edit_museum(request, museum_id):
     instance = get_object_or_404(Museum, id=museum_id)

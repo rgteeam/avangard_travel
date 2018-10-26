@@ -30,16 +30,9 @@
         }
     };
 
+    var companies = "{{ companies }}".replace(/&quot;/g, '"');
+    var comp_obj = JSON.parse(companies);
 
-    get_companies = function () {
-        $.ajax({
-            type: "GET",
-            url: "/api/companys/?format=json",
-            success: function (data) {
-                console.log(data);
-            }
-        });
-    };
 
     $(function () {
         jsGrid.validators.start_time = {
@@ -190,10 +183,7 @@
                     type: "select",
                     align: "center",
                     width: 200,
-                    items: [{pk: 1, name: "Avangard One"}, {pk: 2, name: "Avangard Two"}, {
-                        pk: 3,
-                        name: "Avangard Three"
-                    }],
+                    items: comp_obj,
                     valueField: "pk",
                     textField: "name"
                 },
