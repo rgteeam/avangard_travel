@@ -1,78 +1,93 @@
 {% load staticfiles %}
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>{% block title %}{% endblock %}</title>
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
-{#        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">#}
-        <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}">
-        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-        <style>
-            nav {
-                margin-bottom: 30px;
-                border-bottom: 1px solid rgba(200, 200, 200, 0.5);
-            }
-        </style>
-        {% block style %}{% endblock %}
-    </head>
-    <body>
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-          <p class="navbar-brand" style="margin: 0">Avangard Travel</p>
-          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-            &nbsp;&nbsp;&nbsp;
-          <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav mr-auto">
-              <li class="nav-item active">
+<head>
+    <title>{% block title %}{% endblock %}</title>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+            integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+            crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+          integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
+            integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+            crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}">
+    <style>
+        nav {
+            margin-bottom: 30px;
+            border-bottom: 1px solid rgba(200, 200, 200, 0.5);
+        }
+    </style>
+    {% block style %}{% endblock %}
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <p class="navbar-brand" style="margin: 0">Avangard Travel</p>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    &nbsp;&nbsp;&nbsp;
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
                 <a class="nav-link" href="/">Музеи</a>
-              </li>
-              <li class="nav-item">
+            </li>
+            <li class="nav-item">
                 <a class="nav-link" href="/orders">Заказы</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="/tourtickets">Туртикеты</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="/proxycard">Прокси-карты</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="/orders/old">Архив</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="/export">Экспорт</a>
-              </li>
-              <li class="nav-item">
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+                   aria-haspopup="true" aria-expanded="false">
+                    Порт
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="/tourtickets">Туртикеты</a>
+                    <a class="dropdown-item" href="/proxycard">Прокси-карты</a>
+                </div>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link" href="/chat">Чат</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="/settings">Настройки</a>
-              </li>
-
-            </ul>
-            {% if user.is_authenticated == True %}
-                <form class="form-inline my-2 my-lg-0" method="post" action="/orders/info/">{% csrf_token %}
-                  <input class="form-control mr-sm-2" type="search" placeholder="Номер заказа" aria-label="Search" name="order_id">
-                  <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Найти</button>
-                </form>
-                &nbsp;&nbsp;&nbsp;
-                <form class="form-inline my-2 my-lg-0" name="logout_form" id="logout_form" method="post" action="/account/logout/">{% csrf_token %}
-                    <input class="form-control mr-sm-2" style="border:none; background: none;" type="submit" value="Выйти" id="perform_logout_button">
-                    <a href="/logout" style="display:none;" id="logout_link">Выйти</a>
-                </form>
-                    <script type="text/javascript">
-                        $('#perform_logout_button').hide();
-                        $('#logout_link').click(function() {
-                             document.logout_form.submit(); return false; }).show();
-                    </script>
-            {% endif %}
-          </div>
-        </nav>
-        {% block content %}{% endblock %}
-        {% block footer %}
-            <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-            <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-        {% endblock %}
-    </body>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+                   aria-haspopup="true" aria-expanded="false">
+                    Сервис
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="/orders/old">Архив заказов</a>
+                    <a class="dropdown-item" href="/export">Экспорт</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="/settings">Настройки</a>
+                </div>
+            </li>
+        </ul>
+        {% if user.is_authenticated == True %}
+            <form class="form-inline my-2 my-lg-0" method="post" action="/orders/info/">{% csrf_token %}
+                <input class="form-control mr-sm-2" type="search" placeholder="Номер заказа" aria-label="Search"
+                       name="order_id">
+                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Найти</button>
+            </form>&nbsp;&nbsp;
+            <form class="form-inline my-2 my-lg-0" name="logout_form" id="logout_form" method="post"
+                  action="/account/logout/">{% csrf_token %}
+                <input class="form-control mr-sm-2" style="border:none; background: none;" type="submit" value="Выйти"
+                       id="perform_logout_button">
+                <a href="/logout" style="display:none;" id="logout_link">Выйти</a>
+            </form>
+            <script type="text/javascript">
+                $('#perform_logout_button').hide();
+                $('#logout_link').click(function () {
+                    document.logout_form.submit();
+                    return false;
+                }).show();
+            </script>
+        {% endif %}
+    </div>
+</nav>
+{% block content %}{% endblock %}
+{% block footer %}{% endblock %}
+</body>
 </html>

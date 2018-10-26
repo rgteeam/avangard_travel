@@ -1,7 +1,7 @@
 from django.shortcuts import render, HttpResponse, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.core import serializers
-from .models import Order
+from .models import Order, SuperOrder
 from .forms import OrderForm
 from avangard.museums.models import Schedule, Museum
 from django.http import JsonResponse
@@ -71,16 +71,28 @@ def get_new_orders(request):
 
 # @login_required
 def create_order(request):
-    museum_id = request.GET.get('museum_id', 1)
+    museum_id = request.GET.get('museum_id', 4)
     museum = Museum.objects.get(pk=museum_id)
     order_formset = OrderForm(initial={'museum': museum}, data=request.POST or None)
     if request.method == 'GET':
         return render(request, 'create_order.html', {'type': 'create', "form": order_formset, "museum": museum})
     elif request.method == 'POST':
         if order_formset.is_valid():
-            # full_price_key_name = "start_full_price"
-            # reduce_price_key_name = "start_reduce_price"
-            order_formset.save()
+            if order_formset.data.get("audioguide", "no") == "on":
+                audioguide = True
+            else:
+                audioguide = False
+            if order_formset.data.get("accompanying_guide", "no") == "on":
+                accompanying_guide = True
+            else:
+                accompanying_guide = False
+            o = order_formset.save(commit=False)
+            so = SuperOrder(audioguide=audioguide, accompanying_guide=accompanying_guide, name=order_formset.data["name"],
+                            email=order_formset.data["email"], phone=order_formset.data["phone"])
+            so.save()
+            o.superorder = so
+            o.save()
+            so.save()
             return redirect('orders_index')
         else:
             return render(request, 'create_order.html', {'type': 'create', "form": order_formset, "museum": museum,
@@ -93,6 +105,7 @@ def get_seances_for_date(request):
     date = datetime.datetime.strptime(request.GET["date"], "%d-%m-%Y").date()
     museum = Museum.objects.get(pk=request.GET["museum_id"])
     seances = Schedule.objects.filter(museum=museum, date=date)
+    print(seances)
     data = [{'value': seance.id, 'text': str(seance)} for seance in seances]
     return JsonResponse({'seances': data})
 

@@ -11,6 +11,58 @@ from os import remove as file_remove
 from mailmerge import MailMerge
 
 
+class SuperOrder(models.Model):
+    NEW_STATUS = 1
+    CONFIRMED_STATUS = 2
+    PURCHASED_STATUS = 3
+    READY_STATUS = 4
+    PASSED_STATUS = 5
+    SCANNED_STATUS = 6
+    DENY_STATUS = 7
+
+    STATUS_CHOICES = (
+        (NEW_STATUS, 'New'),
+        (CONFIRMED_STATUS, 'Confirmed'),
+        (PURCHASED_STATUS, 'Purchased'),
+        (READY_STATUS, 'Ready'),
+        (PASSED_STATUS, 'Passed'),
+        (SCANNED_STATUS, 'Scanned'),
+        (DENY_STATUS, 'Deny')
+    )
+
+    orders = ArrayField(models.IntegerField(default=0, verbose_name="Номер заказа"))
+    fullticket_count = models.IntegerField(default=0, verbose_name="Количество взрослых билетов")
+    reduceticket_count = models.IntegerField(default=0, verbose_name="Количество льготных билетов")
+    audioguide = models.BooleanField(default=False, verbose_name="Аудиогид")
+    accompanying_guide = models.BooleanField(default=False, verbose_name="Сопровождающий гид")
+    status = models.IntegerField(choices=STATUS_CHOICES, default=NEW_STATUS, verbose_name="Статус")
+    name = models.CharField(max_length=100, verbose_name="ФИО")
+    email = models.CharField(max_length=100, verbose_name="Электроная почта")
+    phone = models.CharField(max_length=12, verbose_name="Номер телефона")
+    added = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+    qr_code = models.CharField(max_length=100, verbose_name="QR code", blank=True)
+    voucher_path = models.CharField(max_length=100, verbose_name="Ваучер", blank=True)
+    voucher_id = models.IntegerField(default=0, verbose_name="Номер ваучера")
+
+    def _get_full_price(self):
+        pass
+        return 0
+
+    full_price = property(_get_full_price)
+
+    def __str__(self):
+        return "№" + str(self.pk) + " – Заказ " + str(self.orders) + " " + self.name
+
+    def save(self, **kwargs):
+        orders_list = self.order_set.all()
+        orders = list()
+        for i in orders_list:
+            orders.append(i.pk)
+        self.orders = orders
+        super(SuperOrder, self).save()
+
+
 class Order(models.Model):
     NEW_STATUS = 1
     CONFIRMED_STATUS = 2
@@ -30,6 +82,7 @@ class Order(models.Model):
         (DENY_STATUS, 'Deny')
     )
 
+    superorder = models.ForeignKey(SuperOrder, on_delete=models.CASCADE, null=True)
     museum = models.ForeignKey(Museum, on_delete=models.CASCADE, null=True)
     seance = models.ForeignKey(Schedule, on_delete=models.CASCADE, null=True)
     fullticket_count = models.IntegerField(default=0, verbose_name="Количество взрослых билетов")
