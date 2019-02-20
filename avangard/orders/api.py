@@ -4,9 +4,11 @@ from rest_framework.reverse import reverse
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from avangard.orders.serializers import OrderSerializer
+from avangard.orders.serializers import SuperOrderSerializer
 import django_filters.rest_framework
 from django.db import models as django_models
 from avangard.orders.models import Order
+from avangard.orders.models import SuperOrder
 from django.db.models import Q
 import datetime
 from django_filters import rest_framework as filters
@@ -40,7 +42,7 @@ class OrderFilter(filters.FilterSet):
 
     class Meta:
         model = Order
-        fields = {'chat_id', 'user_id', 'date_gte', 'date_lte', 'email', 'pk'}
+        fields = {'date_gte', 'date_lte', 'email', 'pk'}
 
 
 class OrderViewSet(viewsets.ModelViewSet):
@@ -48,4 +50,37 @@ class OrderViewSet(viewsets.ModelViewSet):
     serializer_class = OrderSerializer
     pagination_class = StandardResultsSetPagination
     filter_class = OrderFilter
+    ordering_fields = 'pk'
+
+
+class SuperOrderFilter(filters.FilterSet):
+
+    def filter_date_gte(self, queryset, name, value):
+        date = datetime.datetime.strptime(value, '%Y-%m-%d %H:%M:%S')
+        qs = queryset.filter(Q(date__gt=date.date()) | (Q(date=date.date()) & Q(start_time__gt=date.time())))
+        return qs
+
+    def filter_date_lte(self, queryset, name, value):
+        date = datetime.datetime.strptime(value, '%Y-%m-%d %H:%M:%S')
+        qs = queryset.filter(Q(date__lt=date.date()) | (Q(date=date.date()) & Q(start_time__lt=date.time())))
+        return qs
+
+    def filter_by_pk(self, queryset, name, value):
+        qs = queryset.filter(pk=value)
+        return qs
+
+    date_lte = django_filters.Filter(name="date_lte", method="filter_date_lte")
+    date_gte = django_filters.Filter(name="date_gte", method="filter_date_gte")
+    pk = django_filters.Filter(name="pk", method="filter_by_pk")
+
+    class Meta:
+        model = SuperOrder
+        fields = {'chat_id', 'user_id', 'date_gte', 'date_lte', 'email', 'pk'}
+
+
+class SuperOrderViewSet(viewsets.ModelViewSet):
+    queryset = SuperOrder.objects.all()
+    serializer_class = SuperOrderSerializer
+    pagination_class = StandardResultsSetPagination
+    filter_class = SuperOrderFilter
     ordering_fields = 'pk'

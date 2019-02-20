@@ -1,0 +1,609 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block title %}
+    Создать заказ
+{% endblock %}
+
+{% block style %}
+    <style>
+        .card-block {
+            padding: 10px;
+        }
+
+        #row_insert_cont .card {
+            min-width: 230px;
+            max-width: 230px;
+            padding: 2em 1em;
+            margin: 10px 10px;
+            background: #fff;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        #row_insert_cont [class*="row"] {
+            margin-bottom: 1em;
+            justify-content: center;
+        }
+
+        #row_insert_cont [class*="col-"] {
+            background: #efefef;
+            border: 1px solid #ddd;
+            padding-top: .75rem;
+            padding-bottom: .75rem;
+            width: 100%;
+        }
+
+        .loader {
+            border: 10px solid #f3f3f3; /* Light grey */
+            border-top: 10px solid #3498db; /* Blue */
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 3em 0;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+    <!--suppress ALL -->
+    <script src='{% static 'js/jquery.min.js' %}' , integrity='' , crossorigin='anonymous'></script>
+    <script type="text/javascript" src="{% static 'js/moment-with-locales.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/bootstrap-datepicker.min.js' %}"></script>
+    <script type="text/javascript">
+
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        var csrftoken = getCookie('csrftoken');
+
+        function csrfSafeMethod(method) {
+            // these HTTP methods do not require CSRF protection
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+
+    </script>
+
+    <link rel="stylesheet" href="{% static 'css/bootstrap-datepicker3.min.css' %}">
+
+{% endblock %}
+
+{% block content %}
+    <div class="container" style="width: 85%">
+
+        <div class="panel-heading">
+            <div class="panel-title text-center">
+                <h1 class="title">Бронирование билетов</h1>
+                <h3>{{ museum.name }}</h3>
+                <br>
+                <p class="badge badge-dark" style="font-size: 1.2em;">1. Бронирование</p>&nbsp;&nbsp;&nbsp;&nbsp;
+                <p class="badge badge-light" style="font-size: 1.2em;">2. Оплата</p>&nbsp;&nbsp;&nbsp;&nbsp;
+                <p class="badge badge-light" style="font-size: 1.2em;">3. Получение билетов</p>
+                <hr/>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-header">Выберите дату</div>
+                    <div class="card-block">
+                        <div class="form-group">
+                            <div id="datepicker"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br>
+        <div id="loader" class="mx-auto" style="width: 200px; display: none;">
+            <div class="loader"></div>
+        </div>
+        <div class="row" style="" id="seances">
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-header">Выберите сеанс</div>
+                    <div class="card-block">
+                        <div class="container-fluid" id="row_insert_cont">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br>
+        <div id="loader2" class="mx-auto" style="width: 200px; display: none;">
+            <div class="loader"></div>
+        </div>
+
+    </div>
+
+    <div class="container" style="width: 85%">
+        <div class="row" style="display:none;" id="orderinfo_block">
+            <div class="col-sm-12">
+                <span class="text-center" id="selected_seanсe"></span>
+            </div>
+            <div class="col-sm-8">
+                <div class="card">
+                    <div class="card-header">Данные о заказе</div>
+                    <div class="card-block">
+                        <input type="hidden" name="museum" value="4" id="id_museum">
+                        <div class="form-group ">
+                            <label id="id_fullticket_count_label" class="form-control-label" for="id_fullticket_count">Количество взрослых билетов(1 шт. - от <span id="id_fullticket_count_span"></span> р.):</label>
+                            <input type="number" name="fullticket_count" value="0" class="form-control" min="0" required="" id="id_fullticket_count">
+                        </div>
+                        <div class="form-group ">
+                            <label id="id_reduceticket_count_label" class="form-control-label" for="id_reduceticket_count">Количество льготных билетов(1 шт. - от <span id="id_reduceticket_count_span"></span> р.):</label>
+                            <input type="number" name="reduceticket_count" value="0" class="form-control" min="0" required="" id="id_reduceticket_count">
+                        </div>
+                        <div class="checkbox">
+                            <label><input type="checkbox" name="audioguide" style="margin-right: 10px" id="id_audioguide"> Аудиогид (1 шт. - <span id="id_audioguide_span"></span> р.)</label>
+                        </div>
+                        <div class="checkbox">
+                            <label><input type="checkbox" name="accompanying_guide" style="margin-right: 10px" id="id_accompanying_guide"> Сопровождающий гид (стоимость
+                                - <span id="id_accompanying_guide_span"></span> р.)</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="card">
+                    <div class="card-block">
+                        <h3 class="card-title">Стоимость</h3>
+                        <p>Взрослые билеты: <span id="fullticket_price">0</span> руб.</p>
+{#                        <p id="keytext"></p>#}
+                        <p>Льготные билеты: <span id="reduceticket_price">0</span> руб.</p>
+                        <p>Аудиогиды: <span id="audioguide_price">0</span> руб.</p>
+                        <p>Сопровождающий гид: <span id="accompanying_guide_price">0</span> руб.</p>
+                        <h4 class="card-title">Итого: <span id="total_price">0</span> руб.</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-8">
+                <br>
+                <div class="card">
+                    <div class="card-header">Контактные данные</div>
+                    <div class="card-block">
+                        <div class="form-group">
+                            <label for="id_name">ФИО:</label>
+                            <input type="text" name="name" class="form-control" maxlength="100" required="" id="id_name">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="id_email">Email:</label>
+                            <input type="email" name="email" class="form-control" maxlength="100" required="" id="id_email">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="id_phone">Телефон:</label>
+                            <input type="text" name="phone" class="form-control" maxlength="12" required="" id="id_phone">
+                        </div>
+                    </div>
+                </div>
+                <br>
+            </div>
+            <div class="form-group col-sm-12">
+                <button type="submit" class="btn btn-primary btn-lg btn-block" style="margin-top: 20px" onclick="mySubmit();">
+                    Продолжить
+                </button>
+            </div>
+            <form action="/orders/created_sorder/" method="POST" id="FormOrderCreated">{% csrf_token %}
+                <input type="hidden" id="sorderId" name="sorderId">
+            </form>
+        </div>
+        <br>
+    </div>
+
+    <script type="text/javascript">
+        var ordersData;
+        var fullticketCount = 0, reduceticketCount = 0;
+        var fullticketPrice = 0, reduceticketPrice = 0;
+        var audioguidePrice = 0, accompanyingGuidePrice = 0;
+        var totalPrice = 0;
+        var resultSet = {};
+        var postData = {};
+        var name = "";
+        var email = "";
+        var phone = "";
+
+        // getSeancesData() returns a info about all seances in one timeblock
+        function getSeancesData(seances) {
+            $.ajax
+                ({
+                    type: "Get",
+                    url: "/orders/get_timeblock_data/",
+                    data: "seances_id=" + seances,
+                    success: function (data) {
+                        document.getElementById('loader2').style.display = "none";
+                        ordersData = data['timeblock_data'];
+                        setMinPrices();
+                    }
+                });
+        }
+
+        // hideOrderinfoBlock() let hide orderInfo block when certain timeblock not choosen
+        function hideOrderinfoBlock() {
+            var orderInfo = document.getElementById('orderinfo_block');
+            orderInfo.style.display = 'none';
+        }
+
+        //getCorrectDate 16.12.2018 -> 16 января 2019 г.
+        function getCorrectDate(chdate){
+            var parts = chdate.split('-');
+            var newDate = new Date(parts[2], parts[1], parts[0]);
+            moment.locale("ru");
+            return moment(newDate).format('LL');
+        }
+
+        // showOrderinfoBlock() let show block for orderInfo
+        function showOrderinfoBlock(chdate, timestr, seances) {
+            document.getElementById('loader2').style.display = "block";
+            var orderinfo = document.getElementById('orderinfo_block');
+            orderinfo.style.display  = 'flex';
+            var selectedseance = document.getElementById('selected_seanсe');
+            chdate = getCorrectDate(chdate);
+            selectedseance.innerHTML = "<h3>" + chdate + "</h3><h5>" + timestr + "</h5><br>";
+            getSeancesData(seances);
+        }
+
+        // addTimeBlock let show orders grouped by time
+        function addTimeBlock(key, value, id) {
+            var insert_block_container = document.getElementById(id);
+
+            if (id == "row_insert_cont") {
+                var row = document.createElement("div");
+                row.setAttribute("class", "row");
+                var card_deck = document.createElement("div");
+                card_deck.setAttribute("class", "card-deck");
+                card_deck.setAttribute("id", "card_insert_cont");
+            }
+
+
+            var card = document.createElement("div");
+            card.setAttribute("class", "card");
+
+            var card_block = document.createElement("div");
+            card_block.setAttribute("class", "card-block text-center");
+
+            var title = document.createElement("h5");
+            title.setAttribute("class", "card-title");
+            title.innerHTML = value.time_str;
+            card_block.appendChild(title);
+
+            var card_text = document.createElement("p");
+            card_text.setAttribute("class", "card-text");
+            const fullpricearrMin = arr => Math.min(...arr);
+            const reducepricearrMin = arr => Math.min(...arr);
+            card_text.innerHTML = "<h6 class=\"card-subtitle mb-2 text-muted\">В наличии:</h6>" + value.full_count.reduce((a, b) => a + b, 0) + " взрослых от " + fullpricearrMin(value.full_price) + "₽<br>" +
+                value.reduce_count.reduce((a, b) => a + b, 0) + " льготных от " + reducepricearrMin(value.reduce_price) + "₽";
+            card_block.appendChild(card_text);
+
+            var button = document.createElement("button");
+            button.setAttribute("class", "btn btn-primary");
+            // button.setAttribute("href", "/orders/socreate?seances_id=" + value.seances);
+            var chdate = $('#datepicker').datepicker('getFormattedDate').toString();
+            button.setAttribute("onclick", "showOrderinfoBlock('" + chdate + "','" + value.time_str + "','" + value.seances + "');");
+            button.setAttribute("role", "button");
+            button.innerHTML = "Выбрать";
+            card_block.appendChild(button);
+
+            card.appendChild(card_block);
+
+            if (id == "row_insert_cont") {
+                card_deck.appendChild(card);
+                row.appendChild(card_deck);
+                insert_block_container.appendChild(row);
+            } else {
+                insert_block_container.appendChild(card);
+            }
+        }
+
+        // loader() let hide and show two blocks
+        function loader(hide, show) {
+          document.getElementById(hide).style.display = "none";
+          document.getElementById(show).style.display = "block";
+        }
+
+        // getDate() return current date in right format
+        function getDate() {
+            var d = new Date();
+            var currDate = d.getDate();
+            var currMonth = d.getMonth() + 1;
+            var currYear = d.getFullYear();
+            return currDate + "-" + currMonth + "-" + currYear;
+        }
+
+        // runtime function: set date in datepicker, get seancesData for choosen date
+        $(function () {
+
+            $('#datepicker').datepicker({format: 'dd-mm-yyyy'});
+            var date = getDate();
+
+            $('#datepicker').on('changeDate', function () {
+                hideOrderinfoBlock();
+                loader('seances', 'loader');
+                date = $('#datepicker').datepicker('getFormattedDate');
+                console.log("Date was set on " + date);
+                $.ajax
+                ({
+                    type: "Get",
+                    url: "/orders/get_aggregated_seances/",
+                    data: "date=" + date + "&museum_id={{ museum.pk }}",
+                    success: function (data) {
+                        loader('loader', 'seances');
+                        var data_obj = JSON.parse(data['aggregated_seances']);
+                        if (!$.isEmptyObject(data_obj)) {
+                            var card_insert_cont = document.getElementById("row_insert_cont");
+                            card_insert_cont.innerHTML = "";
+                            $.each(data_obj, function (key, value) {
+                                if (key % 4  == 0) {
+                                    addTimeBlock(key, value, "row_insert_cont");
+                                } else {
+                                    addTimeBlock(key, value, "card_insert_cont");
+                                }
+                            })
+                        } else {
+                            var card_insert_cont = document.getElementById("row_insert_cont");
+                            card_insert_cont.innerHTML = "Сеансы на выбранную дату отсутствуют.";
+                        }
+                    }
+                });
+            });
+
+            $('#datepicker').datepicker('setDate', date);
+        });
+
+        // function setMinPrices set min full and reduce tickets prices
+        function setMinPrices() {
+            $('#id_fullticket_count_span').text(ordersData['summury']['min_full_price']);
+            $('#id_reduceticket_count_span').text(ordersData['summury']['min_reduce_price']);
+            $('#id_audioguide_span').text(ordersData['summury']['audioguide_price']);
+            $('#id_accompanying_guide_span').text(ordersData['summury']['accompanying_guide_price']);
+
+        }
+
+        // calculateOrder() reservere tickets in ordersData and return dict like as {"seance_id": "ticket_count", ...}
+        function calculateOrder() {
+            resultSet = {};
+            var set1 = ordersData['seances'].sort((a,b)=>a.full_price-b.full_price);
+            var sortedSeancesFull = JSON.parse(JSON.stringify(set1));
+            var set2 = ordersData['seances'].sort((a,b)=>a.reduce_price-b.reduce_price);
+            var sortedSeancesReduce = JSON.parse(JSON.stringify(set2));
+            var reservedFull = 0;
+            var reservedReduce = 0;
+            console.log(sortedSeancesFull);
+            console.log(sortedSeancesReduce);
+            while (reservedFull !== fullticketCount) {
+               reservedFull = recurseCalc(reservedFull, sortedSeancesFull, 'full_count');
+            }
+            while (reservedReduce !== reduceticketCount) {
+               reservedReduce = recurseCalc(reservedReduce, sortedSeancesReduce, 'reduce_count');
+            }
+            console.log(resultSet);
+        }
+
+        // resurseCalc() form detailed set of data
+        function recurseCalc(reserved, sortedSeances, ticketType) {
+            switch (ticketType) {
+                case 'full_count':
+                    var need = fullticketCount;
+                    break;
+                case 'reduce_count':
+                    var need = reduceticketCount;
+                    break;
+            }
+            for (var seance in sortedSeances) {
+                if (sortedSeances[seance][ticketType] >= need) {
+                    var item = {};
+                    item[ticketType] = need;
+                    reserved = reserved + need;
+                    if (resultSet[sortedSeances[seance].pk]) {
+                        if (ticketType in resultSet[sortedSeances[seance].pk]) {
+                            resultSet[sortedSeances[seance].pk] = item;
+                        } else {
+                            resultSet[sortedSeances[seance].pk][ticketType] = need;
+                        }
+                    } else {
+                        resultSet[sortedSeances[seance].pk] = item;
+                    }
+                    return reserved;
+                }
+                if (sortedSeances[seance][ticketType] < need) {
+                    var item = {};
+                    item[ticketType] = sortedSeances[seance][ticketType];
+                    reserved = reserved + sortedSeances[seance][ticketType];
+                    if (resultSet[sortedSeances[seance].pk]) {
+                        if (ticketType in resultSet[sortedSeances[seance].pk]) {
+                            resultSet[sortedSeances[seance].pk] = item;
+                        } else {
+                            resultSet[sortedSeances[seance].pk][ticketType] = sortedSeances[seance][ticketType];
+                        }
+                    } else {
+                        resultSet[sortedSeances[seance].pk] = item;
+                    }
+                    need = need - sortedSeances[seance][ticketType];
+                }
+            }
+        }
+
+        // calculateCurrentSeance return price for one seance
+        function calculateCurrentSeance(item, type, count) {
+            var filteredData = ordersData['seances'].filter(d => d.pk == item);
+            return filteredData[0][type]*count;
+        }
+
+        // calculatePrice() calculate fullticketPrice and reduceticketPrice variables
+        function calcucatePrice() {
+            fullticketPrice = 0;
+            reduceticketPrice = 0;
+            for (var item in resultSet){
+                for (var seance in resultSet[item]) {
+                    if (seance == 'full_count') {
+                        fullticketPrice += calculateCurrentSeance(item, 'full_price', resultSet[item][seance])
+                    }
+                    if (seance == 'reduce_count') {
+                        reduceticketPrice += calculateCurrentSeance(item, 'reduce_price', resultSet[item][seance])
+                    }
+                }
+            }
+        }
+
+        // keyup function for fullticket input
+        $('#id_fullticket_count').keyup(function () {
+            fullticketCount = isNaN(parseInt($('#id_fullticket_count').val())) ? 0 : parseInt($('#id_fullticket_count').val());
+            calculateOrder();
+            calcucatePrice();
+            updateAudioguidePrice();
+            getTotalPrice();
+            updatePriceTextblock();
+            prepareOutputData();
+        });
+
+        // keyup fucntion for reduceticket input
+        $('#id_reduceticket_count').keyup(function () {
+            reduceticketCount = isNaN(parseInt($('#id_reduceticket_count').val())) ? 0 : parseInt($('#id_reduceticket_count').val());
+            calculateOrder();
+            calcucatePrice();
+            updateAudioguidePrice();
+            getTotalPrice();
+            updatePriceTextblock();
+            prepareOutputData();
+        });
+
+        // change function for accompanying_guide
+        $(document).on('change', '#id_accompanying_guide', function () {
+            updateAccompanyingGuidePrice();
+            getTotalPrice();
+            updatePriceTextblock();
+            prepareOutputData()
+        });
+
+        // change function for audioguide
+        $(document).on('change', '#id_audioguide', function () {
+            updateAudioguidePrice();
+            getTotalPrice();
+            updatePriceTextblock();
+            prepareOutputData()
+        });
+
+        function updateAccompanyingGuidePrice() {
+            if (document.getElementById('id_accompanying_guide').checked) {
+                accompanyingGuidePrice = ordersData['summury']['accompanying_guide_price'];
+            } else {
+                accompanyingGuidePrice = 0;
+            }
+        }
+
+        // updateAudioguidePrice() update audioguidePrice variable
+        function updateAudioguidePrice() {
+            if (document.getElementById('id_audioguide').checked) {
+                var totalCount = fullticketCount + reduceticketCount;
+                audioguidePrice = totalCount * ordersData['summury']['audioguide_price'];
+            } else {
+                audioguidePrice = 0;
+            }
+        }
+
+        // getTotalPrice() update totalPrice variable
+        function getTotalPrice() {
+            totalPrice = fullticketPrice + reduceticketPrice + audioguidePrice + accompanyingGuidePrice;
+        }
+
+        // updatePriceTextblock() update textinfo about totalPrice
+        function updatePriceTextblock() {
+            $("#total_price").text(totalPrice);
+            $('#fullticket_price').text(fullticketPrice);
+            $('#reduceticket_price').text(reduceticketPrice);
+            $('#audioguide_price').text(audioguidePrice);
+            $('#accompanying_guide_price').text(accompanyingGuidePrice);
+        }
+
+        // keyup function for name input
+        $('#id_name').keyup(function () {
+            name = $('#id_name').val();
+            prepareOutputData();
+        });
+
+        // keyup function for name input
+        $('#id_email').keyup(function () {
+            email = $('#id_email').val();
+            prepareOutputData();
+        });
+
+        // keyup function for name input
+        $('#id_phone').keyup(function () {
+            phone = $('#id_phone').val();
+            prepareOutputData();
+        });
+
+        // prepareOutputData() return info for SuperOrder
+        function prepareOutputData() {
+            postData['ticketsData'] = resultSet;
+            postData['fullticketCount'] = fullticketCount;
+            postData['reduceticketCount'] = reduceticketCount;
+            postData['audioguide'] = audioguidePrice;
+            postData['accompanying_guide'] = accompanyingGuidePrice;
+            postData['name'] = name;
+            postData['email'] = email;
+            postData['phone'] = phone;
+            postData['museum'] = {{ museum.id }};
+            postData['totalPrice'] = totalPrice;
+        }
+
+
+        function toPayment(id) {
+            var form = document.getElementById("FormOrderCreated");
+            var hiddenInput = document.getElementById("sorderId");
+            hiddenInput.value = id;
+            form.submit();
+        }
+
+
+        // mySubmit send post query
+        function mySubmit(){
+            console.log("POST");
+            if (!((fullticketCount + reduceticketCount) <= ordersData['summury']['max_tickets_count'])) {
+                console.log("TOO MUCH");
+                // TODO: notification
+            } else {
+
+                $.ajax
+                ({
+                    type: "POST",
+                    url: "/orders/create_sorder/",
+                    data: "data=" + JSON.stringify(postData),
+                    success: function (data) {
+                        console.log("Успех. POST запрос отправлен.")
+                        console.log(data['SuperOrderId']);
+                        toPayment(data['SuperOrderId']);
+                    },
+                    error: function (data) {
+                        console.log("Ошибка. Что-то пошло не так.");
+                    }
+                });
+            }
+        }
+
+    </script>
+
+{% endblock %}
+{% block footer %}
+{% endblock %}

@@ -49,6 +49,14 @@ def schedule_create(request):
         return JsonResponse(response_data)
 
 
+# Форма создания музея
+@login_required
+def schedule_aggregator(request):
+    museum_id = request.GET.get('museum_id', 4)
+    museum = Museum.objects.get(pk=museum_id)
+    return render(request, 'aggregator.html', {"museum": museum})
+
+
 # Получение расписания
 @csrf_exempt
 @login_required

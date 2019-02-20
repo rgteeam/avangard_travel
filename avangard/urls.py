@@ -19,6 +19,7 @@ from rest_framework import routers
 from avangard.account.views import check_email
 from avangard.museums.api import MuseumViewSet, ScheduleViewSet, CompanyViewSet
 from avangard.orders.api import OrderViewSet
+from avangard.orders.api import SuperOrderViewSet
 from avangard.tourtickets.api import TourticketViewSet
 from avangard.proxycard.api import ProxycardViewSet
 from avangard.chat.api import GetDialogsViewSet, MessageHistoryViewSet, MarkAsRead
@@ -30,6 +31,7 @@ router.register(r'museums', MuseumViewSet, 'museum')
 router.register(r'companys', CompanyViewSet, 'company')
 router.register(r'schedule', ScheduleViewSet, 'schedule')
 router.register(r'orders', OrderViewSet, 'order')
+router.register(r'sorders', SuperOrderViewSet, 'sorder')
 router.register(r'tourtickets', TourticketViewSet, 'tourticket')
 router.register(r'proxycard', ProxycardViewSet, 'proxycard')
 router.register(r'chat_rooms', GetDialogsViewSet, 'chat_room')

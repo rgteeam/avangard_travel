@@ -85,9 +85,9 @@
                     var dateStr = moment(date).format('YYYY-MM-DD HH:mm:ss');
 
                     {% if type == "current" %}
-                        var url = "/api/orders/?format=json&date_gte=" + dateStr;
+                        var url = "/api/sorders/?format=json&date_gte=" + dateStr;
                     {% else %}
-                        var url = "/api/orders/?format=json&date_lte=" + dateStr;
+                        var url = "/api/sorders/?format=json&date_lte=" + dateStr;
                     {% endif %}
 
                     var d = $.Deferred();
@@ -101,16 +101,17 @@
                             url: url
                         }).done(function (result) {
                             var data = $.map(result.results, function (item) {
-                                var seance = item.seance.start_time;
-                                if (item.seance.end_time !== null) {
+                                console.log(item);
+                                var seance = item.start_time;
+                                if (item.end_time !== null) {
                                     seance += " - ";
-                                    seance += item.seance.end_time
+                                    seance += item.end_time;
                                 }
                                 return $.extend(item, {
                                     museum: item.museum.name,
-                                    date: item.seance.date,
+                                    date: item.date,
                                     seance: seance,
-                                    company: item.seance.company_id
+                                    {#company: item.seance.company_id#}
                                 });
                             });
                             orders = data;
@@ -127,7 +128,7 @@
                 deleteItem: function (item) {
                     return $.ajax({
                         type: "DELETE",
-                        url: "/orders/delete/" + item.pk
+                        url: "/orders/sodelete/" + item.pk
                     });
                 }
             },
@@ -138,12 +139,12 @@
                 {name: "phone", title: "Телефон", type: "text", align: "center", width: 80, editing: false},
                 {name: "email", title: "Email", type: "text", align: "center", width: 80, editing: false},
                 {name: "date", title: "Дата", type: "text", align: "center", width: 80, editing: false},
-                {
+                /**{
                     name: "company", title: "Компания", type: "text", align: "center", width: 75, editing: false,
                     itemTemplate: function (value, item) {
                         return value;
                     }
-                },
+                },**/
                 {name: "museum", title: "Музей", type: "text", align: "center", width: 100, editing: false},
                 {name: "seance", title: "Время", type: "text", align: "center", width: 75, editing: false},
                 {
@@ -243,7 +244,7 @@
                         }
                     }
                 },
-                {name: "full_price", title: "Цена", type: "number", align: "center", width: 50, editing: false},
+                {name: "totalPrice", title: "Цена", type: "number", align: "center", width: 50, editing: false},
                 {
                     type: "control", modeSwitchButton: false, editButton: false, editing: false, width: 75,
                     itemTemplate: function (value, item) {

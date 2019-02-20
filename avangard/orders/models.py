@@ -30,6 +30,7 @@ class SuperOrder(models.Model):
         (DENY_STATUS, 'Deny')
     )
 
+    museum = models.ForeignKey(Museum, on_delete=models.CASCADE, null=True)
     orders = ArrayField(models.IntegerField(default=0, verbose_name="Номер заказа"))
     fullticket_count = models.IntegerField(default=0, verbose_name="Количество взрослых билетов")
     reduceticket_count = models.IntegerField(default=0, verbose_name="Количество льготных билетов")
@@ -44,12 +45,12 @@ class SuperOrder(models.Model):
     qr_code = models.CharField(max_length=100, verbose_name="QR code", blank=True)
     voucher_path = models.CharField(max_length=100, verbose_name="Ваучер", blank=True)
     voucher_id = models.IntegerField(default=0, verbose_name="Номер ваучера")
-
-    def _get_full_price(self):
-        pass
-        return 0
-
-    full_price = property(_get_full_price)
+    user_id = models.IntegerField(null=True, blank=True)
+    chat_id = models.IntegerField(null=True, blank=True)
+    date = models.DateField(null=True, verbose_name="Дата")
+    start_time = models.TimeField(null=True, verbose_name="Начало")
+    end_time = models.TimeField(null=True, verbose_name="Конец")
+    totalPrice = models.IntegerField(null=False, blank=True)
 
     def __str__(self):
         return "№" + str(self.pk) + " – Заказ " + str(self.orders) + " " + self.name
@@ -60,7 +61,64 @@ class SuperOrder(models.Model):
         for i in orders_list:
             orders.append(i.pk)
         self.orders = orders
+        if int(self.status) == 3:
+            self.qr_code = self.generate_qrcode()
+            self.voucher_path = self.generate_voucher()
         super(SuperOrder, self).save()
+
+    def generate_qrcode(self):
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=10,
+            border=4,
+        )
+        data = self.name + " " + self.phone + " " + str(self.updated)
+        qr.add_data(data)
+        qr.make(fit=True)
+        filename = '%s.png' % self.pk
+        img = qr.make_image()
+        img.save(settings.MEDIA_ROOT + "/qr_code/" + filename)
+        print('qrcode was generated')
+        return "/qr_code/" + filename
+
+    def generate_voucher(self):
+        instance = Order.objects.get(pk=self.orders[0])
+        template_filename = "Voucher_template.docx"
+        template = settings.MEDIA_ROOT + "/voucher_template/" + template_filename
+        document = MailMerge(template)
+        document.merge(
+            voucher_id='100001',
+            voucher_contract=str(instance.seance.company.contract_number),
+            voucher_company_name=str(instance.seance.company.name),
+            voucher_company_phone=str(instance.seance.company.phone),
+            voucher_company_email=str(instance.seance.company.email),
+            voucher_order_date=str(instance.seance.date),
+            voucher_order_time=str(instance.seance.time_str),
+            voucher_order_museum=str(self.museum),
+            voucher_order_country="Россия",
+            voucher_fullticket_count=str(self.fullticket_count),
+            voucher_reduceticket_count=str(self.reduceticket_count),
+            voucher_reduceticket_count2=str(self.reduceticket_count),
+            voucher_tourlider_count='1',
+            voucher_specialmark='нет',
+            voucher_guide_name=str(self.name),
+            voucher_tourlider_name=str(self.name)
+        )
+        output_filename = str(self.pk) + ".docx"
+        output_path = settings.MEDIA_ROOT + "voucher_exported/" + output_filename
+        document.write(output_path)
+        print('voucher was generated')
+        return "/voucher_exported/" + output_filename
+
+    def check_orders_status(self):
+        statuses = []
+        for i in self.orders:
+            instance = Order.objects.get(pk=i)
+            statuses.append(int(instance.status))
+        if statuses[1:] == statuses[:-1]:
+            self.status = 3
+            self.save()
 
 
 class Order(models.Model):
@@ -91,66 +149,17 @@ class Order(models.Model):
     reduceticket_store = JSONField(default=list([]))
     audioguide = models.BooleanField(default=False, verbose_name="Аудиогид")
     accompanying_guide = models.BooleanField(default=False, verbose_name="Сопровождающий гид")
-    chat_id = models.IntegerField(null=True, blank=True)
-    user_id = models.IntegerField(null=True, blank=True)
     status = models.IntegerField(choices=STATUS_CHOICES, default=NEW_STATUS, verbose_name="Статус")
     name = models.CharField(max_length=100, verbose_name="ФИО")
     email = models.CharField(max_length=100, verbose_name="Электроная почта")
     phone = models.CharField(max_length=12, verbose_name="Номер телефона")
     added = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
-    qr_code = models.CharField(max_length=100, verbose_name="QR code", blank=True)
-    voucher = models.CharField(max_length=100, verbose_name="Ваучер", blank=True)
 
     def save(self, **kwargs):
-        if self.status == "3":
-            self.qr_code = self.generate_qrcode()
-            self.voucher = self.generate_voucher()
+        if int(self.status) == 3:
+            self.superorder.check_orders_status()
         super(Order, self).save()
-
-    def generate_qrcode(self):
-        qr = qrcode.QRCode(
-            version=1,
-            error_correction=qrcode.constants.ERROR_CORRECT_L,
-            box_size=10,
-            border=4,
-        )
-        data = self.name + " " + self.phone + " " + str(self.seance.date)
-        qr.add_data(data)
-        qr.make(fit=True)
-        filename = '%s.png' % self.pk
-        img = qr.make_image()
-        img.save(settings.MEDIA_ROOT + "/qr_code/" + filename)
-        print('qrcode was generated')
-        return "/qr_code/" + filename
-
-    def generate_voucher(self):
-        template_filename = "Voucher_template.docx"
-        template = settings.MEDIA_ROOT + "/voucher_template/" + template_filename
-        document = MailMerge(template)
-        document.merge(
-            voucher_id='100001',
-            voucher_contract=str(self.seance.company.contract_number),
-            voucher_company_name=str(self.seance.company.name),
-            voucher_company_phone=str(self.seance.company.phone),
-            voucher_company_email=str(self.seance.company.email),
-            voucher_order_date=str(self.seance.date),
-            voucher_order_time=str(self.seance.time_str),
-            voucher_order_museum=str(self.museum),
-            voucher_order_country="Россия",
-            voucher_fullticket_count=str(self.fullticket_count),
-            voucher_reduceticket_count=str(self.reduceticket_count),
-            voucher_reduceticket_count2=str(self.reduceticket_count),
-            voucher_tourlider_count='1',
-            voucher_specialmark='нет',
-            voucher_guide_name=str(self.name),
-            voucher_tourlider_name=str(self.name)
-        )
-        output_filename = str(self.pk) + ".docx"
-        output_path = settings.MEDIA_ROOT + "voucher_exported/" + output_filename
-        document.write(output_path)
-        print('voucher was generated')
-        return "/voucher_exported/" + output_filename
 
     def _get_full_price(self):
 
@@ -300,7 +309,8 @@ def order_created(sender, instance, created, **kwargs):
                                      "email": instance.email,
                                      "phone": instance.phone,
                                      "company": instance.seance.company.pk,
-                                     "qr_code": instance.qr_code}})
+                                     # "qr_code": instance.qr_code
+                                     }})
     })
 
 
@@ -339,7 +349,7 @@ def order_deleted(sender, instance, **kwargs):
         instance.seance.save()
     if int(instance.status) == 3 or int(instance.status) == 6:
         filename = '%s.png' % instance.pk
-        file_remove(settings.MEDIA_ROOT + "/qr_code/" + filename)
+        # file_remove(settings.MEDIA_ROOT + "/qr_code/" + filename)
     Group('orders_table').send({
         "text": json.dumps({"event": "order_deleted", "item": {"pk": instance.pk}})
     })

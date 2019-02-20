@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block title %}
+    Создать заказ
+{% endblock %}
+
+{% block style %}
+    <style>
+        .card-block {
+            padding: 15px;
+        }
+        .card {
+            margin: 10px 0px;
+        }
+    </style>
+    <!--suppress ALL -->
+    <script src='{% static 'js/jquery.min.js' %}' , integrity='' , crossorigin='anonymous'></script>
+    <script type="text/javascript" src="{% static 'js/moment-with-locales.min.js' %}"></script>
+    <script type="text/javascript">
+
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        var csrftoken = getCookie('csrftoken');
+
+        function csrfSafeMethod(method) {
+            // these HTTP methods do not require CSRF protection
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+
+    </script>
+
+{% endblock %}
+
+{% block content %}
+    <div class="container" style="width: 85%">
+        <div class="panel-heading">
+            <div class="panel-title text-center">
+                <h1 class="title">Бронирование билетов</h1>
+                <h3>{{ museum.name }}</h3>
+                <br>
+                <p class="badge badge-light" style="font-size: 1.2em;">1. Бронирование</p>&nbsp;&nbsp;&nbsp;&nbsp;
+                <p class="badge badge-dark" style="font-size: 1.2em;">2. Оплата</p>&nbsp;&nbsp;&nbsp;&nbsp;
+                <p class="badge badge-light" style="    font-size: 1.2em;">3. Получение билетов</p>
+                <hr/>
+            </div>
+        </div>
+        <div class="row">
+            <h3 style="padding-top: 2em;">Оплатите забронированные билеты</h3>
+            {% for order in data %}
+                <div class="card text-center" style="width:100%">
+                  <div class="card-body">
+                      <div class="row">
+                          <div class="col-sm-4"><span style="font-size:1.5em;">К оплате {{ order.full_price }} руб.</span></div>
+                          <div class="col-sm-4"><a class="btn btn-primary" target="_blank" href="/payment/new_window" role="button" onclick="change_status({{ order.id }});">Оплатить</a></div>
+                          <div class="col-sm-4"><b><span id="{{ order.id }}" style="color:darkgrey; font-size: 1.5em;">Не оплачено</span></b></div>
+                      </div>
+                  </div>
+                </div>
+            {% endfor %}
+            <a style="margin-top: 2em;" class="btn btn-secondary disabled" id="transission" href="/orders/ticket_receipt" role="button">Перейти к получению билетов&nbsp;&nbsp;<i class="fa fa-chevron-right" aria-hidden="true"></i></a>
+        </div>
+    </div>
+    <script>
+
+    function change_status(id) {
+        var textSpan = document.getElementById(id);
+        textSpan.innerHTML = 'Оплачено';
+        textSpan.style.color = "green";
+        $.ajax({
+            type: "POST",
+            data: {"new_status": 3},
+            url: "/orders/update_status/" + id
+        });
+        activating_link();
+    }
+
+    function activating_link() {
+        var link = document.getElementById("transission");
+        link.className = 'btn btn-primary';
+    }
+
+    </script>
+{% endblock %}
+{% block footer %}
+{% endblock %}

@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block title %}
+        Информация о заказе
+{% endblock %}
+{% block style %}
+    <script src='{% static 'js/jquery.min.js' %}' , integrity='' , crossorigin='anonymous'></script>
+    <script src="https://npmcdn.com/tether@1.2.4/dist/js/tether.min.js"></script>
+    <script src="https://npmcdn.com/bootstrap@4.0.0-alpha.5/dist/js/bootstrap.min.js"></script>
+    <script src='{% static 'js/../../static/css/../../static/js/bootstrap.min.js.css' %}' , integrity='' ,
+            crossorigin='anonymous'></script>
+    <script type="text/javascript" src="{% static 'js/moment-with-locales.min.js' %}"></script>
+
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        {% if sorder == 'NaN' %}
+            <div class="alert alert-danger" role="alert">
+              Неверный номер заказа!
+            </div>
+        {% elif sorder == "None" %}
+            <div class="alert alert-danger" role="alert">
+              Заказ с таким номером не найден!
+            </div>
+        {% else %}
+            <div class="card">
+                <div class="card-body">
+                    <h2>Информация о заказе № {{ sorder.pk }}</h2><br>
+                    <p class=""><b>Статус</b>: {{ sorder.status }}</p>
+                    <p class=""><b>Название музея</b>: {{ sorder.museum }}</p>
+                    <p class=""><b>Дата</b>: {{ sorder.date }}</p>
+                    <p class=""><b>Время</b>: {{ sorder.time }}</p>
+                    <p class=""><b>ФИО</b>: {{ sorder.name }}</p>
+                    <p class=""><b>Телефон</b>: {{ sorder.phone }}</p>
+                    <p class=""><b>Email</b>: {{ sorder.email }}</p>
+                    <p class=""><b>Количество взрослых билетов</b>: {{ sorder.fullticket_count }}</p>
+                    <p class=""><b>Количество льготных билетов</b>: {{ sorder.reduceticket_count }}</p>
+                    <p class=""><b>Аудиогид</b>: {{ sorder.audioguide }}</p>
+                    <p class=""><b>Сопровождающий гид</b>: {{ sorder.accompanying_guide }}</p>
+                    <p class=""><b>Цена</b>: {{ sorder.full_price }}</p><br>
+                    <h5>Информация о подзаказах</h5>
+                    <hr>
+                    {% for i in sorder.seances %}
+                        <p><b>Компания:</b> {{ i.company }}</p>
+                        <p><b>Номер заказа:</b> {{ i.id }}</p>
+                        <p><b>Количество взрослых билетов : цена за 1шт. – </b>
+                            {% for key, val in i.items %}
+                                {% if key == "fullticket_store" %}
+                                    {{ val|cut:"[{"|cut:"}]"|cut:'"' }}
+                                {% endif %}
+                            {% endfor %}</p>
+                        <p><b>Количество льготных билетов : цена за 1шт. – </b>
+                        {% for key, val in i.items %}
+                                {% if key == "reduceticket_store" %}
+                                    {{ val|cut:"[{"|cut:"}]"|cut:'"' }}
+                                {% endif %}
+                            {% endfor %}</p></p>
+                        <p><b>Cтатус:</b> {% if i.status == 3 %} Оплачено {% endif %}{% if i.status == 1 %} Новый {% endif %}</p><hr>
+                    {% endfor %}
+                    <br>
+                    {% if sorder.qr_code != "" %}
+                        <p class=""><b>QR код</b>:<br>
+                        <img src="/media/{{ sorder.qr_code }}" alt="" width="150px"></p>
+                    {% endif %}
+                    {% if sorder.voucher_path != "" %}
+                        <a class="btn btn-success" href="/media/{{ sorder.voucher_path }}" role="button">Скачать ваучер</a>
+                    {% endif %}
+                    <a class="btn btn-secondary" href="#" role="button">Отправить заказ на e-mail</a>
+                    <button type="button" class="btn btn-dark" onclick="print_doc()"><i class="fa fa-print" aria-hidden="true"></i>&nbsp;Печать заказа</button>
+                    <br><br>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    <script>
+        function print_doc(){
+            window.print() ;
+        }
+    </script>
+{% endblock %}
+{% block footer %}
+{% endblock %}
