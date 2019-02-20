@@ -38,7 +38,6 @@ redis==2.10.5
 requests==2.7.0
 requests-oauthlib==0.8.0
 six==1.10.0
-telebot==0.0.3
 Twisted==17.9.0
 txaio==2.8.0
 zope.interface==4.4.2
